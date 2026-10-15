@@ -4,7 +4,10 @@ A mosaic of the digits of π (and five other numbers): one square per digit, dar
 It started as a Pi Day CodePen in 2024 and grew into a check of whether the digits contain repeating
 patterns.
 
-**To see it:** open `index.html` in a browser. Use the menu in the top-right corner to switch between
+**See it online:** [the mosaic](https://agcolom.github.io/PiDay/) and
+[the 3D cube](https://agcolom.github.io/PiDay/cube.html).
+
+**Or locally:** open `index.html` in a browser. Use the menu in the top-right corner to switch between
 π, √2, e, the golden ratio, 1/9801 and Champernowne's constant. Cyan frames mark repeated blocks;
 gold frames mark runs of six or more of the same digit. The second menu folds the mosaic onto itself
 and shows where the two halves have the same digit. The "3D cube" link opens `cube.html`, a cube of
