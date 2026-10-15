@@ -217,7 +217,7 @@ far more repeats than chance.
 
 ---
 
-## 7. Beyond the flat mosaic: lines, 3D blocks, folding, counting runs and every distance
+## 7. Beyond the flat mosaic: lines, 3D blocks, folding, counting runs, every distance, and the Leibniz series
 
 All choices below (layouts, directions, lengths, shapes, folds) were fixed before any results were
 seen. Two strings of random digits were run alongside as controls. Methods: REPORT.md, section 9.
@@ -516,7 +516,52 @@ Hovering over a dot shows its digit and these distances. Section 7.7 tests every
 sphere is a way of looking rather than a new test. Its visible spiral arms come from the layout and appear
 for any digits.
 
-### 7.10 Summary
+### 7.10 The Leibniz series stopped early
+
+The Leibniz series 1 − 1/3 + 1/5 − 1/7 + … adds up to exactly π/4, so on its own it gives nothing new: four
+times it is π. The interesting numbers are the **partial sums**, stopped after a fixed number of terms T.
+Borwein, Borwein and Dilcher (1989) showed that, with N = 2T,
+
+  π − 4 × (first T terms) = 2/N − 2/N³ + 10/N⁵ − 122/N⁷ + 2770/N⁹ − … = Σ 2 E₂ₘ / N^(2m+1),
+
+where 1, −1, 5, −61, 1385, … are the **Euler numbers**. When N is a power of 10, each term of this
+shortfall is a whole number shifted a fixed distance further along, so the partial sum matches π
+except in small clusters of digits spaced 2 × log₁₀ N apart:
+
+```
+4 × (first 500,000 terms) = 3.14159 0 65358979324 04 626433832 6 9502884197 291 …
+π                         = 3.14159 2 65358979323 84 626433832 7 9502884197 169 …
+```
+
+| Terms | Spacing of the clusters | First decimal that differs | Last 5 decimals in a row matching π end at | Decimals 200–1,000 that differ |
+|---|---|---|---|---|
+| 50,000 | 10 | 5 | 49 | 91.5% |
+| 500,000 | 12 | 6 | 71 | 90.4% |
+| 5,000,000 | 14 | 7 | 96 | 88.9% |
+
+- **The pattern dissolves.** The Euler numbers grow quickly (50521, 2702765, 199360981, …). Once one is
+  longer than the spacing, neighbouring clusters merge, and after that the sum no longer tracks π: about
+  9 decimals in 10 differ, as for any two unrelated strings of digits. Ten times as many terms buys one more
+  correct digit and only 20 to 25 more decimals of pattern.
+- **The pattern needs a "round" number of terms, not just a fraction.** Every partial sum is a fraction,
+  but the clean clusters appear only when N is a power of 10. Decimals 1 to 60 that differ from π:
+  500,000 terms 10, 499,999 terms 17, 250,000 terms 23, 400,000 terms 40, 600,000 terms 51.
+- **The digits of a partial sum do repeat, but never visibly.** As a fraction, 4 × (first 500,000 terms)
+  must eventually repeat. But each of the 49,833 primes between 333,333 and 1,000,000 appears in exactly one
+  term's denominator, so the length of the repeating cycle is a multiple of a number with 57,332 digits.
+- **The way the pattern dissolves holds the limit.** The Euler numbers grow at a rate set by π:
+  √(4 (2m+1)(2m+2) |E₂ₘ / E₂ₘ₊₂|) gives π to 4 decimals for m = 4, 8 for m = 9, 47 for m = 50 and 763
+  for m = 800. And the shortfall can be added back: 4 × (first 50 terms) has 1 correct decimal, but adding
+  79 terms of the formula gives 68; for 500 terms, 1 becomes 682. Both match the theoretical limit of about
+  π N / 2 × log₁₀ e correct decimals, where the formula's terms stop shrinking. So the "wrong" digits carry
+  almost all the information needed to recover π.
+
+Each partial sum was computed two ways that agree on all 1,000 decimals: adding the terms directly, and
+π minus the Euler-number formula. The mosaic has three views, 10, 12 and 14 squares wide, with **red
+frames** on every digit that differs from π, so the clusters stack into a column and then break up. Script:
+`analysis/scripts/leibniz/leibniz.py`; results: `analysis/results/leibniz/leibniz.json`.
+
+### 7.11 Summary
 
 Digit frequencies, lines in 2D, 3D and 4D, counting runs with and without rollover, digits at every
 distance up to 100,000 places, repeated 3D blocks and folding all give the same answer as the flat mosaic:
@@ -567,6 +612,12 @@ on our tests they did. What surprised us was in the details.
    confidence than it deserved (see the revision notes). It is a strong argument for independent
    checking.
 
+7. **The Leibniz series' mistakes are where π hides.** Stopped after 500,000 terms, the series gets π
+   wrong at the 6th decimal, but the wrong digits are the Euler numbers in neat columns, and they hold
+   enough information to rebuild π far beyond the sum's own accuracy (section 7.10). It is the one
+   place in this project where a mosaic of a π-like number shows a genuine pattern, and it fades within
+   about 70 digits.
+
 **The lesson:** the patterns people see in π are real visual effects, but not real structure. To tell the
 difference, ask how often random digits would produce the same thing, and then check again with fresh
 digits.
@@ -601,6 +652,7 @@ digits.
   rollover (section 7.5) and with it (section 7.8).
 - `analysis/scripts/distances/`, `analysis/results/distances/`: digits at every distance from 1 to
   100,000 places (section 7.7).
+- `analysis/scripts/leibniz/`, `analysis/results/leibniz/`: the Leibniz series stopped early (section 7.10).
 - `analysis/scripts/frequencies/`, `analysis/results/frequencies/`: how often each digit appears (section 7.6).
 
 ---

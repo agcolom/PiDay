@@ -1,4 +1,4 @@
-// Digit formulas shared by the mosaic (pi.js) and the 3D cube (cube.js).
+// Digit formulas shared by the mosaic (pi.js), the 3D cube (cube.js) and the sphere (sphere.js).
 // Each function returns the first `count` digits as a string, starting with the whole-number part,
 // so position k in the string is decimal place k.
 
@@ -95,6 +95,18 @@ const computeChampernowneDigits = (count) => {
   return parts.join("").slice(0, count);
 };
 
+// The Leibniz series stopped early: 4 x (1 - 1/3 + 1/5 - 1/7 + ...) with only `terms` terms.
+// Each term is rounded down, so up to `terms` units of the last digit are lost: 10 more guard digits cover that.
+const computeLeibnizDigits = (count, terms) => {
+  const one = 10n ** (BigInt(count) + guardDigits + 10n);
+  let sum = 0n;
+  for (let k = 0; k < terms; k++) {
+    const term = one / BigInt(2 * k + 1);
+    sum += k % 2 === 0 ? term : -term;
+  }
+  return (4n * sum).toString().slice(0, count);
+};
+
 const computeDigits = {
   pi: computePiDigits,
   sqrt2: computeSqrt2Digits,
@@ -102,4 +114,7 @@ const computeDigits = {
   phi: computePhiDigits,
   oneOver9801: computeOneOver9801Digits,
   champernowne: computeChampernowneDigits,
+  leibniz50k: (count) => computeLeibnizDigits(count, 50_000),
+  leibniz500k: (count) => computeLeibnizDigits(count, 500_000),
+  leibniz5m: (count) => computeLeibnizDigits(count, 5_000_000),
 };

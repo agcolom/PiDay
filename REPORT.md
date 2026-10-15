@@ -67,6 +67,8 @@ Change the width and different digits line up, so different shapes appear.
   (section 9.7); the 3D cube can show them as green lines. On both pages a **Counting** menu chooses
   whether counting stops at 9 and 0 or rolls over (89012), as in section 9.10.
 - A **sphere** page shows the digits on a rotatable ball (section 9.11).
+- Three **Leibniz series** views show the series stopped after 50,000, 500,000 and 5,000,000 terms, with
+  **red frames** on every digit that differs from π (section 9.12).
 - When folded, a **Pairs** menu chooses whether to highlight same-digit pairs (purple), complementary
   pairs that add up to 9 (teal), or both.
 - An **About** button opens a plain-English explanation of the current view, written for readers
@@ -421,7 +423,7 @@ tell the difference.
 
 ---
 
-## 9. Beyond the flat mosaic: lines, 3D blocks, folding, counting runs and every distance
+## 9. Beyond the flat mosaic: lines, 3D blocks, folding, counting runs, every distance and the Leibniz series
 
 ### 9.1 One idea behind all three
 
@@ -607,7 +609,35 @@ these spirals, which we confirmed numerically): with 2,000 dots, the four neares
 9.9 tests. The page is a way of looking at the digits, not a separate test. The spiral arms that the eye
 picks out are a property of the layout and appear for any digits.
 
-### 9.12 Reading the results
+### 9.12 The Leibniz series stopped early
+
+For T terms, the partial sum 4 × Σ_{k<T} (−1)^k / (2k+1) was computed in two independent ways:
+
+- **Adding the terms**, each as ⌊10^(D+g) / (2k+1)⌋ with g = 20 guard digits (each floor loses less than
+  one unit, so at most T units in all, far below the guard digits).
+- **π minus the Euler-number formula** of Borwein, Borwein and Dilcher, π − 4S = Σ 2 E₂ₘ / N^(2m+1) with
+  N = 2T, using the verified digits of π and exact fractions. The Euler numbers come from the recurrence
+  Σₖ C(2n, 2k) E₂ₖ = 0. The formula is asymptotic: its terms shrink until m ≈ πN/4 and then grow, so the
+  code checks that every term it uses is smaller than the one before. For the N used here it is exact to
+  far more than the D = 1,000 decimals compared.
+
+Both agree on all 1,000 decimals for 50,000, 500,000 and 5,000,000 terms. The browser computes the same
+sums by the first method (about 1 second for 5,000,000 terms), and its digits matched the Python digits.
+
+Where the pattern dissolves is measured as the last stretch of five decimals in a row that all match π.
+For unrelated digits such a stretch occurs about once in 100,000 places, so after the sum stops tracking π
+it is unlikely to appear again in the 1,000 decimals examined. The estimate of π from the Euler numbers
+uses |E₂ₘ| ≈ 2 (2m)! (2/π)^(2m+1), whose relative error is about 3^−(2m), so the ratio of neighbours gives
+π² ≈ 4 (2m+1)(2m+2) |E₂ₘ / E₂ₘ₊₂|. The corrected sums add the formula's terms while they keep shrinking.
+The best accuracy is then about (π N / 2) log₁₀ e decimals, since the smallest term is about e^(−πN/2).
+
+The lower bound on the repeating cycle uses the fact that a fraction a/b in lowest terms, with b = 2^i 5^j c
+and c coprime to 10, repeats with a cycle equal to the order of 10 modulo c. That is a multiple of the order
+of 10 modulo each prime p dividing c. Every prime p with 333,333 < p < 1,000,000 is the denominator of
+exactly one term (3p is too big to be another), so p divides b. The orders were found by factoring p − 1
+with a sieve. Results: FINDINGS.md, section 7.10.
+
+### 9.13 Reading the results
 
 The approach to unusual results is the one in section 7: Poisson probabilities as approximations,
 allowance for the number of counts examined, and recounting in fresh digits when something stands out.
@@ -698,7 +728,7 @@ digits.
 - The saved scan scripts include the narrow-width fix described in the revision notes below.
 - Every repeat of 14 or more squares is listed in `analysis/results/*.json` and in the FINDINGS.md
   appendix.
-- The every-distance test (`analysis/scripts/distances/`), the counting-run scripts
+- The every-distance test (`analysis/scripts/distances/`), the Leibniz script (`analysis/scripts/leibniz/`), the counting-run scripts
   (`analysis/scripts/counting/`) and the digit-frequency script also run from the project folder as they
   are.
 - The mosaic needs no installation: open `index.html` in a browser (or `cube.html` for the 3D cube, or

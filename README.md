@@ -1,6 +1,7 @@
 # Pi Mosaic
 
-A mosaic of the digits of π (and five other numbers): one square per digit, darker for higher digits.
+A mosaic of the digits of π (and five other numbers, plus the Leibniz series for π stopped early): one
+square per digit, darker for higher digits.
 It started as a Pi Day CodePen in 2024 and grew into a check of whether the digits contain repeating
 patterns.
 
@@ -37,4 +38,6 @@ digits wound onto a ball along a golden-angle spiral. On every page, the
 
 On the tests we ran, the first million digits of π, √2, e and φ are consistent with random digits.
 1/9801 and Champernowne's constant, whose digits are structured by construction, show hundreds to
-billions of times more repeats than random digits would. See `REPORT.md` for details and limitations.
+billions of times more repeats than random digits would. The Leibniz series stopped after 500,000 terms
+matches π except at evenly spaced digits given by the Euler numbers, a pattern that fades within about
+70 digits. See `REPORT.md` for details and limitations.
