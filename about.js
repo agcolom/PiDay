@@ -1,4 +1,5 @@
 // The "About" panel shared by the mosaic (index.html) and the 3D cube (cube.html).
+// It sits on the right, just below the page's menu.
 // It opens by itself on a first visit; after it has been closed, it stays closed until "About" is clicked.
 
 let placeAbout = () => {}; // set by setupAbout; also run whenever the text changes
@@ -6,14 +7,10 @@ let placeAbout = () => {}; // set by setupAbout; also run whenever the text chan
 const setupAbout = (storageKey) => {
   const panel = document.getElementById("aboutPanel");
   const button = document.getElementById("aboutButton");
-  // Sit below the page's menu if the two would overlap (e.g. the cube page's wide control bar)
   const menu = document.getElementById("viewMenu") || document.getElementById("cubeMenu");
   const place = () => {
     if (panel.hidden) return;
-    panel.style.top = "12px";
-    const menuBox = menu.getBoundingClientRect(), panelBox = panel.getBoundingClientRect();
-    const overlaps = menuBox.left < panelBox.right && menuBox.bottom > panelBox.top;
-    const top = overlaps ? menuBox.bottom + 12 : 12;
+    const top = menu.getBoundingClientRect().bottom + 12;
     panel.style.top = `${top}px`;
     panel.style.maxHeight = `${window.innerHeight - top - 70}px`;
   };
@@ -24,6 +21,7 @@ const setupAbout = (storageKey) => {
     panel.hidden = !open;
     place();
     button.setAttribute("aria-expanded", String(open));
+    window.dispatchEvent(new Event("aboutpanel")); // lets the cube make room for the panel
     try { localStorage.setItem(storageKey, open ? "open" : "closed"); } catch { /* storage can be blocked */ }
   };
   button.addEventListener("click", () => show(panel.hidden));

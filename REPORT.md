@@ -60,6 +60,8 @@ Change the width and different digits line up, so different shapes appear.
 - Each **view** sets a number, a width, a number of rows, a square size, and optionally a first row,
   so a view can start partway into the number. The digits before the first row are still computed,
   because frame positions are given as true decimal places, but they aren't drawn.
+- When folded, a **Pairs** menu chooses whether to highlight same-digit pairs (purple), complementary
+  pairs that add up to 9 (teal), or both.
 - An **About** button opens a plain-English explanation of the current view, written for readers
   without a mathematical background. Its figures are taken from FINDINGS.md.
 - A menu switches between views without reloading the page, and a second menu folds the mosaic onto
@@ -465,7 +467,20 @@ These figures matched the averages from 100 random strings. In the mosaic, the f
 of the current view, with matching squares solid and the rest pale, plus the match rate. Diagonal
 folds need a square grid, so they are only in the analysis, not in the mosaic.
 
-### 9.5 The 3D cube page
+### 9.5 Folding at every width and height, and complementary digits
+
+To ask whether particular widths or heights are special, the fold was repeated at every width W from 2 to
+2,000 (left onto right, ⌊N / W⌋ full rows) and every height H from 2 to 2,000 (top onto bottom, ⌊N / H⌋
+columns), with N = 1,000,000. Besides matching pairs, each grid counts **complementary** pairs, two digits
+adding up to 9. For random digits each of the n pairs in a grid is complementary with probability exactly
+1/10, independently, so the count is binomial and is scored as z = (count − n/10) / √(0.09 n).
+
+With 1,999 grids per fold, the most extreme z is expected to be large even for random digits, and
+neighbouring grids share most of their digits, so the textbook correction for many tests is only a rough
+guide. Instead the whole search was run on 20 strings of random digits, and each number's most extreme
+grid was compared with theirs. Results are in FINDINGS.md, section 7.4.
+
+### 9.6 The 3D cube page
 
 `cube.html` draws a cube of side n (10 to 60) from a chosen starting decimal place, using the same
 layout as the analysis (column i mod n, row ⌊i/n⌋ mod n, layer ⌊i/n²⌋). Each digit is a small square at
@@ -475,7 +490,7 @@ inside of the cube stays visible. The gold lines use the same definition and cha
 9.2, and are cut into one piece per step so each piece is drawn at its own depth. The page's line
 finder gave exactly the same lines as the Python code on eight test cubes. It uses no outside libraries.
 
-### 9.6 Reading the results
+### 9.7 Reading the results
 
 The approach to unusual results is the one in section 7: Poisson probabilities as approximations,
 allowance for the number of counts examined, and recounting in fresh digits when something stands out.

@@ -301,7 +301,42 @@ digits every pair matches with probability exactly 1/10, independently.
 - 1/9801 shows its structure as a *shortage*: no all-matching groups at all, and only about 5% matching
   along the diagonals.
 
-### 7.4 The 3D cube page
+### 7.4 Folding at every width and height: same and complementary digits
+
+Two digits are **complementary** when they add up to 9 (0–9, 1–8, 2–7, 3–6, 4–5); on the mosaic their
+shades add up to full purple. For random digits a pair is complementary exactly 1 time in 10, the same
+as for matching. Every grid below uses the first million decimal places:
+
+- **Left onto right** at every width W from 2 to 2,000 (⌊1,000,000 / W⌋ full rows): 1,999 grids.
+- **Top onto bottom** at every height H from 2 to 2,000 (⌊1,000,000 / H⌋ columns): 1,999 grids.
+
+Each grid's share of complementary (and of matching) pairs is scored by how many standard deviations
+it is from 10%. Because 1,999 grids give many chances for one to look extreme, the same search was run
+on 20 strings of random digits to see how extreme the most extreme grid normally is.
+
+| | Complementary, all grids | Most extreme complementary grid (standard deviations) | Most extreme matching grid |
+|---|---|---|---|
+| π | 9.999% (left–right), 10.001% (top–bottom) | width 1,838: 3.83; height 447: 3.54 | width 422: 3.48; height 73: 3.67 |
+| √2 | 9.997%, 10.000% | width 483: 3.57; height 1,139: 3.71 | width 1,150: 3.75; height 378: 2.95 |
+| e | 9.998%, 9.997% | width 1,870: 3.57; height 883: 3.50 | width 914: 4.07; height 1,214: 3.13 |
+| φ | 9.998%, 10.002% | width 1,677: 3.35; height 1,523: 3.46 | width 1,258: 3.64; height 1,475: 3.57 |
+| 20 random strings | | typical 3.5–3.6, highest 4.90 | typical 3.5–3.8, highest 4.69 |
+
+- **No width or height stands out** for π, √2, e or φ. Every most-extreme grid is within the range of the
+  random searches (e.g. e's 4.07 at width 914 was reached by 5 of the 20 random searches). The number of
+  grids beyond 3 standard deviations (0–12 per search) is also in the random range (0–11), the closest
+  call being φ's same-digit count folded top onto bottom (12).
+- **1/9801 has no complementary pairs at all** when folded left onto right at exactly 10 widths: 99, 297,
+  495, 693, 891, 1,089, 1,287, 1,485, 1,683 and 1,881, the odd multiples of 99 (half its 198-digit cycle).
+  Folded top onto bottom at 202 rows (4,950 = 25 × 198 columns) every pair is the same digit.
+- **Champernowne's constant** is off 10% at almost every width and height: same-digit pairs average
+  17.9% left onto right, complementary pairs 11.5% top onto bottom.
+
+In the mosaic, the **Pairs** menu shows same-digit pairs (purple), complementary pairs (teal) or both
+when folded, and the menu shows both rates. Script: `analysis/scripts/folds/fold_widths.py`; results:
+`analysis/results/folds/fold_widths.json`.
+
+### 7.5 The 3D cube page
 
 `cube.html` (linked from the mosaic's menu) shows the digits as a cube you can rotate (drag) and zoom
 (scroll). You choose the number, the cube's side (10 to 60), the decimal place to start from, which
@@ -314,7 +349,7 @@ starting points up to decimal place 400,000) and were identical.
 When you look along the grid itself, dots that are simply neighbours line up into rows. These are an
 effect of the viewing angle, not of the digits; only the gold lines are real lines of one digit.
 
-### 7.5 Summary
+### 7.6 Summary
 
 Lines in 2D, 3D and 4D, repeated 3D blocks and folding all give the same answer as the flat mosaic:
 π, √2, e and φ are consistent with random digits on these tests, while Champernowne's constant and
@@ -344,6 +379,8 @@ than chance in some arrangements).
 - `analysis/scripts/`: the Python scripts used. Those in `analysis/scripts/3d/` run from the project
   folder as they are; the older ones were run from `/tmp/<folder>/`, so their file paths need adjusting.
 - `analysis/results/3d/`: results of the line, 3D block and fold tests (JSON).
+- `analysis/scripts/folds/`, `analysis/results/folds/`: folding at every width and height, same and
+  complementary digits (section 7.4).
 
 ---
 

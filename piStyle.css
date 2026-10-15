@@ -70,11 +70,11 @@ body {
   font: 14px system-ui, sans-serif;
 }
 
-/* About panel: plain-English explanation, on the left so it doesn't cover the menus */
+/* About panel: plain-English explanation, on the right below the menu (about.js sets its top) */
 #aboutPanel {
   position: fixed;
-  top: 12px;
-  left: 12px;
+  top: 60px;
+  right: 12px;
   z-index: 2;
   width: min(420px, calc(100vw - 24px));
   max-height: calc(100vh - 80px);

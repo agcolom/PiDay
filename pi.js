@@ -174,17 +174,26 @@ const aboutFolds = {
   "left-right": `
     <h2>Folded left onto right</h2>
     <p>The left half is laid over the right half, like closing a book, so each square meets its mirror
-    image. Only one half is shown. A <strong>solid</strong> square means both halves have the same digit
-    there; a pale square means they differ. Frames are hidden while folded.</p>`,
+    image. Only one half is shown, and the frames are hidden.</p>`,
   "top-bottom": `
     <h2>Folded top onto bottom</h2>
     <p>The top half is laid over the bottom half, so each square meets the one in the mirror-image row.
-    Only one half is shown. A <strong>solid</strong> square means both halves have the same digit there;
-    a pale square means they differ. Frames are hidden while folded.</p>`,
+    Only one half is shown, and the frames are hidden.</p>`,
+};
+const aboutPairs = {
+  same: `<p><strong>Purple</strong> squares: both halves have the <strong>same digit</strong> there.</p>`,
+  complement: `<p><strong>Teal</strong> squares: the two digits are <strong>complementary</strong>, meaning
+    they add up to 9 (0 and 9, 1 and 8, 2 and 7, 3 and 6, 4 and 5). On the mosaic these are the pairs
+    whose shades add up to full purple: one is as light as the other is dark.</p>`,
 };
 const aboutFoldMeaning = `
-  <p>For random digits about 1 square in 10 matches, scattered like speckle with no shapes. Lines, bands
-  or blocks of solid squares would mean the two halves are related. The match rate is shown in the menu.</p>`;
+  <p>For random digits about 1 pair in 10 is the same digit and 1 in 10 adds up to 9, scattered like
+  speckle with no shapes. Lines, bands or blocks would mean the two halves are related. The rates are
+  shown in the menu.</p>
+  <p>We folded the first million digits at every width and height from 2 to 2,000. For π, √2, e and the
+  golden ratio, no width or height stood out, for matching or for complementary digits. 1/9801 has no
+  complementary pairs at all at 10 widths: 99, 297, 495 and the other odd multiples of 99, which is half
+  its 198-digit cycle.</p>`;
 
 const aboutConclusion = `
   <h2>What we found</h2>
@@ -196,10 +205,13 @@ const aboutConclusion = `
 
 // Draws one view, replacing whatever was on the page before.
 // fold is "none", "left-right" (fold the left half onto the right) or "top-bottom".
-const showView = (viewName, fold = "none") => {
+// pairs is which pairs to highlight when folded: "same" (same digit), "complement" (add up to 9) or "both".
+const showView = (viewName, fold = "none", pairs = "same") => {
   // Size of each small div in pixels comes from the view
   const { number, columns, firstRow = 0, rows, divSize, repeats, about } = views[viewName];
-  setAboutText(aboutIntro + about + (fold === "none" ? "" : aboutFolds[fold] + aboutFoldMeaning) + aboutConclusion + aboutLinks);
+  const pairsText = pairs === "both" ? aboutPairs.same + aboutPairs.complement : aboutPairs[pairs];
+  setAboutText(aboutIntro + about + (fold === "none" ? "" : aboutFolds[fold] + pairsText + aboutFoldMeaning) +
+    aboutConclusion + aboutLinks);
 
   // One digit per square, so the mosaic is always exactly full.
   // Digits before firstRow are computed (positions count from the start) but not drawn.
@@ -258,24 +270,30 @@ const showView = (viewName, fold = "none") => {
       const foldInfo = document.getElementById("foldInfo");
       if (fold === "none") foldInfo.textContent = "";
       else {
-        // Solid where both layers have the same digit, pale where they differ
-        let matches = 0;
+        // Purple where both layers have the same digit, teal where they add up to 9, pale otherwise
+        let same = 0, complementary = 0;
         for (let row = 0; row < shownRows; row++) {
           for (let col = 0; col < shownColumns; col++) {
             const digit = digits[firstDigit + row * columns + col];
             const partner = fold === "left-right"
               ? digits[firstDigit + row * columns + (columns - 1 - col)]
               : digits[firstDigit + (rows - 1 - row) * columns + col];
+            const isSame = digit === partner;
+            const isComplement = Number(digit) + Number(partner) === 9;
+            if (isSame) same++;
+            if (isComplement) complementary++;
             const div = document.createElement("div");
-            div.style.backgroundColor = digit === partner ? "rgb(128, 0, 128)" : "rgba(128, 0, 128, 0.08)";
+            div.style.backgroundColor =
+              isSame && pairs !== "complement" ? "rgb(128, 0, 128)"
+              : isComplement && pairs !== "same" ? "rgb(0, 128, 128)"
+              : "rgba(128, 0, 128, 0.08)";
             div.style.width = `${divSize}px`;
             div.style.height = `${divSize}px`;
-            if (digit === partner) matches++;
             container.appendChild(div);
           }
         }
-        const share = (100 * matches) / (shownRows * shownColumns);
-        foldInfo.textContent = `${share.toFixed(1)}% of squares match (random digits: 10%)`;
+        const percent = (count) => `${((100 * count) / (shownRows * shownColumns)).toFixed(1)}%`;
+        foldInfo.textContent = `Same digit: ${percent(same)} · add up to 9: ${percent(complementary)} (random digits: 10% each)`;
       }
 
       // Convert each digit to alpha transparency and create small divs
@@ -329,7 +347,8 @@ const showView = (viewName, fold = "none") => {
 };
 
 // Fill the menus, and redraw when a choice changes.
-// The address remembers both choices, e.g. index.html#pi-147 or index.html#pi-147/fold-left-right
+// The address remembers the choices, e.g. index.html#pi-147, index.html#pi-147/fold-left-right
+// or index.html#pi-147/fold-left-right/complement
 const menu = document.getElementById("viewSelect");
 for (const [name, { label }] of Object.entries(views)) menu.add(new Option(label, name));
 
@@ -337,20 +356,29 @@ const folds = { "none": "No fold", "left-right": "Fold left onto right", "top-bo
 const foldMenu = document.getElementById("foldSelect");
 for (const [name, label] of Object.entries(folds)) foldMenu.add(new Option(label, name));
 
+const pairOptions = { same: "Same digit", complement: "Add up to 9", both: "Both" };
+const pairMenu = document.getElementById("pairSelect");
+for (const [name, label] of Object.entries(pairOptions)) pairMenu.add(new Option(label, name));
+
 const showViewFromAddress = () => {
-  const [name, foldPart = ""] = location.hash.slice(1).split("/");
+  const [name, foldPart = "", pairPart = ""] = location.hash.slice(1).split("/");
   const viewName = name in views ? name : defaultView;
   const fold = foldPart.replace("fold-", "") in folds ? foldPart.replace("fold-", "") : "none";
+  const pairs = pairPart in pairOptions ? pairPart : "same";
   menu.value = viewName;
   foldMenu.value = fold;
-  showView(viewName, fold);
+  pairMenu.value = pairs;
+  pairMenu.disabled = fold === "none"; // pairs only mean something when folded
+  showView(viewName, fold, pairs);
 };
 
 const updateAddress = () => {
-  location.hash = menu.value + (foldMenu.value === "none" ? "" : `/fold-${foldMenu.value}`);
+  location.hash = menu.value + (foldMenu.value === "none" ? ""
+    : `/fold-${foldMenu.value}` + (pairMenu.value === "same" ? "" : `/${pairMenu.value}`));
 };
 menu.addEventListener("change", updateAddress); // the hashchange below does the drawing
 foldMenu.addEventListener("change", updateAddress);
+pairMenu.addEventListener("change", updateAddress);
 window.addEventListener("hashchange", showViewFromAddress);
 setupAbout("piMosaicAbout");
 showViewFromAddress();

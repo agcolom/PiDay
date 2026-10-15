@@ -197,6 +197,7 @@ const resize = () => {
   needsDrawing = true;
 };
 window.addEventListener("resize", resize);
+window.addEventListener("aboutpanel", () => { needsDrawing = true; });
 
 // Turns a cube position (column, row, layer) into a screen position, size and depth
 const makeProjection = () => {
@@ -205,7 +206,10 @@ const makeProjection = () => {
   const cosYaw = Math.cos(yaw), sinYaw = Math.sin(yaw), cosPitch = Math.cos(pitch), sinPitch = Math.sin(pitch);
   const distance = side * 2.4;
   const focal = Math.min(window.innerWidth, window.innerHeight) * 0.75 * zoom;
-  const centreX = window.innerWidth / 2, centreY = window.innerHeight / 2 + 20;
+  // While the About panel is open on the right, centre the cube in the space to its left
+  const panel = document.getElementById("aboutPanel");
+  const freeWidth = panel.hidden ? window.innerWidth : panel.getBoundingClientRect().left;
+  const centreX = freeWidth / 2, centreY = window.innerHeight / 2 + 20;
   return (column, row, layer) => {
     // Columns go right, rows go down, layers go back
     const x = column - middle, y = middle - row, z = middle - layer;
