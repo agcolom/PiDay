@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pi Mosaic</title>
+  <link rel="stylesheet" href="piStyle.css">
+</head>
+<body>
+  <!-- Menu for choosing which number and width to show; pi.js fills in the options -->
+  <label id="viewMenu">Show
+    <select id="viewSelect"></select>
+  </label>
+
+  <!-- pi.js appends #piContainer to <body>, so it must load after <body> exists -->
+  <script src="pi.js"></script>
+</body>
+</html>
