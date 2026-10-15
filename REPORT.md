@@ -60,6 +60,8 @@ Change the width and different digits line up, so different shapes appear.
 - Each **view** sets a number, a width, a number of rows, a square size, and optionally a first row,
   so a view can start partway into the number. The digits before the first row are still computed,
   because frame positions are given as true decimal places, but they aren't drawn.
+- In the 3D cube, **Show digits** picks any range (e.g. 3 to 3), and a **digit chart** counts each
+  digit in the cube, with the chi-squared verdict (section 9.8).
 - **Green frames** mark counting runs of five or more digits along the digits, such as 34567 or 98765
   (section 9.7); the 3D cube can show them as green lines.
 - When folded, a **Pairs** menu chooses whether to highlight same-digit pairs (purple), complementary
@@ -513,7 +515,21 @@ length, in 1D and 2D (e.g. 0.760 found against 0.740 predicted for 7+ along the 
 line finder gave exactly the same counts as the Python code on six test cubes. Results: FINDINGS.md,
 section 7.5.
 
-### 9.8 Reading the results
+### 9.8 Does every digit appear equally often?
+
+For n digits with counts c₀ … c₉, each digit is expected n/10 times, and the chi-squared statistic is
+χ² = Σ (cᵢ − n/10)² / (n/10). For random digits it follows a chi-squared distribution with 9 degrees of
+freedom (ten counts, less one because they must add up to n). The p value, the chance that random digits
+are at least this uneven, is the regularized upper incomplete gamma function Q(4.5, χ²/2), computed by its
+series or continued fraction. The code reproduces the textbook values (χ² = 16.92 gives p = 0.05, 21.67
+gives p = 0.01), and the browser's version gives the same values as the Python version.
+
+A very *large* p (close to 1) is also informative: it means the counts are more even than random digits
+usually are, which is how a perfectly regular number like 1/9801 shows up. The test was run on stretches
+of 1,000 to 1,000,000 decimals and on each of 100 separate blocks of 10,000; for blocks, about 5 in 100
+are expected below 0.05 by chance. Results: FINDINGS.md, section 7.6.
+
+### 9.9 Reading the results
 
 The approach to unusual results is the one in section 7: Poisson probabilities as approximations,
 allowance for the number of counts examined, and recounting in fresh digits when something stands out.

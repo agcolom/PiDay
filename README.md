@@ -12,7 +12,8 @@ patterns.
 gold frames mark runs of six or more of the same digit; green frames mark digits counting up or down
 (such as 34567). The second menu folds the mosaic onto itself
 and shows where the two halves have the same digit. The "3D cube" link opens `cube.html`, a cube of
-digits you can rotate, with gold lines through every straight line of one digit. On both pages, the
+digits you can rotate, with gold lines through every straight line of one digit, and a chart of how
+often each digit appears. On both pages, the
 **About** button explains in plain English what's on screen.
 
 ## Files

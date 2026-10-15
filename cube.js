@@ -27,7 +27,7 @@ const lineOptions = { 0: "Off", 4: "4 or more in a line", 5: "5 or more in a lin
 // Gold lines: the same digit all along. Green lines: digits counting up or down by one (e.g. 3 4 5 6 7).
 const kindOptions = { same: "Same digit (gold)", counting: "Counting digits (green)", both: "Both" };
 const lineColours = { 0: "gold", 1: "limegreen", "-1": "limegreen" };
-const defaults = { number: "pi", side: 20, start: 0, from: 9, lines: 5, kind: "same" };
+const defaults = { number: "pi", side: 20, start: 0, from: 9, to: 9, lines: 5, kind: "same" };
 
 // The 13 line directions in a cube (one of each pair of opposites), as [column, row, layer] steps
 const directions = [];
@@ -79,16 +79,20 @@ const controls = {
   side: document.getElementById("cubeSide"),
   start: document.getElementById("cubeStart"),
   from: document.getElementById("cubeFrom"),
+  to: document.getElementById("cubeTo"),
   lines: document.getElementById("cubeLines"),
   kind: document.getElementById("cubeKind"),
 };
 for (const [name, label] of Object.entries(numberNames)) controls.number.add(new Option(label, name));
 for (const side of sides) controls.side.add(new Option(`${side} × ${side} × ${side} (${(side ** 3).toLocaleString()} digits)`, side));
-for (let digit = 0; digit <= 9; digit++) controls.from.add(new Option(digit, digit));
+for (let digit = 0; digit <= 9; digit++) {
+  controls.from.add(new Option(digit, digit));
+  controls.to.add(new Option(digit, digit));
+}
 for (const [length, label] of Object.entries(lineOptions)) controls.lines.add(new Option(label, length));
 for (const [kind, label] of Object.entries(kindOptions)) controls.kind.add(new Option(label, kind));
 
-// The address remembers the settings, e.g. cube.html#number=e&side=30&start=0&from=7&lines=5
+// The address remembers the settings, e.g. cube.html#number=e&side=30&start=0&from=7&to=9&lines=5
 const readSettings = () => {
   const saved = new URLSearchParams(location.hash.slice(1));
   const pick = (key, valid) => (saved.has(key) && valid(saved.get(key)) ? saved.get(key) : String(defaults[key]));
@@ -97,6 +101,7 @@ const readSettings = () => {
     side: Number(pick("side", (value) => sides.includes(Number(value)))),
     start: Number(pick("start", (value) => /^\d+$/.test(value) && Number(value) <= 500000)),
     from: Number(pick("from", (value) => /^[0-9]$/.test(value))),
+    to: Number(pick("to", (value) => /^[0-9]$/.test(value))),
     lines: Number(pick("lines", (value) => value in lineOptions)),
     kind: pick("kind", (value) => value in kindOptions),
   };
@@ -104,7 +109,9 @@ const readSettings = () => {
 const writeSettings = () => {
   const start = Math.min(Math.max(Math.floor(Number(controls.start.value) || 0), 0), 500000);
   location.hash = new URLSearchParams({
-    number: controls.number.value, side: controls.side.value, start, from: controls.from.value, lines: controls.lines.value,
+    number: controls.number.value, side: controls.side.value, start, lines: controls.lines.value,
+    // "from" is never above "to": if they cross, swap them
+    from: Math.min(controls.from.value, controls.to.value), to: Math.max(controls.from.value, controls.to.value),
     kind: controls.kind.value,
   }).toString();
 };
@@ -127,11 +134,13 @@ const build = () => {
   controls.number.value = settings.number;
   controls.side.value = settings.side;
   controls.start.value = settings.start;
+  if (settings.from > settings.to) [settings.from, settings.to] = [settings.to, settings.from];
   controls.from.value = settings.from;
+  controls.to.value = settings.to;
   controls.lines.value = settings.lines;
   controls.kind.value = settings.kind;
 
-  const { number, side, start, from, lines: minLength, kind } = settings;
+  const { number, side, start, from, to, lines: minLength, kind } = settings;
   const count = side ** 3;
   const digits = digitsFor(number, start + count);
   const cells = new Int8Array(count);
@@ -145,7 +154,7 @@ const build = () => {
 
   // Cubes to draw: digits in the chosen range, plus every cube on a line
   const visible = [];
-  for (let i = 0; i < count; i++) if (cells[i] >= from || onLine[i]) visible.push(i);
+  for (let i = 0; i < count; i++) if ((cells[i] >= from && cells[i] <= to) || onLine[i]) visible.push(i);
 
   cube = { side, start, cells, lines, visible: Int32Array.from(visible) };
   document.getElementById("cubeInfo").textContent = "Drag to rotate, scroll to zoom, hover over a cube for its digit";
@@ -160,15 +169,19 @@ const build = () => {
   const range = `decimal places ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()}`;
   document.getElementById("cubeSummary").textContent = parts.length
     ? `${parts.join(" · ")} of ${minLength} or more · ${range}` : range.charAt(0).toUpperCase() + range.slice(1);
-  setAboutText(aboutCube(settings, sameCount, countingCount));
+  const digitTally = drawDigitChart(cells);
+  setAboutText(aboutCube(settings, sameCount, countingCount, digitTally));
   needsDrawing = true;
 };
 window.addEventListener("hashchange", build);
 
 // The About panel's text for the current settings
-const aboutCube = ({ number, side, start, from, lines: minLength, kind }, sameCount, countingCount) => {
+const aboutCube = ({ number, side, start, from, to, lines: minLength, kind }, sameCount, countingCount, digitTally) => {
   const count = side ** 3;
-  const shown = from === 9 ? "only the 9s" : from === 8 ? "only the 8s and 9s" : from === 0 ? "every digit" : `only the digits ${from} to 9`;
+  const shown = from === 0 && to === 9 ? "every digit"
+    : from === to ? `only the ${from}s`
+    : to === from + 1 ? `only the ${from}s and ${to}s`
+    : `only the digits ${from} to ${to}`;
   const plural = (n) => (n === 1 ? "" : "s");
   const sameText = `<p>There ${sameCount === 1 ? "is" : "are"} <strong>${sameCount} gold line${plural(sameCount)}</strong> of
     ${minLength} or more dots with the same digit. Random digits would give about
@@ -182,7 +195,8 @@ const aboutCube = ({ number, side, start, from, lines: minLength, kind }, sameCo
     <h2>What you're looking at</h2>
     <p>The digits of a number stacked into a cube, like threading a long string of beads into a box: left to
     right along a row, rows from top to bottom, then layer after layer from front to back. Each dot is one
-    digit, darker for bigger digits (9 is full purple).</p>
+    digit, darker for bigger digits (9 is full purple, 0 the lightest). Use "Show digits" to pick which
+    digits appear, for example 3 to 3 for only the 3s.</p>
     <p><strong>Gold lines</strong> join dots that have the same digit and sit in a straight line: along a row,
     down a column, from front to back, or along any diagonal (13 directions in all). <strong>Green lines</strong>
     (chosen under "Lines of") join dots in a straight line whose digits count up or down by one.</p>
@@ -192,6 +206,14 @@ const aboutCube = ({ number, side, start, from, lines: minLength, kind }, sameCo
     ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()}, arranged ${side} × ${side} × ${side}.
     To keep it see-through, it shows ${shown}, plus every dot on a line.</p>
     ${linesText}
+    <h2>Does every digit appear equally often?</h2>
+    <p>The chart at the bottom left counts each digit 0 to 9 in this cube; the line marks a tenth of the
+    digits, which is what each would get if they were perfectly even. Random digits are never perfectly
+    even, so a standard test (the chi-squared test) asks how often random digits would be at least this
+    uneven: <strong>${digitTally.chance}</strong>. ${digitTally.verdict}</p>
+    <p>Over their first million digits, π, √2, e and the golden ratio each have every digit between 9.89% and
+    10.05% of the time, as random digits would. Champernowne's constant has far too many 1s (18%), and 1/9801
+    is the opposite: in blocks of 10,000 digits it is more even than random digits practically ever are.</p>
     <h2>Why lines always appear</h2>
     <p>A theorem from 1927 (van der Waerden's) guarantees that any long enough string of digits contains
     straight lines of the same digit, as long as enough directions are allowed. So finding lines proves
@@ -201,6 +223,89 @@ const aboutCube = ({ number, side, start, from, lines: minLength, kind }, sameCo
     <p><strong>Beware of illusions:</strong> when you look straight along the grid, neighbouring dots line up
     into rows. That's the viewing angle, not the digits. Only the gold and green lines are real.</p>
     ${aboutLinks}`;
+};
+
+// ---- How often each digit appears ----
+
+// Chi-squared test with 9 degrees of freedom: how often random digits would be at least this uneven.
+// regularizedUpperGamma(a, x) is Q(a, x); the chance is Q(4.5, chi-squared / 2).
+const logGamma = (z) => {
+  const c = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+  let x = z, y = z, tmp = x + 5.5, series = 1.000000000190015;
+  tmp -= (x + 0.5) * Math.log(tmp);
+  for (const coefficient of c) series += coefficient / ++y;
+  return -tmp + Math.log((2.5066282746310005 * series) / x);
+};
+const regularizedUpperGamma = (a, x) => {
+  if (x <= 0) return 1;
+  if (x < a + 1) {
+    let term = 1 / a, total = term, k = a;
+    while (Math.abs(term) > Math.abs(total) * 1e-15) { k++; term *= x / k; total += term; }
+    return 1 - total * Math.exp(-x + a * Math.log(x) - logGamma(a));
+  }
+  let b = x + 1 - a, c = 1e300, d = 1 / b, h = d;
+  for (let i = 1; i < 1000; i++) {
+    const an = -i * (i - a);
+    b += 2;
+    d = an * d + b; if (Math.abs(d) < 1e-300) d = 1e-300;
+    c = b + an / c; if (Math.abs(c) < 1e-300) c = 1e-300;
+    d = 1 / d;
+    const delta = d * c;
+    h *= delta;
+    if (Math.abs(delta - 1) < 1e-15) break;
+  }
+  return Math.exp(-x + a * Math.log(x) - logGamma(a)) * h;
+};
+const chanceOfSpread = (counts) => {
+  const total = counts.reduce((a, b) => a + b, 0), expected = total / 10;
+  const chiSquared = counts.reduce((sum, c) => sum + (c - expected) ** 2 / expected, 0);
+  return { chiSquared, p: regularizedUpperGamma(4.5, chiSquared / 2) };
+};
+
+// Column chart of the ten digit counts, with a hairline at a tenth of the digits.
+// One series, so no legend; the heading names it. Columns start at zero so ordinary differences look small.
+const drawDigitChart = (cells) => {
+  const counts = new Array(10).fill(0);
+  for (const digit of cells) counts[digit]++;
+  const total = cells.length, expected = total / 10;
+  const { chiSquared, p } = chanceOfSpread(counts);
+
+  const width = 280, height = 110, left = 8, baseline = 88, top = 8, slot = (width - 2 * left) / 10, bar = 16;
+  const scale = (baseline - top) / Math.max(...counts, expected * 1.25);
+  const y = (value) => baseline - value * scale;
+  const columns = counts.map((count, digit) => {
+    const x = left + digit * slot + (slot - bar) / 2, h = baseline - y(count), r = Math.min(4, h);
+    // Rounded top (the data end), square at the baseline
+    const shape = `M${x},${baseline} V${baseline - h + r} Q${x},${baseline - h} ${x + r},${baseline - h} ` +
+      `H${x + bar - r} Q${x + bar},${baseline - h} ${x + bar},${baseline - h + r} V${baseline} Z`;
+    const label = `Digit ${digit}: ${count.toLocaleString()} (${((100 * count) / total).toFixed(2)}%); a tenth would be ${expected.toLocaleString()}`;
+    return `<g class="digitColumn"><title>${label}</title>
+      <rect x="${left + digit * slot}" y="${top}" width="${slot}" height="${baseline - top + 18}" fill="transparent"></rect>
+      <path d="${shape}" fill="rgb(128, 0, 128)"></path>
+      <text x="${x + bar / 2}" y="${baseline + 14}" text-anchor="middle">${digit}</text></g>`;
+  }).join("");
+  const svg = `<svg viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img"
+      aria-label="Count of each digit 0 to 9 in this cube">
+    <line x1="${left}" x2="${width - left}" y1="${baseline}" y2="${baseline}" class="axis"></line>
+    ${columns}
+    <line x1="${left}" x2="${width - left}" y1="${y(expected)}" y2="${y(expected)}" class="expected"></line>
+  </svg>`;
+
+  const chance = p >= 0.995 ? "more than 99% of the time" : p < 0.001 ? "less than 0.1% of the time"
+    : `${(100 * p).toFixed(p < 0.1 ? 1 : 0)}% of the time`;
+  const verdict = p < 0.001 ? "That's far too uneven to be chance."
+    : p < 0.05 ? "That's more uneven than usual, though in many cubes a few will be by chance."
+    : p > 0.99 ? "That's more even than random digits usually are."
+    : "That's an ordinary spread for random digits.";
+  document.getElementById("digitPanel").innerHTML = `
+    <div class="digitTitle">Each digit in this cube <span>(line: a tenth of the digits)</span></div>
+    ${svg}
+    <div class="digitVerdict">Random digits are at least this uneven ${chance}. ${verdict}</div>
+    <details><summary>Counts</summary><table>
+      <tr><th>Digit</th>${counts.map((_, d) => `<td>${d}</td>`).join("")}</tr>
+      <tr><th>Count</th>${counts.map((c) => `<td>${c.toLocaleString()}</td>`).join("")}</tr>
+    </table></details>`;
+  return { counts, chiSquared, p, chance, verdict };
 };
 
 // ---- Drawing ----
@@ -297,7 +402,8 @@ const draw = () => {
       context.stroke();
     } else {
       const size = item.scale * 0.5;
-      context.fillStyle = `rgba(128, 0, 128, ${(cells[item.i] / 9).toFixed(2)})`;
+      // Darker for bigger digits, as in the mosaic, but never fainter than 0.3 so 0s and 1s stay visible
+      context.fillStyle = `rgba(128, 0, 128, ${(0.3 + 0.7 * (cells[item.i] / 9)).toFixed(2)})`;
       context.fillRect(item.x - size / 2, item.y - size / 2, size, size);
     }
   }

@@ -378,7 +378,37 @@ In the mosaic, **green frames** mark counting runs of 5 or more along the digits
 **Lines of** menu adds green lines through counting digits. Scripts: `analysis/scripts/counting/`;
 results: `analysis/results/counting/counting_runs.json`.
 
-### 7.6 The 3D cube page
+### 7.6 Does every digit appear equally often?
+
+For each number, each digit's share of the decimals, checked with the **chi-squared test**: it adds up how
+far the ten counts are from a tenth each, and p is how often random digits would be at least that uneven
+(9 degrees of freedom). p below 0.05 means "more uneven than 95% of random strings".
+
+| Stretch of decimals | π | √2 | e | φ | Champernowne | 1/9801 |
+|---|---|---|---|---|---|---|
+| First 1,000 | p 0.86 | p 0.50 | p 0.85 | p 0.35 | p < 0.001 | p 1.00 |
+| First 10,000 | p 0.41 | p 0.70 | p 0.47 | p 0.12 | p < 0.001 | p 0.81 |
+| First 100,000 | p 0.91 | p 0.85 | p 0.039 | p 1.00 | p < 0.001 | p < 0.001 |
+| First 1,000,000 | p 0.79 | p 0.054 | p 0.39 | p 0.82 | p < 0.001 | p < 0.001 |
+| Each digit, first million | 9.95–10.04% | 9.89–10.04% | 9.94–10.05% | 9.95–10.03% | 8.35–17.98% | 9.60–10.10% |
+| 100 blocks of 10,000: how many below p 0.05 | 4 | 3 | 2 | 3 | 100 | 0 |
+
+- For 20 random strings, between 1 and 7 of the 100 blocks were below 0.05 (about 5 expected), and their
+  million-digit p values ranged from 0.07 to 0.94.
+- **π, √2, e and φ: every digit appears about equally often.** The two borderline results were not
+  repeated: e's first 100,000 (p 0.039) evened out by the first million (p 0.39), and √2's first million
+  (p 0.054) was followed by an ordinary second million (p 0.17).
+- **Champernowne's constant: far too many 1s** (18% of the first million), because the numbers 100,000 to
+  185,185 that fill much of it all start with 1.
+- **1/9801: too even.** Over a million digits 8 and 9 are slightly rare (9.6%) because its cycle skips 98,
+  but every block of 10,000 digits is *more* even than random digits practically ever are: the least even
+  block still has p 0.81 (for random digits, all 100 blocks that even would happen about once in 10⁷²). Random digits always wobble; a perfectly regular cycle doesn't.
+
+In the 3D cube, the **digit chart** (bottom left) counts each digit in the current cube and runs the same
+test, and **Show digits** picks any range, e.g. 3 to 3 for only the 3s. Script:
+`analysis/scripts/frequencies/digit_counts.py`; results: `analysis/results/frequencies/digit_counts.json`.
+
+### 7.7 The 3D cube page
 
 `cube.html` (linked from the mosaic's menu) shows the digits as a cube you can rotate (drag) and zoom
 (scroll). You choose the number, the cube's side (10 to 60), the decimal place to start from, which
@@ -391,9 +421,9 @@ starting points up to decimal place 400,000) and were identical.
 When you look along the grid itself, dots that are simply neighbours line up into rows. These are an
 effect of the viewing angle, not of the digits; only the gold lines are real lines of one digit.
 
-### 7.7 Summary
+### 7.8 Summary
 
-Lines in 2D, 3D and 4D, counting runs, repeated 3D blocks and folding all give the same answer as the flat mosaic:
+Digit frequencies, lines in 2D, 3D and 4D, counting runs, repeated 3D blocks and folding all give the same answer as the flat mosaic:
 π, √2, e and φ are consistent with random digits on these tests, while Champernowne's constant and
 1/9801 stand out by factors of hundreds to millions (or, for 1/9801, by having far *fewer* matches
 than chance in some arrangements).
@@ -456,7 +486,7 @@ digits.
 ## 10. Files
 
 - `index.html`, `pi.js`, `piStyle.css`: the flat mosaic and its view settings.
-- `cube.html`, `cube.js`: the rotatable 3D cube (section 7.4).
+- `cube.html`, `cube.js`: the rotatable 3D cube (section 7.7).
 - `digits.js`: the formulas both pages use to compute every number's digits in the browser.
 - `about.js`: the plain-English "About" panel on both pages; its text is written in `pi.js` (one
   paragraph per view, plus the folds) and `cube.js` (built from the cube's current settings).
@@ -470,6 +500,7 @@ digits.
 - `analysis/scripts/folds/`, `analysis/results/folds/`: folding at every width and height, same and
   complementary digits (section 7.4).
 - `analysis/scripts/counting/`, `analysis/results/counting/`: counting runs in 1D to 4D (section 7.5).
+- `analysis/scripts/frequencies/`, `analysis/results/frequencies/`: how often each digit appears (section 7.6).
 
 ---
 

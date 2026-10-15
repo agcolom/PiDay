@@ -124,3 +124,66 @@ body {
   font: inherit;
   cursor: pointer;
 }
+
+/* Digit chart on the cube page: one series, recessive axis, hairline for "a tenth of the digits" */
+#digitPanel {
+  position: fixed;
+  left: 12px;
+  bottom: 56px;
+  width: 296px;
+  box-sizing: border-box;
+  padding: 8px 8px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  font: 13px/1.35 system-ui, sans-serif;
+  color: #222;
+}
+
+#digitPanel .digitTitle {
+  font-weight: 600;
+}
+
+#digitPanel .digitTitle span {
+  font-weight: 400;
+  color: #666;
+}
+
+#digitPanel svg text {
+  font: 11px system-ui, sans-serif;
+  fill: #555;
+}
+
+#digitPanel .axis {
+  stroke: #ccc;
+  stroke-width: 1;
+}
+
+#digitPanel .expected {
+  stroke: #222;
+  stroke-width: 1;
+}
+
+#digitPanel .digitColumn:hover path {
+  fill: rgb(90, 0, 90);
+}
+
+#digitPanel .digitVerdict {
+  color: #444;
+}
+
+#digitPanel details {
+  margin-top: 4px;
+  color: #555;
+}
+
+#digitPanel table {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+}
+
+#digitPanel td, #digitPanel th {
+  padding: 1px 3px;
+  text-align: right;
+}
