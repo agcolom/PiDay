@@ -167,6 +167,8 @@ const aboutIntro = `
   <p>How many squares fit in a row decides which digits end up above and below each other, and so which
   shapes you see. Each view uses a row width where something interesting lines up.</p>
   <p><strong>Gold frames</strong> mark six or more of the same digit in a row.
+  <strong>Green frames</strong> mark five or more digits that count up or down by one, such as 34567 or
+  98765; random digits contain about 110 of these per million digits.
   <strong>Cyan frames</strong> mark a block of digits that appears twice, exactly the same.</p>
   <h2>This view</h2>`;
 
@@ -198,7 +200,7 @@ const aboutFoldMeaning = `
 const aboutConclusion = `
   <h2>What we found</h2>
   <p>In the first million digits of π, √2, e and the golden ratio, repeated blocks, runs of the same digit,
-  straight lines in 3D and 4D, and matches when folded all turn up about as often as they would in random
+  counting runs, straight lines in 3D and 4D, and matches when folded all turn up about as often as they would in random
   digits. Nobody has proven that these numbers' digits behave randomly, and these tests can't prove it
   either: they only show that nothing stood out. The two patterned numbers, 1/9801 and Champernowne's
   constant, stand out in every test.</p>`;
@@ -220,21 +222,36 @@ const showView = (viewName, fold = "none", pairs = "same") => {
 
   const digits = computeDigits[number](digitCount);
 
-  // Runs of six or more of the same digit, split where a run wraps onto the next row.
-  // For pi this is the Feynman point: six 9s in a row starting at the 762nd decimal place.
-  const runs = [...digits.matchAll(/(\d)\1{5,}/g)].flatMap((match) => {
+  // A run of digits as frames, split where the run wraps onto the next row
+  const framesForRun = (runStart, length, color) => {
     const pieces = [];
-    for (let start = match.index; start < match.index + match[0].length; ) {
-      const width = Math.min(match.index + match[0].length - start, columns - (start % columns));
-      pieces.push({ start, height: 1, width, color: "gold" });
+    for (let start = runStart; start < runStart + length; ) {
+      const width = Math.min(runStart + length - start, columns - (start % columns));
+      pieces.push({ start, height: 1, width, color });
       start += width;
     }
     return pieces;
-  });
+  };
+
+  // Gold: runs of six or more of the same digit.
+  // For pi this is the Feynman point: six 9s in a row starting at the 762nd decimal place.
+  const runs = [...digits.matchAll(/(\d)\1{5,}/g)].flatMap((match) => framesForRun(match.index, match[0].length, "gold"));
+
+  // Green: runs of five or more digits counting up or down by one, e.g. 34567 or 98765 (no wrapping from 9 to 0)
+  const countingRuns = [];
+  for (const step of [1, -1]) {
+    for (let i = 0; i < digits.length; i++) {
+      if (i > 0 && digits.charCodeAt(i - 1) === digits.charCodeAt(i) - step) continue; // not the start
+      let length = 1;
+      while (i + length < digits.length && digits.charCodeAt(i + length) === digits.charCodeAt(i) + step * length) length++;
+      if (length >= 5) countingRuns.push(...framesForRun(i, length, "limegreen"));
+    }
+  }
 
   // Rectangles to frame, given as the digit index of the top-left square plus a size in squares
   const highlights = [
     ...runs,
+    ...countingRuns,
     ...repeats.map((repeat) => ({ ...repeat, color: "cyan" })),
   ];
 

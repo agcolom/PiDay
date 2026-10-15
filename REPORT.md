@@ -60,6 +60,8 @@ Change the width and different digits line up, so different shapes appear.
 - Each **view** sets a number, a width, a number of rows, a square size, and optionally a first row,
   so a view can start partway into the number. The digits before the first row are still computed,
   because frame positions are given as true decimal places, but they aren't drawn.
+- **Green frames** mark counting runs of five or more digits along the digits, such as 34567 or 98765
+  (section 9.7); the 3D cube can show them as green lines.
 - When folded, a **Pairs** menu chooses whether to highlight same-digit pairs (purple), complementary
   pairs that add up to 9 (teal), or both.
 - An **About** button opens a plain-English explanation of the current view, written for readers
@@ -490,7 +492,28 @@ inside of the cube stays visible. The gold lines use the same definition and cha
 9.2, and are cut into one piece per step so each piece is drawn at its own depth. The page's line
 finder gave exactly the same lines as the Python code on eight test cubes. It uses no outside libraries.
 
-### 9.7 Reading the results
+### 9.7 Counting runs
+
+A counting run is a maximal stretch along a line (along the digits, or in a direction of a 2D, 3D or 4D
+box) where each digit is one more than the last (rising) or one less (falling), with no wrapping from 9
+to 0. The search reuses the line machinery of section 9.2, with "the next cell equals this one" replaced
+by "the next cell equals this one plus (or minus) one per step". The padding value is −100 so it can never
+continue a count.
+
+**Chance.** A rising run of length L or more starts at a cell when its digit d is at most 10 − L (so the
+count fits below 9; probability (11 − L)/10), each of the next L − 1 cells is one more than the last
+(probability 10^−(L−1)), and the cell before is outside the box or is not d − 1 (probability 1 if d = 0,
+otherwise 9/10). Summing over cells:
+
+  expected rising runs ≥ L = 10^−(L−1) × 0.1 × Σ over directions [ (boundary starts) × (11 − L)
+  + (interior starts) × (1 + 0.9 × (10 − L)) ]
+
+and the same again for falling runs. With 200 random strings the averages matched the formula at every
+length, in 1D and 2D (e.g. 0.760 found against 0.740 predicted for 7+ along the digits). The browser's
+line finder gave exactly the same counts as the Python code on six test cubes. Results: FINDINGS.md,
+section 7.5.
+
+### 9.8 Reading the results
 
 The approach to unusual results is the one in section 7: Poisson probabilities as approximations,
 allowance for the number of counts examined, and recounting in fresh digits when something stands out.

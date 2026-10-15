@@ -21,7 +21,7 @@ None of this proves the digits of π (or the others) are random.
 - The squares fill rows left to right. The number of columns ("width") decides which digits end
   up stacked above each other, so it decides which 2D shapes you see.
 - **Cyan frames** mark both copies of a repeated block. **Gold frames** mark runs of six or more
-  of the same digit.
+  of the same digit. **Green frames** mark five or more digits counting up or down by one.
 - The menu in the top-right corner switches between views, and a second menu folds the mosaic onto
   itself (section 7.3). The choices are kept in the address, e.g. `index.html#e-309/fold-left-right`.
 
@@ -336,7 +336,49 @@ In the mosaic, the **Pairs** menu shows same-digit pairs (purple), complementary
 when folded, and the menu shows both rates. Script: `analysis/scripts/folds/fold_widths.py`; results:
 `analysis/results/folds/fold_widths.json`.
 
-### 7.5 The 3D cube page
+### 7.5 Counting runs: digits that count up or down
+
+A **counting run** is a stretch of digits where each is exactly one more (123456) or one less (987654)
+than the one before, with no wrapping from 9 to 0. Runs were counted along the digits (1D) and as straight
+lines in the same 2D, 3D and 4D boxes as section 7.1, rising and falling, using the first million decimals.
+All choices were fixed before the results were seen.
+
+| Layout | Length | π | √2 | e | φ | Champernowne | 1/9801 | Chance | 20 random strings (average) |
+|---|---|---|---|---|---|---|---|---|---|
+| Along the digits | 5+ | 108 | 91 | 126 | 111 | 103 | 0 | 110.0 | 111.1 |
+| | 6+ | 10 | 7 | 11 | 13 | 5 | 0 | 9.2 | 9.1 |
+| | 7+ | 1 | 0 | 0 | 1 | 1 | 0 | 0.74 | 1.05 |
+| | 8+ | 1 | 0 | 0 | 0 | 1 | 0 | 0.056 | 0 |
+| 2D 1,000 × 1,000 | 5+ | 437 | 429 | 488 | 423 | 262 | 0 | 437.4 | 441.1 |
+| | 6+ | 40 | 35 | 42 | 36 | 9 | 0 | 36.5 | 36.2 |
+| | 7+ | 3 | 4 | 2 | 2 | 1 | 0 | 2.93 | 4.00 |
+| 3D 100 × 100 × 100 | 5+ | 1,325 | 1,298 | 1,283 | 1,304 | 736 | 51,178 | 1,316.9 | 1,313.5 |
+| | 6+ | 112 | 115 | 115 | 117 | 16 | 49,208 | 107.8 | 108.6 |
+| | 7+ | 7 | 11 | 5 | 12 | 1 | 47,272 | 8.48 | 9.45 |
+| 4D 31⁴ | 5+ | 2,820 | 2,804 | 2,909 | 2,900 | 21,796 | 67,538 | 2,844.0 | 2,855.6 |
+| | 6+ | 213 | 214 | 225 | 213 | 5,344 | 53,229 | 215.8 | 222.0 |
+| | 7+ | 9 | 13 | 16 | 14 | 3,809 | 36,995 | 15.7 | 16.0 |
+| | 8+ | 0 | 0 | 3 | 2 | 2,673 | 32,065 | 1.07 | 1.15 |
+
+- **Chance** for a run of L or more: the first digit must leave room to count (a rising run of 7 starts at
+  0 to 3), each later digit must be one more (or less) than the last, and the digit before must not
+  continue the count. The formula (REPORT.md, section 9.7) matched the averages of 200 further random
+  strings at every length.
+- **π, √2, e and φ are consistent with chance.** Of 80 counts, 4 had less than a 5% chance in one
+  direction (about 8 expected): √2 along the digits 5+ (91, low), e in 2D 4+ (5,281) and 5+ (488, high),
+  and π in 4D 7+ (9, low). e's 2D excess was **not reproduced** in its decimal places 1,000,001–2,000,000
+  (5,061 and 455, against 5,098 and 437 expected).
+- **π's longest counting run along the digits** is `23456789`, eight digits, starting at decimal place
+  995,998. A run of 8 or more turns up in about 1 in 18 stretches of a million random digits.
+- **1/9801 has no counting runs at all along its digits or in 2D**: along its digits (00 01 02 …) no
+  count lasts more than two digits. Yet it has tens of thousands in 3D and 4D. **Champernowne's
+  constant** is close to chance along its digits, has *fewer* than chance in 2D and 3D, and far more in 4D.
+
+In the mosaic, **green frames** mark counting runs of 5 or more along the digits; in the 3D cube, the
+**Lines of** menu adds green lines through counting digits. Scripts: `analysis/scripts/counting/`;
+results: `analysis/results/counting/counting_runs.json`.
+
+### 7.6 The 3D cube page
 
 `cube.html` (linked from the mosaic's menu) shows the digits as a cube you can rotate (drag) and zoom
 (scroll). You choose the number, the cube's side (10 to 60), the decimal place to start from, which
@@ -349,9 +391,9 @@ starting points up to decimal place 400,000) and were identical.
 When you look along the grid itself, dots that are simply neighbours line up into rows. These are an
 effect of the viewing angle, not of the digits; only the gold lines are real lines of one digit.
 
-### 7.6 Summary
+### 7.7 Summary
 
-Lines in 2D, 3D and 4D, repeated 3D blocks and folding all give the same answer as the flat mosaic:
+Lines in 2D, 3D and 4D, counting runs, repeated 3D blocks and folding all give the same answer as the flat mosaic:
 π, √2, e and φ are consistent with random digits on these tests, while Champernowne's constant and
 1/9801 stand out by factors of hundreds to millions (or, for 1/9801, by having far *fewer* matches
 than chance in some arrangements).
@@ -427,6 +469,7 @@ digits.
 - `analysis/results/3d/`: results of the line, 3D block and fold tests (JSON).
 - `analysis/scripts/folds/`, `analysis/results/folds/`: folding at every width and height, same and
   complementary digits (section 7.4).
+- `analysis/scripts/counting/`, `analysis/results/counting/`: counting runs in 1D to 4D (section 7.5).
 
 ---
 

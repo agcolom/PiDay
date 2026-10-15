@@ -9,7 +9,8 @@ patterns.
 
 **Or locally:** open `index.html` in a browser. Use the menu in the top-right corner to switch between
 π, √2, e, the golden ratio, 1/9801 and Champernowne's constant. Cyan frames mark repeated blocks;
-gold frames mark runs of six or more of the same digit. The second menu folds the mosaic onto itself
+gold frames mark runs of six or more of the same digit; green frames mark digits counting up or down
+(such as 34567). The second menu folds the mosaic onto itself
 and shows where the two halves have the same digit. The "3D cube" link opens `cube.html`, a cube of
 digits you can rotate, with gold lines through every straight line of one digit. On both pages, the
 **About** button explains in plain English what's on screen.

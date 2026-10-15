@@ -24,7 +24,10 @@ const numberDescriptions = {
 };
 const sides = [10, 15, 20, 30, 40, 50, 60];
 const lineOptions = { 0: "Off", 4: "4 or more in a line", 5: "5 or more in a line", 6: "6 or more in a line" };
-const defaults = { number: "pi", side: 20, start: 0, from: 9, lines: 5 };
+// Gold lines: the same digit all along. Green lines: digits counting up or down by one (e.g. 3 4 5 6 7).
+const kindOptions = { same: "Same digit (gold)", counting: "Counting digits (green)", both: "Both" };
+const lineColours = { 0: "gold", 1: "limegreen", "-1": "limegreen" };
+const defaults = { number: "pi", side: 20, start: 0, from: 9, lines: 5, kind: "same" };
 
 // The 13 line directions in a cube (one of each pair of opposites), as [column, row, layer] steps
 const directions = [];
@@ -33,31 +36,39 @@ for (const dz of [-1, 0, 1]) for (const dy of [-1, 0, 1]) for (const dx of [-1, 
   if (first === 1) directions.push([dx, dy, dz]);
 }
 
-// Every maximal straight line of one digit with at least minLength cubes, in all 13 directions.
-// Maximal: the cube just before and just after the line is outside the cube or a different digit.
-const findLines = (cells, side, minLength) => {
+// Every maximal straight line with at least minLength cubes, in all 13 directions, where each digit is
+// `step` more than the one before: step 0 for the same digit, 1 for counting up, -1 for counting down
+// (no wrapping from 9 to 0). Maximal: the cube just before and just after the line is outside the cube
+// or doesn't continue the pattern.
+const findLines = (cells, side, minLength, steps = [0]) => {
   const inside = (x, y, z) => x >= 0 && y >= 0 && z >= 0 && x < side && y < side && z < side;
   const at = (x, y, z) => cells[(z * side + y) * side + x];
   const lines = [];
-  for (const [dx, dy, dz] of directions) {
+  for (const step of steps) for (const [dx, dy, dz] of directions) {
     for (let z = 0; z < side; z++) for (let y = 0; y < side; y++) for (let x = 0; x < side; x++) {
       const digit = at(x, y, z);
-      if (inside(x - dx, y - dy, z - dz) && at(x - dx, y - dy, z - dz) === digit) continue; // not the start
+      if (inside(x - dx, y - dy, z - dz) && at(x - dx, y - dy, z - dz) === digit - step) continue; // not the start
       let length = 1;
-      while (inside(x + length * dx, y + length * dy, z + length * dz) && at(x + length * dx, y + length * dy, z + length * dz) === digit) length++;
-      if (length >= minLength) lines.push({ x, y, z, dx, dy, dz, length, digit });
+      while (inside(x + length * dx, y + length * dy, z + length * dz) &&
+             at(x + length * dx, y + length * dy, z + length * dz) === digit + step * length) length++;
+      if (length >= minLength) lines.push({ x, y, z, dx, dy, dz, length, digit, step });
     }
   }
   return lines;
 };
+const stepsFor = { same: [0], counting: [1, -1], both: [0, 1, -1] };
 
-// How many such lines random digits would give on average (same formula as REPORT.md, section 9.2)
-const expectedLines = (side, minLength) => {
+// How many such lines random digits would give on average (REPORT.md, sections 9.2 and 9.7).
+// For counting lines the first digit must leave room to count (e.g. a rising line of 7 starts at 0 to 3).
+const expectedLines = (side, minLength, kind = "same") => {
   let total = 0;
   for (const direction of directions) {
     const reach = direction.reduce((product, step) => product * (side - (minLength - 1) * Math.abs(step)), 1);
     const interior = direction.reduce((product, step) => product * Math.max(side - minLength * Math.abs(step), 0), 1);
-    if (reach > 0) total += 10 ** -(minLength - 1) * (reach - 0.1 * interior);
+    if (reach <= 0) continue;
+    const boundary = reach - interior;
+    if (kind === "same") total += 10 ** -(minLength - 1) * (reach - 0.1 * interior);
+    else total += 2 * 10 ** -(minLength - 1) * 0.1 * (boundary * (11 - minLength) + interior * (1 + 0.9 * (10 - minLength)));
   }
   return total;
 };
@@ -69,11 +80,13 @@ const controls = {
   start: document.getElementById("cubeStart"),
   from: document.getElementById("cubeFrom"),
   lines: document.getElementById("cubeLines"),
+  kind: document.getElementById("cubeKind"),
 };
 for (const [name, label] of Object.entries(numberNames)) controls.number.add(new Option(label, name));
 for (const side of sides) controls.side.add(new Option(`${side} × ${side} × ${side} (${(side ** 3).toLocaleString()} digits)`, side));
 for (let digit = 0; digit <= 9; digit++) controls.from.add(new Option(digit, digit));
 for (const [length, label] of Object.entries(lineOptions)) controls.lines.add(new Option(label, length));
+for (const [kind, label] of Object.entries(kindOptions)) controls.kind.add(new Option(label, kind));
 
 // The address remembers the settings, e.g. cube.html#number=e&side=30&start=0&from=7&lines=5
 const readSettings = () => {
@@ -85,12 +98,14 @@ const readSettings = () => {
     start: Number(pick("start", (value) => /^\d+$/.test(value) && Number(value) <= 500000)),
     from: Number(pick("from", (value) => /^[0-9]$/.test(value))),
     lines: Number(pick("lines", (value) => value in lineOptions)),
+    kind: pick("kind", (value) => value in kindOptions),
   };
 };
 const writeSettings = () => {
   const start = Math.min(Math.max(Math.floor(Number(controls.start.value) || 0), 0), 500000);
   location.hash = new URLSearchParams({
     number: controls.number.value, side: controls.side.value, start, from: controls.from.value, lines: controls.lines.value,
+    kind: controls.kind.value,
   }).toString();
 };
 for (const control of Object.values(controls)) control.addEventListener("change", writeSettings);
@@ -114,66 +129,77 @@ const build = () => {
   controls.start.value = settings.start;
   controls.from.value = settings.from;
   controls.lines.value = settings.lines;
+  controls.kind.value = settings.kind;
 
-  const { number, side, start, from, lines: minLength } = settings;
+  const { number, side, start, from, lines: minLength, kind } = settings;
   const count = side ** 3;
   const digits = digitsFor(number, start + count);
   const cells = new Int8Array(count);
   for (let i = 0; i < count; i++) cells[i] = digits.charCodeAt(start + i) - 48;
 
-  const lines = minLength > 0 ? findLines(cells, side, minLength) : [];
+  const lines = minLength > 0 ? findLines(cells, side, minLength, stepsFor[kind]) : [];
   const onLine = new Uint8Array(count);
   for (const { x, y, z, dx, dy, dz, length } of lines) {
     for (let step = 0; step < length; step++) onLine[((z + step * dz) * side + (y + step * dy)) * side + (x + step * dx)] = 1;
   }
 
-  // Cubes to draw: digits in the chosen range, plus every cube on a gold line
+  // Cubes to draw: digits in the chosen range, plus every cube on a line
   const visible = [];
   for (let i = 0; i < count; i++) if (cells[i] >= from || onLine[i]) visible.push(i);
 
   cube = { side, start, cells, lines, visible: Int32Array.from(visible) };
   document.getElementById("cubeInfo").textContent = "Drag to rotate, scroll to zoom, hover over a cube for its digit";
 
-  const summary = document.getElementById("cubeSummary");
-  summary.textContent = minLength > 0
-    ? `${lines.length} gold line${lines.length === 1 ? "" : "s"} of ${minLength} or more ` +
-      `(random digits: about ${expectedLines(side, minLength).toFixed(1)}) · ` +
-      `decimal places ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()}`
-    : `Decimal places ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()}`;
-  setAboutText(aboutCube(settings, lines.length));
+  const sameCount = lines.filter((line) => line.step === 0).length;
+  const countingCount = lines.length - sameCount;
+  const tally = (n, colour, k) => `${n} ${colour} line${n === 1 ? "" : "s"} (random digits: about ${expectedLines(side, minLength, k).toFixed(1)})`;
+  const parts = minLength === 0 ? [] : [
+    ...(kind !== "counting" ? [tally(sameCount, "gold", "same")] : []),
+    ...(kind !== "same" ? [tally(countingCount, "green", "counting")] : []),
+  ];
+  const range = `decimal places ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()}`;
+  document.getElementById("cubeSummary").textContent = parts.length
+    ? `${parts.join(" · ")} of ${minLength} or more · ${range}` : range.charAt(0).toUpperCase() + range.slice(1);
+  setAboutText(aboutCube(settings, sameCount, countingCount));
   needsDrawing = true;
 };
 window.addEventListener("hashchange", build);
 
 // The About panel's text for the current settings
-const aboutCube = ({ number, side, start, from, lines: minLength }, lineCount) => {
+const aboutCube = ({ number, side, start, from, lines: minLength, kind }, sameCount, countingCount) => {
   const count = side ** 3;
   const shown = from === 9 ? "only the 9s" : from === 8 ? "only the 8s and 9s" : from === 0 ? "every digit" : `only the digits ${from} to 9`;
-  const linesText = minLength > 0
-    ? `<p>There are <strong>${lineCount} gold line${lineCount === 1 ? "" : "s"}</strong> of ${minLength} or more
-       dots with the same digit. Random digits would give about ${expectedLines(side, minLength).toFixed(1)}.</p>`
-    : "<p>Gold lines are switched off.</p>";
+  const plural = (n) => (n === 1 ? "" : "s");
+  const sameText = `<p>There ${sameCount === 1 ? "is" : "are"} <strong>${sameCount} gold line${plural(sameCount)}</strong> of
+    ${minLength} or more dots with the same digit. Random digits would give about
+    ${expectedLines(side, minLength, "same").toFixed(1)}.</p>`;
+  const countingText = `<p>There ${countingCount === 1 ? "is" : "are"} <strong>${countingCount} green line${plural(countingCount)}</strong>
+    of ${minLength} or more dots whose digits count up or down by one (such as 3 4 5 6 7, or 8 7 6 5 4).
+    Random digits would give about ${expectedLines(side, minLength, "counting").toFixed(1)}.</p>`;
+  const linesText = minLength === 0 ? "<p>Lines are switched off.</p>"
+    : (kind !== "counting" ? sameText : "") + (kind !== "same" ? countingText : "");
   return `
     <h2>What you're looking at</h2>
     <p>The digits of a number stacked into a cube, like threading a long string of beads into a box: left to
     right along a row, rows from top to bottom, then layer after layer from front to back. Each dot is one
     digit, darker for bigger digits (9 is full purple).</p>
     <p><strong>Gold lines</strong> join dots that have the same digit and sit in a straight line: along a row,
-    down a column, from front to back, or along any diagonal (13 directions in all).</p>
+    down a column, from front to back, or along any diagonal (13 directions in all). <strong>Green lines</strong>
+    (chosen under "Lines of") join dots in a straight line whose digits count up or down by one.</p>
     <p>Drag to turn the cube, scroll to zoom, and hover over a dot to see its decimal place and digit.</p>
     <h2>This cube</h2>
     <p>${count.toLocaleString()} digits of ${numberDescriptions[number]}, from decimal place
     ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()}, arranged ${side} × ${side} × ${side}.
-    To keep it see-through, it shows ${shown}, plus every dot on a gold line.</p>
+    To keep it see-through, it shows ${shown}, plus every dot on a line.</p>
     ${linesText}
     <h2>Why lines always appear</h2>
     <p>A theorem from 1927 (van der Waerden's) guarantees that any long enough string of digits contains
     straight lines of the same digit, as long as enough directions are allowed. So finding lines proves
-    nothing on its own: what matters is whether there are more than random digits would give. For π, √2, e
-    and the golden ratio there aren't. For 1/9801 and Champernowne's constant the count is often wildly
+    nothing on its own: what matters is whether there are more than random digits would give. The same goes
+    for counting lines. For π, √2, e and the golden ratio there aren't more than chance, for either kind. For 1/9801 and Champernowne's constant the count is often wildly
     different, because their digits follow a pattern.</p>
     <p><strong>Beware of illusions:</strong> when you look straight along the grid, neighbouring dots line up
-    into rows. That's the viewing angle, not the digits. Only the gold lines are real lines of one digit.</p>
+    into rows. That's the viewing angle, not the digits. Only the gold and green lines are real.</p>
     ${aboutLinks}`;
 };
 
@@ -247,23 +273,23 @@ const draw = () => {
     return { i, ...project(column, row, layer) };
   });
 
-  // Gold lines through every straight line of one digit, cut into one piece per step
+  // Gold and green lines, cut into one piece per step
   // so each piece can be drawn at its own depth
   const pieces = [];
-  for (const { x, y, z, dx, dy, dz, length } of lines) {
-    for (let step = 0; step < length - 1; step++) {
-      const from = project(x + step * dx, y + step * dy, z + step * dz);
-      const to = project(x + (step + 1) * dx, y + (step + 1) * dy, z + (step + 1) * dz);
-      pieces.push({ from, to, nearness: (from.nearness + to.nearness) / 2 });
+  for (const { x, y, z, dx, dy, dz, length, step } of lines) {
+    for (let i = 0; i < length - 1; i++) {
+      const from = project(x + i * dx, y + i * dy, z + i * dz);
+      const to = project(x + (i + 1) * dx, y + (i + 1) * dy, z + (i + 1) * dz);
+      pieces.push({ from, to, colour: lineColours[step], nearness: (from.nearness + to.nearness) / 2 });
     }
   }
 
   // Furthest first, so nearer cubes and lines are drawn on top
   const items = [...points, ...pieces].sort((a, b) => a.nearness - b.nearness);
-  context.strokeStyle = "gold";
   context.lineCap = "round";
   for (const item of items) {
     if (item.from) {
+      context.strokeStyle = item.colour;
       context.lineWidth = Math.max(2, ((item.from.scale + item.to.scale) / 2) * 0.25);
       context.beginPath();
       context.moveTo(item.from.x, item.from.y);
