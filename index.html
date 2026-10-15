@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pi Mosaic</title>
-  <link rel="stylesheet" href="piStyle.css?v=2026-10-15g">
+  <link rel="stylesheet" href="piStyle.css?v=2026-10-15h">
 </head>
 <body>
   <!-- Menus for choosing which number and width to show, and whether to fold it; pi.js fills in the options -->
@@ -13,8 +13,10 @@
     <label>Show <select id="viewSelect"></select></label>
     <label>Fold <select id="foldSelect"></select></label>
     <label>Pairs <select id="pairSelect"></select></label>
+    <label>Counting <select id="rolloverSelect"></select></label>
     <span id="foldInfo"></span>
     <a href="cube.html">3D cube</a>
+    <a href="sphere.html">Sphere</a>
     <button id="aboutButton" type="button" aria-controls="aboutPanel">About</button>
   </div>
 
@@ -25,8 +27,8 @@
   </aside>
 
   <!-- digits.js has the digit formulas; pi.js appends #piContainer to <body>, so it must load after <body> exists -->
-  <script src="digits.js?v=2026-10-15g"></script>
-  <script src="about.js?v=2026-10-15g"></script>
-  <script src="pi.js?v=2026-10-15g"></script>
+  <script src="digits.js?v=2026-10-15h"></script>
+  <script src="about.js?v=2026-10-15h"></script>
+  <script src="pi.js?v=2026-10-15h"></script>
 </body>
 </html>

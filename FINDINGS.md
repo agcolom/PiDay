@@ -217,7 +217,7 @@ far more repeats than chance.
 
 ---
 
-## 7. Beyond the flat mosaic: lines in 2D, 3D and 4D, 3D blocks, and folding
+## 7. Beyond the flat mosaic: lines, 3D blocks, folding, counting runs and every distance
 
 All choices below (layouts, directions, lengths, shapes, folds) were fixed before any results were
 seen. Two strings of random digits were run alongside as controls. Methods: REPORT.md, section 9.
@@ -378,7 +378,7 @@ All choices were fixed before the results were seen.
   constant** is close to chance along its digits, has *fewer* than chance in 2D and 3D, and far more in 4D.
 
 In the mosaic, **green frames** mark counting runs of 5 or more along the digits; in the 3D cube, the
-**Lines of** menu adds green lines through counting digits. Scripts: `analysis/scripts/counting/`;
+**Lines of** menu adds green lines through counting digits. Section 7.8 repeats this with rollover (9 then 0). Scripts: `analysis/scripts/counting/`;
 results: `analysis/results/counting/counting_runs.json`.
 
 ### 7.6 Does every digit appear equally often?
@@ -411,7 +411,90 @@ In the 3D cube, the **digit chart** (bottom left) counts each digit in the curre
 test, and **Show digits** picks any range, e.g. 3 to 3 for only the 3s. Script:
 `analysis/scripts/frequencies/digit_counts.py`; results: `analysis/results/frequencies/digit_counts.json`.
 
-### 7.7 The 3D cube page
+### 7.7 Every distance at once
+
+Every arrangement we tried, whether rows, columns, cube layers, diagonals, folds or a sphere, ends up
+comparing digits a fixed number of places apart. So this test skips the shapes and looks at **every gap from 1 to
+100,000 places** directly (chosen in advance), in the first million decimals. For each gap it measures
+how often the two digits are:
+
+- **the same** (7 … 7)
+- **add up to 9** (2 … 7)
+- **one more**, with 9 followed by 0 (4 … 5, 9 … 0)
+- **one less**, with 0 followed by 9 (5 … 4, 0 … 9)
+
+For random digits each happens exactly 1 time in 10 at every gap. A gap's **z** says how far its count is
+from a tenth, in standard deviations. With 400,000 gap-and-relation pairs per number, a few z values beyond
+±4 are expected by chance (about 6.3 per relation, 25.3 in all).
+
+| | π | √2 | e | φ | 20 random strings |
+|---|---|---|---|---|---|
+| Biggest difference (z) | +4.66, "add up to 9" at gap 20,502 | −4.64, "one more" at gap 38,557 | +4.82, "same" at gap 79,307 | +4.96, "same" at gap 75,916 | 4.45 to 5.61 |
+| Share at that gap | 10.14% | 9.86% | 10.15% | 10.16% | |
+| Chance of a difference that big somewhere among 400,000 | 72% | 74% | 44% | 24% | 1% to 97% |
+| Gaps with z beyond ±4 (about 25 expected) | 28 | 31 | 19 | 25 | 13 to 33 |
+| Average z², per relation (1 expected) | 0.992–1.007 | 0.990–1.008 | 0.998–1.002 | 0.998–1.003 | 0.989–1.009 |
+
+- **π, √2, e and φ: nothing stands out at any distance.** Their biggest differences, their number of z
+  values beyond ±4, and the spread of all 100,000 z values are all within the range of the random
+  strings. Four of the 20 random strings had a bigger single difference (up to z = 5.61) than any of
+  the four constants.
+- **1/9801 and Champernowne's constant stand out at tens of thousands of gaps.** 1/9801 repeats every 198
+  digits, so at gaps 198, 396, 594 … every pair is the same digit and none add up to 9. At gap 22 its
+  two-digit numbers are 11 apart (say 34 and 45), so 89% of pairs count up by one. In
+  Champernowne's constant, digits 60 places apart are the same 69% of the time: in the long stretch of
+  six-digit numbers, a number and the one 10 later (60 digits on) share five of their six digits. At gap
+  55,555 (11,111 five-digit numbers apart), 44% count up by one.
+
+Because the dots on the sphere page and every grid we used compare digits at fixed gaps, this one test
+covers all of them. Counts for all gaps come from fast Fourier transforms, and 936 gaps were recounted
+directly to check them. Script: `analysis/scripts/distances/distances.py`; results:
+`analysis/results/distances/distances.json`.
+
+### 7.8 Counting runs with rollover
+
+The same counting runs as section 7.5, but with **rollover**: 9 is followed by 0 going up (7890123) and
+0 by 9 going down (2109876). Every digit can now start a run of any length, so for random digits a run
+of L or more starts at a place with chance 10^−(L−1), times 9/10 if there's a digit before it (which must
+not continue the count). The formula matched the averages of 200 further random strings at every length,
+in 1D and 2D (e.g. 1.80 predicted and 1.86 ± 0.09 found for 7+ along the digits).
+
+| Layout | Length | π | √2 | e | φ | Champernowne | 1/9801 | Chance | 20 random strings (average) |
+|---|---|---|---|---|---|---|---|---|---|
+| Along the digits | 5+ | 183 | 160 | 190 | 176 | 191 | 0 | 180.0 | 182.0 |
+| | 6+ | 24 | 17 | 21 | 25 | 13 | 0 | 18.0 | 16.9 |
+| | 7+ | 3 | 0 | 2 | 2 | 1 | 0 | 1.80 | 2.05 |
+| | 8+ | 1 | 0 | 0 | 0 | 1 | 0 | 0.18 | 0.10 |
+| 2D 1,000 × 1,000 | 5+ | 716 | 723 | 756 | 679 | 463 | 0 | 715.8 | 721.5 |
+| | 6+ | 73 | 67 | 79 | 77 | 24 | 0 | 71.5 | 70.6 |
+| | 7+ | 7 | 7 | 9 | 6 | 1 | 0 | 7.14 | 7.95 |
+| | 8+ | 0 | 0 | 0 | 1 | 1 | 0 | 0.71 | 0.80 |
+| 3D 100 × 100 × 100 | 5+ | 2,182 | 2,134 | 2,106 | 2,151 | 1,274 | 13,724 | 2,155.8 | 2,157.4 |
+| | 6+ | 217 | 214 | 223 | 235 | 63 | 13,437 | 211.0 | 213.1 |
+| | 7+ | 22 | 22 | 16 | 29 | 2 | 13,154 | 20.6 | 21.9 |
+| | 8+ | 2 | 2 | 0 | 4 | 1 | 12,873 | 2.02 | 2.25 |
+| 4D 31⁴ | 5+ | 4,614 | 4,621 | 4,700 | 4,707 | 31,804 | 48,185 | 4,662.4 | 4,696.1 |
+| | 6+ | 418 | 437 | 433 | 406 | 6,018 | 42,817 | 423.2 | 433.6 |
+| | 7+ | 27 | 30 | 41 | 32 | 4,958 | 24,917 | 38.3 | 39.2 |
+| | 8+ | 1 | 2 | 6 | 4 | 4,181 | 23,557 | 3.46 | 3.20 |
+
+- **π, √2, e and φ are consistent with chance.** Of 80 counts (lengths 4 to 8), 3 had less than a 5%
+  chance in one direction (about 8 expected): π in 3D 4+ (21,688 against 22,022; one of the 20 random
+  strings was lower still), π in 4D 7+ (27, low) and φ in 3D 7+ (29, high).
+- **The longest rollover run** in the four constants is φ's `890123456`, nine digits along a diagonal of
+  the 3D box, starting at decimal place 330,816. Random digits would give a run of 9 or more somewhere in
+  the box about 18% of the time. Along the digits, the longest is still π's `23456789` (section 7.5).
+- **The structured numbers still stand out.** Champernowne's constant looks as it did without rollover:
+  close to chance along its digits (191 against 180 for 5+), fewer runs than chance in 2D and 3D (463
+  against 716; 1,274 against 2,156) and far more in 4D. 1/9801 still has none along its digits or in 2D.
+  In 3D it has *fewer* runs with rollover than without (13,724 against 51,178 for 5+), because runs such as
+  0123456789 0123456789 now join into single long ones: its longest is 99 digits.
+
+In the mosaic and the 3D cube, a **Counting** menu switches the green frames and lines between "stops at 9
+and 0" and "rolls over". Script: `analysis/scripts/counting/rollover_runs.py` (it uses `counting_runs.py`
+with `rollover=True`); results: `analysis/results/counting/rollover_runs.json`.
+
+### 7.9 The 3D cube and sphere pages
 
 `cube.html` (linked from the mosaic's menu) shows the digits as a cube you can rotate (drag) and zoom
 (scroll). You choose the number, the cube's side (10 to 60), the decimal place to start from, which
@@ -424,9 +507,19 @@ starting points up to decimal place 400,000) and were identical.
 When you look along the grid itself, dots that are simply neighbours line up into rows. These are an
 effect of the viewing angle, not of the digits; only the gold lines are real lines of one digit.
 
-### 7.8 Summary
+`sphere.html` winds the digits onto a ball instead, along a **Fibonacci spiral**: the first digit at the
+top, each later one a little lower and turned 137.5° (the golden angle) further round, which spreads the
+dots evenly. You choose the number, how many dots (1,000 to 20,000), where to start and which digits to
+show. On this ball, a dot's nearest neighbours are always a Fibonacci number of places away along the
+digits: mostly 34 and 55 places before and after it with 2,000 dots, and 89, 144 and 233 with 20,000.
+Hovering over a dot shows its digit and these distances. Section 7.7 tests every such distance, so the
+sphere is a way of looking rather than a new test. Its visible spiral arms come from the layout and appear
+for any digits.
 
-Digit frequencies, lines in 2D, 3D and 4D, counting runs, repeated 3D blocks and folding all give the same answer as the flat mosaic:
+### 7.10 Summary
+
+Digit frequencies, lines in 2D, 3D and 4D, counting runs with and without rollover, digits at every
+distance up to 100,000 places, repeated 3D blocks and folding all give the same answer as the flat mosaic:
 π, √2, e and φ are consistent with random digits on these tests, while Champernowne's constant and
 1/9801 stand out by factors of hundreds to millions (or, for 1/9801, by having far *fewer* matches
 than chance in some arrangements).
@@ -490,10 +583,11 @@ digits.
 ## 10. Files
 
 - `index.html`, `pi.js`, `piStyle.css`: the flat mosaic and its view settings.
-- `cube.html`, `cube.js`: the rotatable 3D cube (section 7.7).
+- `cube.html`, `cube.js`: the rotatable 3D cube (section 7.9).
+- `sphere.html`, `sphere.js`: the digits on a rotatable sphere (section 7.9).
 - `digits.js`: the formulas both pages use to compute every number's digits in the browser.
-- `about.js`: the plain-English "About" panel on both pages; its text is written in `pi.js` (one
-  paragraph per view, plus the folds) and `cube.js` (built from the cube's current settings).
+- `about.js`: the plain-English "About" panel on all three pages; its text is written in `pi.js` (one
+  paragraph per view, plus the folds), `cube.js` and `sphere.js` (built from the current settings).
 - `analysis/digits/`: the verified first million decimals of each number (square 0 = whole-number
   part), plus √2's second million (decimal places 1,000,001–2,000,000).
 - `analysis/results/*_repeats_14plus.json`: every repeat of 14 or more squares found at widths
@@ -503,7 +597,10 @@ digits.
 - `analysis/results/3d/`: results of the line, 3D block and fold tests (JSON).
 - `analysis/scripts/folds/`, `analysis/results/folds/`: folding at every width and height, same and
   complementary digits (section 7.4).
-- `analysis/scripts/counting/`, `analysis/results/counting/`: counting runs in 1D to 4D (section 7.5).
+- `analysis/scripts/counting/`, `analysis/results/counting/`: counting runs in 1D to 4D, without
+  rollover (section 7.5) and with it (section 7.8).
+- `analysis/scripts/distances/`, `analysis/results/distances/`: digits at every distance from 1 to
+  100,000 places (section 7.7).
 - `analysis/scripts/frequencies/`, `analysis/results/frequencies/`: how often each digit appears (section 7.6).
 
 ---

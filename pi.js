@@ -160,7 +160,7 @@ const views = {
 const calculateAlpha = (digit) => (parseInt(digit) / 9).toFixed(2); // Normalize to a value between 0 and 1
 
 // Plain-English text for the About panel, used with each view's own "about" text
-const aboutIntro = `
+const aboutIntro = (rollover) => `
   <h2>What you're looking at</h2>
   <p>Each small square is one digit of a number, in order: left to right along a row, then on to the next
   row, like reading a page. The darker the square, the bigger the digit: 0 is white and 9 is full purple.</p>
@@ -168,7 +168,8 @@ const aboutIntro = `
   shapes you see. Each view uses a row width where something interesting lines up.</p>
   <p><strong>Gold frames</strong> mark six or more of the same digit in a row.
   <strong>Green frames</strong> mark five or more digits that count up or down by one, such as 34567 or
-  98765; random digits contain about 110 of these per million digits.
+  98765${rollover ? ", carrying on from 9 to 0 and from 0 to 9 (such as 89012 or 21098); random digits contain about 180 of these per million digits"
+    : ", stopping at 9 and 0; random digits contain about 110 of these per million digits. Choose \"Counting: rolls over\" to let 9 carry on to 0"}.
   <strong>Cyan frames</strong> mark a block of digits that appears twice, exactly the same.</p>
   <h2>This view</h2>`;
 
@@ -200,7 +201,8 @@ const aboutFoldMeaning = `
 const aboutConclusion = `
   <h2>What we found</h2>
   <p>In the first million digits of π, √2, e and the golden ratio, repeated blocks, runs of the same digit,
-  counting runs, straight lines in 3D and 4D, and matches when folded all turn up about as often as they would in random
+  counting runs (with or without rollover), straight lines in 3D and 4D, matches when folded, and matches
+  between digits any distance apart up to 100,000 places all turn up about as often as they would in random
   digits. Nobody has proven that these numbers' digits behave randomly, and these tests can't prove it
   either: they only show that nothing stood out. The two patterned numbers, 1/9801 and Champernowne's
   constant, stand out in every test.</p>`;
@@ -208,11 +210,12 @@ const aboutConclusion = `
 // Draws one view, replacing whatever was on the page before.
 // fold is "none", "left-right" (fold the left half onto the right) or "top-bottom".
 // pairs is which pairs to highlight when folded: "same" (same digit), "complement" (add up to 9) or "both".
-const showView = (viewName, fold = "none", pairs = "same") => {
+// rollover: whether green counting runs carry on from 9 to 0 and from 0 to 9 (89012), or stop there.
+const showView = (viewName, fold = "none", pairs = "same", rollover = false) => {
   // Size of each small div in pixels comes from the view
   const { number, columns, firstRow = 0, rows, divSize, repeats, about } = views[viewName];
   const pairsText = pairs === "both" ? aboutPairs.same + aboutPairs.complement : aboutPairs[pairs];
-  setAboutText(aboutIntro + about + (fold === "none" ? "" : aboutFolds[fold] + pairsText + aboutFoldMeaning) +
+  setAboutText(aboutIntro(rollover) + about + (fold === "none" ? "" : aboutFolds[fold] + pairsText + aboutFoldMeaning) +
     aboutConclusion + aboutLinks);
 
   // One digit per square, so the mosaic is always exactly full.
@@ -237,13 +240,18 @@ const showView = (viewName, fold = "none", pairs = "same") => {
   // For pi this is the Feynman point: six 9s in a row starting at the 762nd decimal place.
   const runs = [...digits.matchAll(/(\d)\1{5,}/g)].flatMap((match) => framesForRun(match.index, match[0].length, "gold"));
 
-  // Green: runs of five or more digits counting up or down by one, e.g. 34567 or 98765 (no wrapping from 9 to 0)
+  // Green: runs of five or more digits counting up or down by one, e.g. 34567 or 98765.
+  // With rollover, 9 carries on to 0 going up and 0 to 9 going down (89012, 21098).
+  const follows = (before, after, step) => {
+    const a = digits.charCodeAt(before), b = digits.charCodeAt(after);
+    return rollover ? (b - a - step + 20) % 10 === 0 : b === a + step;
+  };
   const countingRuns = [];
   for (const step of [1, -1]) {
     for (let i = 0; i < digits.length; i++) {
-      if (i > 0 && digits.charCodeAt(i - 1) === digits.charCodeAt(i) - step) continue; // not the start
+      if (i > 0 && follows(i - 1, i, step)) continue; // not the start
       let length = 1;
-      while (i + length < digits.length && digits.charCodeAt(i + length) === digits.charCodeAt(i) + step * length) length++;
+      while (i + length < digits.length && follows(i + length - 1, i + length, step)) length++;
       if (length >= 5) countingRuns.push(...framesForRun(i, length, "limegreen"));
     }
   }
@@ -364,8 +372,8 @@ const showView = (viewName, fold = "none", pairs = "same") => {
 };
 
 // Fill the menus, and redraw when a choice changes.
-// The address remembers the choices, e.g. index.html#pi-147, index.html#pi-147/fold-left-right
-// or index.html#pi-147/fold-left-right/complement
+// The address remembers the choices, e.g. index.html#pi-147, index.html#pi-147/fold-left-right,
+// index.html#pi-147/fold-left-right/complement or index.html#pi-147/rollover
 const menu = document.getElementById("viewSelect");
 for (const [name, { label }] of Object.entries(views)) menu.add(new Option(label, name));
 
@@ -377,25 +385,35 @@ const pairOptions = { same: "Same digit", complement: "Add up to 9", both: "Both
 const pairMenu = document.getElementById("pairSelect");
 for (const [name, label] of Object.entries(pairOptions)) pairMenu.add(new Option(label, name));
 
+const rolloverOptions = { off: "stops at 9 and 0", on: "rolls over (8 9 0 1)" };
+const rolloverMenu = document.getElementById("rolloverSelect");
+for (const [name, label] of Object.entries(rolloverOptions)) rolloverMenu.add(new Option(label, name));
+
 const showViewFromAddress = () => {
-  const [name, foldPart = "", pairPart = ""] = location.hash.slice(1).split("/");
+  const [name, ...rest] = location.hash.slice(1).split("/");
   const viewName = name in views ? name : defaultView;
-  const fold = foldPart.replace("fold-", "") in folds ? foldPart.replace("fold-", "") : "none";
-  const pairs = pairPart in pairOptions ? pairPart : "same";
+  const foldPart = (rest.find((part) => part.startsWith("fold-")) || "").replace("fold-", "");
+  const fold = foldPart in folds ? foldPart : "none";
+  const pairs = rest.find((part) => part in pairOptions) || "same";
+  const rollover = rest.includes("rollover");
   menu.value = viewName;
   foldMenu.value = fold;
   pairMenu.value = pairs;
+  rolloverMenu.value = rollover ? "on" : "off";
   pairMenu.disabled = fold === "none"; // pairs only mean something when folded
-  showView(viewName, fold, pairs);
+  rolloverMenu.disabled = fold !== "none"; // the green frames are hidden when folded
+  showView(viewName, fold, pairs, rollover);
 };
 
 const updateAddress = () => {
   location.hash = menu.value + (foldMenu.value === "none" ? ""
-    : `/fold-${foldMenu.value}` + (pairMenu.value === "same" ? "" : `/${pairMenu.value}`));
+    : `/fold-${foldMenu.value}` + (pairMenu.value === "same" ? "" : `/${pairMenu.value}`))
+    + (rolloverMenu.value === "on" ? "/rollover" : "");
 };
 menu.addEventListener("change", updateAddress); // the hashchange below does the drawing
 foldMenu.addEventListener("change", updateAddress);
 pairMenu.addEventListener("change", updateAddress);
+rolloverMenu.addEventListener("change", updateAddress);
 window.addEventListener("hashchange", showViewFromAddress);
 setupAbout("piMosaicAbout");
 showViewFromAddress();

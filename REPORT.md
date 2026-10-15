@@ -16,7 +16,8 @@ repeated blocks or long runs more often than random digits would?**
 We computed the first million decimal places of π, √2, e and the golden ratio φ, each by two or three
 independent methods that agree on every digit. We then searched every width from 2 to 2,000 columns
 for repeated rectangular blocks, counted runs of identical digits, and compared every count with what
-random digits would produce.
+random digits would produce. Later tests (section 9) added lines in 2D to 4D, folding, counting runs,
+digit frequencies, and pairs of digits at every distance up to 100,000 places apart.
 
 **On these tests and in the digits examined, all four numbers are consistent with random digits.**
 Each has a few striking coincidences, such as a 4×4 block that appears twice in φ and eight 9s in a
@@ -63,7 +64,9 @@ Change the width and different digits line up, so different shapes appear.
 - In the 3D cube, **Show digits** picks any range (e.g. 3 to 3), and a **digit chart** counts each
   digit in the cube, with the chi-squared verdict (section 9.8).
 - **Green frames** mark counting runs of five or more digits along the digits, such as 34567 or 98765
-  (section 9.7); the 3D cube can show them as green lines.
+  (section 9.7); the 3D cube can show them as green lines. On both pages a **Counting** menu chooses
+  whether counting stops at 9 and 0 or rolls over (89012), as in section 9.10.
+- A **sphere** page shows the digits on a rotatable ball (section 9.11).
 - When folded, a **Pairs** menu chooses whether to highlight same-digit pairs (purple), complementary
   pairs that add up to 9 (teal), or both.
 - An **About** button opens a plain-English explanation of the current view, written for readers
@@ -418,7 +421,7 @@ tell the difference.
 
 ---
 
-## 9. Beyond the flat mosaic: lines, 3D blocks and folding
+## 9. Beyond the flat mosaic: lines, 3D blocks, folding, counting runs and every distance
 
 ### 9.1 One idea behind all three
 
@@ -543,14 +546,77 @@ usually are, which is how a perfectly regular number like 1/9801 shows up. The t
 of 1,000 to 1,000,000 decimals and on each of 100 separate blocks of 10,000; for blocks, about 5 in 100
 are expected below 0.05 by chance. Results: FINDINGS.md, section 7.6.
 
-### 9.9 Reading the results
+### 9.9 Every distance at once
+
+Every layout used here (rows, columns, cube layers, 4D boxes, diagonals and the sphere) places
+neighbouring digits a fixed number of places apart. So the strongest single check of all of them is to
+take each gap d from 1 to D = 100,000 (fixed before looking) and count, over the first N = 1,000,000
+decimals, the pairs (k, k + d) whose digits are related in one of four ways: the same; adding up to 9;
+the second one more than the first, modulo 10 (so 9 is followed by 0); the second one less, modulo 10.
+
+**Chance.** For random digits each relation holds with probability exactly 1/10 for every pair. The
+n = N − d pairs at a gap overlap, but any two of them are independent (knowing whether digits k and k + d
+match says nothing about whether k + d and k + 2d match), so the count has mean n/10 and variance exactly
+0.09 n, and counts at different gaps are uncorrelated. Each gap's z = (count − n/10) / √(0.09 n) is close
+to a standard normal value. Across 100,000 gaps, a |z| of at least 4 is expected about 6.3 times per
+relation, and the largest |z| is usually between about 4.2 and 5. The chance that random digits give
+a |z| at least as large as the observed maximum somewhere among the M tests is 1 − (1 − p)^M, where p is
+the two-sided normal tail. We also report the average z² over all gaps, which should be close to 1.
+Twenty random strings run through the same test serve as a control, so none of this rests on the normal
+approximation alone.
+
+**Computation.** For each digit v, an indicator sequence marks where v occurs. The number of pairs
+(k, k + d) with digit v at k and digit w at k + d, for every d at once, is the cross-correlation of two
+indicator sequences, computed with fast Fourier transforms (sequences padded to 2²¹ to avoid wrap-around)
+and rounded to whole numbers. Each relation is a sum over v of the pairs (v, w(v)), with w(v) = v, 9 − v,
+v + 1 or v − 1 (mod 10). The whole test takes about ten seconds for all 26 strings. 936 gaps, chosen both
+systematically and at random, were recounted directly and all agreed. Results: FINDINGS.md, section 7.7.
+
+### 9.10 Counting runs with rollover
+
+The same as section 9.7, but the comparison is made modulo 10, so 9 is followed by 0 going up and 0 by
+9 going down. Because no digit is now too close to 9 (or 0) to start a long run, the chance formula
+simplifies: a run of L or more starts at a cell with probability 10^−(L−1), times 9/10 if the cell before
+is inside the box (that cell must not continue the count), so
+
+  expected runs ≥ L = 2 × 10^−(L−1) × Σ over directions [ (boundary starts) + 0.9 × (interior starts) ]
+
+counting rising and falling runs together. With 200 random strings the averages matched at every length,
+in 1D and 2D.
+
+Runs can now be longer than ten digits, and in the structured numbers they are (up to 99). The first
+version of the code shifted the box with `np.roll`, which wraps round from one side to the other; that was
+safe for runs of at most ten digits inside a 12-cell padding, but not for longer ones. An assertion caught
+this on the first full run. The shifts are now made by slicing, filling with "outside the box", so a run of
+any length is measured correctly. The new code was checked against a cell-by-cell count on 40 small 1D to
+4D boxes of biased digits (built to contain many long runs), with and without rollover, and gives exactly
+the same results as before for every number and layout without rollover. In the browser, the cube's
+rollover lines matched the Python counts on five test cubes, and the mosaic's green frames matched a
+direct search. Results: FINDINGS.md, section 7.8.
+
+### 9.11 The sphere page
+
+`sphere.html` places n dots (1,000 to 20,000) on a ball of radius 1 along a Fibonacci spiral: dot i is at
+height y = 1 − 2(i + ½)/n and angle i × 137.5° (the golden angle, π(3 − √5) radians), at radius √(1 − y²)
+from the axis. Dot i holds the digit at decimal place start + i. The drawing uses the same projection and
+furthest-first painting as the cube (section 9.6), with dots on the far half drawn paler.
+
+On such a spiral, a dot's nearest neighbours are dots a Fibonacci number of steps away (a known property of
+these spirals, which we confirmed numerically): with 2,000 dots, the four nearest dots in the middle band are
+34 and 55 places before and after, and with 20,000 they are mostly 89, 144 and 233 places away. So any pattern the eye finds on the sphere is a relation between digits at a few fixed gaps, all of which section
+9.9 tests. The page is a way of looking at the digits, not a separate test. The spiral arms that the eye
+picks out are a property of the layout and appear for any digits.
+
+### 9.12 Reading the results
 
 The approach to unusual results is the one in section 7: Poisson probabilities as approximations,
 allowance for the number of counts examined, and recounting in fresh digits when something stands out.
 Results are in FINDINGS.md, section 7. In brief, about 1 count in 10 fell outside the middle 90% of
 chance (as expected); the most extreme, φ's six 4D lines of 8 or more (0.9%), was not reproduced in
 φ's next 923,521 digits (2 found, 1.73 expected). One random control string produced a 1-in-1,500
-result, a reminder that truly random digits look striking sometimes too.
+result, a reminder that truly random digits look striking sometimes too. The every-distance test and the
+rollover runs (sections 9.9 and 9.10) gave the same picture: nothing in π, √2, e or φ outside the range of
+the random strings, and both structured numbers far outside it.
 
 ## 10. What surprised us
 
@@ -607,8 +673,10 @@ digits.
 - **Exact matches only.** Squares of nearby digits (say 8 and 9) look almost the same, so the eye finds
   many near-matches that this test ignores. A test for "similar" blocks would need its own definition
   of similarity and its own chance estimate.
-- **Rectangles only, widths 2 to 2,000, block sizes 12 to 18 squares.** Other shapes, such as
-  diagonals or L-shapes, and other widths weren't searched.
+- **Rectangles only, widths 2 to 2,000, block sizes 12 to 18 squares**, for repeated blocks. Other
+  shapes, such as L-shapes, and other widths weren't searched for repeats. Relations between *pairs* of
+  digits were tested at every gap up to 100,000 places (section 9.9), but only for four relations
+  (same, adding up to 9, and one more or one less).
 - **A million digits** (two million for √2 and φ's follow-up checks). That is tiny compared with the
   trillions of digits of π that have been computed and studied by others.
 - **The chance estimates and probabilities are approximate** (sections 5 and 7). The random-digit
@@ -630,7 +698,11 @@ digits.
 - The saved scan scripts include the narrow-width fix described in the revision notes below.
 - Every repeat of 14 or more squares is listed in `analysis/results/*.json` and in the FINDINGS.md
   appendix.
-- The mosaic needs no installation: open `index.html` in a browser (or `cube.html` for the 3D cube). To change the default view, edit
+- The every-distance test (`analysis/scripts/distances/`), the counting-run scripts
+  (`analysis/scripts/counting/`) and the digit-frequency script also run from the project folder as they
+  are.
+- The mosaic needs no installation: open `index.html` in a browser (or `cube.html` for the 3D cube, or
+  `sphere.html` for the sphere). To change the default view, edit
   `defaultView` at the top of `pi.js`. To add a view, add an entry to `views` with a `label`.
 
 ---

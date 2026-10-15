@@ -16,7 +16,7 @@ body {
 }
 
 /* Menus: stay in the top-right corner while the mosaic scrolls underneath */
-#viewMenu, #cubeMenu {
+#viewMenu, #cubeMenu, #sphereMenu {
   position: fixed;
   top: 12px;
   right: 12px;
@@ -28,17 +28,17 @@ body {
   font: 14px system-ui, sans-serif;
 }
 
-#viewMenu select, #cubeMenu select, #cubeMenu input {
+#viewMenu select, #cubeMenu select, #cubeMenu input, #sphereMenu select, #sphereMenu input {
   margin: 0 10px 0 6px;
   font: inherit;
 }
 
-/* 3D cube page (cube.html): the canvas fills the window */
+/* 3D cube and sphere pages (cube.html, sphere.html): the canvas fills the window */
 .cubePage {
   overflow: hidden;
 }
 
-#cubeCanvas {
+#cubeCanvas, #sphereCanvas {
   position: fixed;
   top: 0;
   left: 0;
@@ -46,20 +46,20 @@ body {
   touch-action: none;
 }
 
-#cubeMenu {
+#cubeMenu, #sphereMenu {
   max-width: calc(100vw - 48px);
   line-height: 2;
 }
 
-#cubeStart {
+#cubeStart, #sphereStart {
   width: 7em;
 }
 
-#cubeSummary {
+#cubeSummary, #sphereSummary {
   color: #555;
 }
 
-#cubeInfo {
+#cubeInfo, #sphereInfo {
   position: fixed;
   left: 12px;
   bottom: 12px;

@@ -1,4 +1,4 @@
-// The "About" panel shared by the mosaic (index.html) and the 3D cube (cube.html).
+// The "About" panel shared by the mosaic (index.html), the 3D cube (cube.html) and the sphere (sphere.html).
 // It sits on the right, just below the page's menu.
 // It opens by itself on a first visit; after it has been closed, it stays closed until "About" is clicked.
 
@@ -7,7 +7,7 @@ let placeAbout = () => {}; // set by setupAbout; also run whenever the text chan
 const setupAbout = (storageKey) => {
   const panel = document.getElementById("aboutPanel");
   const button = document.getElementById("aboutButton");
-  const menu = document.getElementById("viewMenu") || document.getElementById("cubeMenu");
+  const menu = document.getElementById("viewMenu") || document.getElementById("cubeMenu") || document.getElementById("sphereMenu");
   const place = () => {
     if (panel.hidden) return;
     const top = menu.getBoundingClientRect().bottom + 12;

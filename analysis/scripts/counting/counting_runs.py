@@ -12,6 +12,10 @@ d is at most 10 - L (so the count fits below 9) and each of the next L - 1 digit
 last (probability 10^-(L-1)); and the digit before it is not d - 1 (probability 9/10, or 1 when d = 0 or
 there is no digit before). Falling runs are the mirror image. So per possible start:
   10^-(L-1) x (1/10) x [ (11 - L) if nothing comes before, else 1 + 0.9 x (10 - L) ], for each direction of counting.
+
+With rollover=True (used by rollover_runs.py), counting wraps round: 9 is followed by 0 going up, and 0 by
+9 going down, so 7890123 is a rising run of seven. Every digit can then start a run of any length, so per
+possible start the chance is simply 10^-(L-1) x [ 1 if nothing comes before, else 9/10 ], for each direction.
 """
 import itertools, json, sys
 import numpy as np
@@ -28,7 +32,19 @@ EMPTY = -100   # padding value that can never continue a count
 def directions(d):
     return [v for v in itertools.product((-1, 0, 1), repeat=d) if any(v) and next(x for x in v if x) == 1]
 
-def counting_runs(digits, shape, record_from=7):
+def shifted(array, offsets, fill):
+    """array shifted so that result[c] = array[c + offsets], with `fill` where c + offsets is off the edge.
+    (Unlike np.roll, nothing wraps round from the other side, so any shift is safe.)"""
+    out = np.full_like(array, fill)
+    target, source = [], []
+    for o, n in zip(offsets, array.shape):
+        if abs(o) >= n: return out
+        target.append(slice(max(-o, 0), n - max(o, 0)))
+        source.append(slice(max(o, 0), n - max(-o, 0)))
+    out[tuple(target)] = array[tuple(source)]
+    return out
+
+def counting_runs(digits, shape, record_from=7, rollover=False):
     """Maximal rising and falling runs along every direction: counts by length, plus where the long ones are."""
     n = int(np.prod(shape))
     A = np.full(tuple(s + 2 * PAD for s in shape), EMPTY, dtype=np.int16)
@@ -36,15 +52,21 @@ def counting_runs(digits, shape, record_from=7):
     inside = A != EMPTY
     strides = [int(np.prod(shape[i + 1:])) for i in range(len(shape))]
     counts, long_runs = {}, []
-    axes = tuple(range(len(shape)))
     for v in directions(len(shape)):
-        shift = lambda m: np.roll(A, shift=tuple(-m * x for x in v), axis=axes)   # value at c + m v
+        shift = lambda m: shifted(A, [m * x for x in v], EMPTY)                    # value at c + m v
         prev = shift(-1)
+        shift_inside = lambda m: shifted(inside, [m * x for x in v], False)
         for step in (1, -1):                                                       # counting up, counting down
-            alive = inside & (prev != A - step)                                    # the digit before doesn't continue the count
+            if rollover:                                                           # compare modulo 10, inside the box only
+                alive = inside & ~(shift_inside(-1) & ((A - prev - step) % 10 == 0))
+            else:
+                alive = inside & (prev != A - step)                                # the digit before doesn't continue the count
             length = 1
-            while alive.any() and length <= 10:
-                longer = alive & (shift(length) == A + step * length)
+            while alive.any() and (rollover or length <= 10):
+                if rollover:
+                    longer = alive & shift_inside(length) & ((shift(length) - A - step * length) % 10 == 0)
+                else:
+                    longer = alive & (shift(length) == A + step * length)
                 ended = alive & ~longer
                 k = int(ended.sum())
                 if length >= LENGTHS[0] and k:
@@ -59,13 +81,16 @@ def counting_runs(digits, shape, record_from=7):
                 alive, length = longer, length + 1
     return counts, long_runs
 
-def expected(shape, L):
+def expected(shape, L, rollover=False):
     total = 0.0
     for v in directions(len(shape)):
         reach = np.prod([s - (L - 1) * abs(x) for s, x in zip(shape, v)])
         interior = np.prod([max(s - L * abs(x), 0) for s, x in zip(shape, v)])
         if reach <= 0: continue
         boundary = reach - interior
+        if rollover:
+            total += 2 * 10.0 ** -(L - 1) * (boundary + 0.9 * interior)
+            continue
         total += 2 * 10.0 ** -(L - 1) * 0.1 * (boundary * (11 - L) + interior * (1 + 0.9 * (10 - L)))
     return total
 

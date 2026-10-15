@@ -27,7 +27,9 @@ const lineOptions = { 0: "Off", 4: "4 or more in a line", 5: "5 or more in a lin
 // Gold lines: the same digit all along. Green lines: digits counting up or down by one (e.g. 3 4 5 6 7).
 const kindOptions = { same: "Same digit (gold)", counting: "Counting digits (green)", both: "Both" };
 const lineColours = { 0: "gold", 1: "limegreen", "-1": "limegreen" };
-const defaults = { number: "pi", side: 20, start: 0, from: 9, to: 9, lines: 5, kind: "same" };
+// Rollover: whether counting carries on from 9 to 0 (going up) and from 0 to 9 (going down), as in 8 9 0 1 2
+const rolloverOptions = { off: "stops at 9 and 0", on: "rolls over (8 9 0 1)" };
+const defaults = { number: "pi", side: 20, start: 0, from: 9, to: 9, lines: 5, kind: "same", rollover: "off" };
 
 // The 13 line directions in a cube (one of each pair of opposites), as [column, row, layer] steps
 const directions = [];
@@ -37,20 +39,22 @@ for (const dz of [-1, 0, 1]) for (const dy of [-1, 0, 1]) for (const dx of [-1, 
 }
 
 // Every maximal straight line with at least minLength cubes, in all 13 directions, where each digit is
-// `step` more than the one before: step 0 for the same digit, 1 for counting up, -1 for counting down
-// (no wrapping from 9 to 0). Maximal: the cube just before and just after the line is outside the cube
-// or doesn't continue the pattern.
-const findLines = (cells, side, minLength, steps = [0]) => {
+// `step` more than the one before: step 0 for the same digit, 1 for counting up, -1 for counting down.
+// With rollover, counting wraps round (9 then 0 going up, 0 then 9 going down); without it, it stops at 9 and 0.
+// Maximal: the cube just before and just after the line is outside the cube or doesn't continue the pattern.
+const findLines = (cells, side, minLength, steps = [0], rollover = false) => {
   const inside = (x, y, z) => x >= 0 && y >= 0 && z >= 0 && x < side && y < side && z < side;
   const at = (x, y, z) => cells[(z * side + y) * side + x];
+  const follows = (before, after, step) => (rollover ? (after - before - step + 20) % 10 === 0 : after === before + step);
   const lines = [];
   for (const step of steps) for (const [dx, dy, dz] of directions) {
     for (let z = 0; z < side; z++) for (let y = 0; y < side; y++) for (let x = 0; x < side; x++) {
       const digit = at(x, y, z);
-      if (inside(x - dx, y - dy, z - dz) && at(x - dx, y - dy, z - dz) === digit - step) continue; // not the start
+      if (inside(x - dx, y - dy, z - dz) && follows(at(x - dx, y - dy, z - dz), digit, step)) continue; // not the start
       let length = 1;
       while (inside(x + length * dx, y + length * dy, z + length * dz) &&
-             at(x + length * dx, y + length * dy, z + length * dz) === digit + step * length) length++;
+             follows(at(x + (length - 1) * dx, y + (length - 1) * dy, z + (length - 1) * dz),
+                     at(x + length * dx, y + length * dy, z + length * dz), step)) length++;
       if (length >= minLength) lines.push({ x, y, z, dx, dy, dz, length, digit, step });
     }
   }
@@ -59,8 +63,9 @@ const findLines = (cells, side, minLength, steps = [0]) => {
 const stepsFor = { same: [0], counting: [1, -1], both: [0, 1, -1] };
 
 // How many such lines random digits would give on average (REPORT.md, sections 9.2 and 9.7).
-// For counting lines the first digit must leave room to count (e.g. a rising line of 7 starts at 0 to 3).
-const expectedLines = (side, minLength, kind = "same") => {
+// For counting lines without rollover the first digit must leave room to count (e.g. a rising line of 7
+// starts at 0 to 3); with rollover any digit can start one.
+const expectedLines = (side, minLength, kind = "same", rollover = false) => {
   let total = 0;
   for (const direction of directions) {
     const reach = direction.reduce((product, step) => product * (side - (minLength - 1) * Math.abs(step)), 1);
@@ -68,6 +73,7 @@ const expectedLines = (side, minLength, kind = "same") => {
     if (reach <= 0) continue;
     const boundary = reach - interior;
     if (kind === "same") total += 10 ** -(minLength - 1) * (reach - 0.1 * interior);
+    else if (rollover) total += 2 * 10 ** -(minLength - 1) * (reach - 0.1 * interior);
     else total += 2 * 10 ** -(minLength - 1) * 0.1 * (boundary * (11 - minLength) + interior * (1 + 0.9 * (10 - minLength)));
   }
   return total;
@@ -82,6 +88,7 @@ const controls = {
   to: document.getElementById("cubeTo"),
   lines: document.getElementById("cubeLines"),
   kind: document.getElementById("cubeKind"),
+  rollover: document.getElementById("cubeRollover"),
 };
 for (const [name, label] of Object.entries(numberNames)) controls.number.add(new Option(label, name));
 for (const side of sides) controls.side.add(new Option(`${side} × ${side} × ${side} (${(side ** 3).toLocaleString()} digits)`, side));
@@ -91,6 +98,7 @@ for (let digit = 0; digit <= 9; digit++) {
 }
 for (const [length, label] of Object.entries(lineOptions)) controls.lines.add(new Option(label, length));
 for (const [kind, label] of Object.entries(kindOptions)) controls.kind.add(new Option(label, kind));
+for (const [rollover, label] of Object.entries(rolloverOptions)) controls.rollover.add(new Option(label, rollover));
 
 // The address remembers the settings, e.g. cube.html#number=e&side=30&start=0&from=7&to=9&lines=5
 const readSettings = () => {
@@ -104,6 +112,7 @@ const readSettings = () => {
     to: Number(pick("to", (value) => /^[0-9]$/.test(value))),
     lines: Number(pick("lines", (value) => value in lineOptions)),
     kind: pick("kind", (value) => value in kindOptions),
+    rollover: pick("rollover", (value) => value in rolloverOptions),
   };
 };
 const writeSettings = () => {
@@ -112,7 +121,7 @@ const writeSettings = () => {
     number: controls.number.value, side: controls.side.value, start, lines: controls.lines.value,
     // "from" is never above "to": if they cross, swap them
     from: Math.min(controls.from.value, controls.to.value), to: Math.max(controls.from.value, controls.to.value),
-    kind: controls.kind.value,
+    kind: controls.kind.value, rollover: controls.rollover.value,
   }).toString();
 };
 for (const control of Object.values(controls)) control.addEventListener("change", writeSettings);
@@ -139,14 +148,17 @@ const build = () => {
   controls.to.value = settings.to;
   controls.lines.value = settings.lines;
   controls.kind.value = settings.kind;
+  controls.rollover.value = settings.rollover;
+  controls.rollover.disabled = settings.kind === "same"; // rollover only matters for counting lines
 
   const { number, side, start, from, to, lines: minLength, kind } = settings;
+  const rollover = settings.rollover === "on";
   const count = side ** 3;
   const digits = digitsFor(number, start + count);
   const cells = new Int8Array(count);
   for (let i = 0; i < count; i++) cells[i] = digits.charCodeAt(start + i) - 48;
 
-  const lines = minLength > 0 ? findLines(cells, side, minLength, stepsFor[kind]) : [];
+  const lines = minLength > 0 ? findLines(cells, side, minLength, stepsFor[kind], rollover) : [];
   const onLine = new Uint8Array(count);
   for (const { x, y, z, dx, dy, dz, length } of lines) {
     for (let step = 0; step < length; step++) onLine[((z + step * dz) * side + (y + step * dy)) * side + (x + step * dx)] = 1;
@@ -161,7 +173,7 @@ const build = () => {
 
   const sameCount = lines.filter((line) => line.step === 0).length;
   const countingCount = lines.length - sameCount;
-  const tally = (n, colour, k) => `${n} ${colour} line${n === 1 ? "" : "s"} (random digits: about ${expectedLines(side, minLength, k).toFixed(1)})`;
+  const tally = (n, colour, k) => `${n} ${colour} line${n === 1 ? "" : "s"} (random digits: about ${expectedLines(side, minLength, k, rollover).toFixed(1)})`;
   const parts = minLength === 0 ? [] : [
     ...(kind !== "counting" ? [tally(sameCount, "gold", "same")] : []),
     ...(kind !== "same" ? [tally(countingCount, "green", "counting")] : []),
@@ -176,7 +188,7 @@ const build = () => {
 window.addEventListener("hashchange", build);
 
 // The About panel's text for the current settings
-const aboutCube = ({ number, side, start, from, to, lines: minLength, kind }, sameCount, countingCount, digitTally) => {
+const aboutCube = ({ number, side, start, from, to, lines: minLength, kind, rollover }, sameCount, countingCount, digitTally) => {
   const count = side ** 3;
   const shown = from === 0 && to === 9 ? "every digit"
     : from === to ? `only the ${from}s`
@@ -187,8 +199,9 @@ const aboutCube = ({ number, side, start, from, to, lines: minLength, kind }, sa
     ${minLength} or more dots with the same digit. Random digits would give about
     ${expectedLines(side, minLength, "same").toFixed(1)}.</p>`;
   const countingText = `<p>There ${countingCount === 1 ? "is" : "are"} <strong>${countingCount} green line${plural(countingCount)}</strong>
-    of ${minLength} or more dots whose digits count up or down by one (such as 3 4 5 6 7, or 8 7 6 5 4).
-    Random digits would give about ${expectedLines(side, minLength, "counting").toFixed(1)}.</p>`;
+    of ${minLength} or more dots whose digits count up or down by one (such as 3 4 5 6 7, or 8 7 6 5 4)${rollover === "on"
+      ? ", carrying on from 9 to 0 and from 0 to 9 (such as 8 9 0 1 2)" : ", stopping at 9 and 0"}.
+    Random digits would give about ${expectedLines(side, minLength, "counting", rollover === "on").toFixed(1)}.</p>`;
   const linesText = minLength === 0 ? "<p>Lines are switched off.</p>"
     : (kind !== "counting" ? sameText : "") + (kind !== "same" ? countingText : "");
   return `
@@ -199,7 +212,8 @@ const aboutCube = ({ number, side, start, from, to, lines: minLength, kind }, sa
     digits appear, for example 3 to 3 for only the 3s.</p>
     <p><strong>Gold lines</strong> join dots that have the same digit and sit in a straight line: along a row,
     down a column, from front to back, or along any diagonal (13 directions in all). <strong>Green lines</strong>
-    (chosen under "Lines of") join dots in a straight line whose digits count up or down by one.</p>
+    (chosen under "Lines of") join dots in a straight line whose digits count up or down by one. The
+    "Counting" menu chooses whether counting stops at 9 and 0, or rolls over (8 9 0 1).</p>
     <p>Drag to turn the cube, scroll to zoom, and hover over a dot to see its decimal place and digit.</p>
     <h2>This cube</h2>
     <p>${count.toLocaleString()} digits of ${numberDescriptions[number]}, from decimal place

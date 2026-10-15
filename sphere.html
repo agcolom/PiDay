@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- The ?v= numbers make browsers fetch new copies after an update; change them when the files change -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pi Mosaic: sphere</title>
+  <link rel="stylesheet" href="piStyle.css?v=2026-10-15h">
+</head>
+<body class="cubePage">
+  <!-- sphere.js draws the digit sphere here; drag to rotate, scroll to zoom -->
+  <canvas id="sphereCanvas"></canvas>
+
+  <!-- Controls; sphere.js fills in the options -->
+  <div id="sphereMenu">
+    <label>Number <select id="sphereNumber"></select></label>
+    <label>Dots <select id="sphereCount"></select></label>
+    <label>Start at decimal place <input id="sphereStart" type="number" min="0" max="500000" step="1" value="0"></label>
+    <label>Show digits <select id="sphereFrom"></select> to <select id="sphereTo"></select></label>
+    <a href="index.html">Flat mosaic</a>
+    <a href="cube.html">3D cube</a>
+    <button id="aboutButton" type="button" aria-controls="aboutPanel">About</button>
+    <div id="sphereSummary"></div>
+  </div>
+  <!-- Plain-English explanation of what's on screen; the page's script fills in the text -->
+  <aside id="aboutPanel" hidden>
+    <button id="aboutClose" type="button" aria-label="Close">×</button>
+    <div id="aboutText"></div>
+  </aside>
+  <div id="sphereInfo">Drag to rotate, scroll to zoom, hover over a dot for its digit</div>
+
+  <!-- digits.js has the digit formulas used by sphere.js -->
+  <script src="digits.js?v=2026-10-15h"></script>
+  <script src="about.js?v=2026-10-15h"></script>
+  <script src="sphere.js?v=2026-10-15h"></script>
+</body>
+</html>
