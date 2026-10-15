@@ -13,6 +13,15 @@ const numberNames = {
   oneOver9801: "1/9801",
   champernowne: "Champernowne",
 };
+// Plain-English descriptions for the About panel
+const numberDescriptions = {
+  pi: "<strong>π</strong> (3.14159…)",
+  sqrt2: "<strong>√2</strong> (1.41421…), the number that gives 2 when multiplied by itself",
+  e: "<strong>e</strong> (2.71828…), the number behind compound interest and natural growth",
+  phi: "the <strong>golden ratio φ</strong> (1.61803…)",
+  oneOver9801: "<strong>1 ÷ 9801</strong> (0.00 01 02 03 … 97 99, repeating every 198 digits)",
+  champernowne: "<strong>Champernowne's constant</strong> (0.123456789101112…, the counting numbers written in a row)",
+};
 const sides = [10, 15, 20, 30, 40, 50, 60];
 const lineOptions = { 0: "Off", 4: "4 or more in a line", 5: "5 or more in a line", 6: "6 or more in a line" };
 const defaults = { number: "pi", side: 20, start: 0, from: 9, lines: 5 };
@@ -131,9 +140,42 @@ const build = () => {
       `(random digits: about ${expectedLines(side, minLength).toFixed(1)}) · ` +
       `decimal places ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()}`
     : `Decimal places ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()}`;
+  setAboutText(aboutCube(settings, lines.length));
   needsDrawing = true;
 };
 window.addEventListener("hashchange", build);
+
+// The About panel's text for the current settings
+const aboutCube = ({ number, side, start, from, lines: minLength }, lineCount) => {
+  const count = side ** 3;
+  const shown = from === 9 ? "only the 9s" : from === 8 ? "only the 8s and 9s" : from === 0 ? "every digit" : `only the digits ${from} to 9`;
+  const linesText = minLength > 0
+    ? `<p>There are <strong>${lineCount} gold line${lineCount === 1 ? "" : "s"}</strong> of ${minLength} or more
+       dots with the same digit. Random digits would give about ${expectedLines(side, minLength).toFixed(1)}.</p>`
+    : "<p>Gold lines are switched off.</p>";
+  return `
+    <h2>What you're looking at</h2>
+    <p>The digits of a number stacked into a cube, like threading a long string of beads into a box: left to
+    right along a row, rows from top to bottom, then layer after layer from front to back. Each dot is one
+    digit, darker for bigger digits (9 is full purple).</p>
+    <p><strong>Gold lines</strong> join dots that have the same digit and sit in a straight line: along a row,
+    down a column, from front to back, or along any diagonal (13 directions in all).</p>
+    <p>Drag to turn the cube, scroll to zoom, and hover over a dot to see its decimal place and digit.</p>
+    <h2>This cube</h2>
+    <p>${count.toLocaleString()} digits of ${numberDescriptions[number]}, from decimal place
+    ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()}, arranged ${side} × ${side} × ${side}.
+    To keep it see-through, it shows ${shown}, plus every dot on a gold line.</p>
+    ${linesText}
+    <h2>Why lines always appear</h2>
+    <p>A theorem from 1927 (van der Waerden's) guarantees that any long enough string of digits contains
+    straight lines of the same digit, as long as enough directions are allowed. So finding lines proves
+    nothing on its own: what matters is whether there are more than random digits would give. For π, √2, e
+    and the golden ratio there aren't. For 1/9801 and Champernowne's constant the count is often wildly
+    different, because their digits follow a pattern.</p>
+    <p><strong>Beware of illusions:</strong> when you look straight along the grid, neighbouring dots line up
+    into rows. That's the viewing angle, not the digits. Only the gold lines are real lines of one digit.</p>
+    ${aboutLinks}`;
+};
 
 // ---- Drawing ----
 const canvas = document.getElementById("cubeCanvas");
@@ -280,5 +322,6 @@ const showDigitUnder = (pointerX, pointerY) => {
 };
 
 resize();
+setupAbout("piCubeAbout");
 build();
 requestAnimationFrame(frame);

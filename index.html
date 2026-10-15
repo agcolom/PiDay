@@ -13,10 +13,18 @@
     <label>Fold <select id="foldSelect"></select></label>
     <span id="foldInfo"></span>
     <a href="cube.html">3D cube</a>
+    <button id="aboutButton" type="button" aria-controls="aboutPanel">About</button>
   </div>
+
+  <!-- Plain-English explanation of what's on screen; the page's script fills in the text -->
+  <aside id="aboutPanel" hidden>
+    <button id="aboutClose" type="button" aria-label="Close">×</button>
+    <div id="aboutText"></div>
+  </aside>
 
   <!-- digits.js has the digit formulas; pi.js appends #piContainer to <body>, so it must load after <body> exists -->
   <script src="digits.js"></script>
+  <script src="about.js"></script>
   <script src="pi.js"></script>
 </body>
 </html>

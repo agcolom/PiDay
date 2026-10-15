@@ -69,3 +69,58 @@ body {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   font: 14px system-ui, sans-serif;
 }
+
+/* About panel: plain-English explanation, on the left so it doesn't cover the menus */
+#aboutPanel {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  width: min(420px, calc(100vw - 24px));
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 4px 18px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  font: 15px/1.45 system-ui, sans-serif;
+  color: #222;
+}
+
+#aboutPanel[hidden] {
+  display: none;
+}
+
+#aboutPanel h2 {
+  margin: 14px 0 4px;
+  font-size: 16px;
+  color: rgb(100, 0, 100);
+}
+
+#aboutPanel p {
+  margin: 6px 0;
+}
+
+#aboutClose {
+  position: sticky;
+  top: 0;
+  float: right;
+  margin: 4px -8px 0 8px;
+  border: none;
+  background: none;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: #555;
+}
+
+.aboutLinks {
+  padding-top: 8px;
+  border-top: 1px solid #ddd;
+}
+
+#aboutButton {
+  font: inherit;
+  cursor: pointer;
+}

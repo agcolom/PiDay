@@ -18,12 +18,19 @@
     <label>Show digits <select id="cubeFrom"></select> to 9</label>
     <label>Gold lines <select id="cubeLines"></select></label>
     <a href="index.html">Flat mosaic</a>
+    <button id="aboutButton" type="button" aria-controls="aboutPanel">About</button>
     <div id="cubeSummary"></div>
   </div>
+  <!-- Plain-English explanation of what's on screen; the page's script fills in the text -->
+  <aside id="aboutPanel" hidden>
+    <button id="aboutClose" type="button" aria-label="Close">×</button>
+    <div id="aboutText"></div>
+  </aside>
   <div id="cubeInfo">Drag to rotate, scroll to zoom, hover over a cube for its digit</div>
 
   <!-- digits.js has the digit formulas used by cube.js -->
   <script src="digits.js"></script>
+  <script src="about.js"></script>
   <script src="cube.js"></script>
 </body>
 </html>

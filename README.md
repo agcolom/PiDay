@@ -11,7 +11,8 @@ patterns.
 π, √2, e, the golden ratio, 1/9801 and Champernowne's constant. Cyan frames mark repeated blocks;
 gold frames mark runs of six or more of the same digit. The second menu folds the mosaic onto itself
 and shows where the two halves have the same digit. The "3D cube" link opens `cube.html`, a cube of
-digits you can rotate, with gold lines through every straight line of one digit.
+digits you can rotate, with gold lines through every straight line of one digit. On both pages, the
+**About** button explains in plain English what's on screen.
 
 ## Files
 
@@ -20,6 +21,7 @@ digits you can rotate, with gold lines through every straight line of one digit.
 | `index.html`, `pi.js`, `piStyle.css` | The flat mosaic. |
 | `cube.html`, `cube.js` | The rotatable 3D cube. |
 | `digits.js` | The formulas both pages use to compute the digits in the browser. |
+| `about.js` | The plain-English "About" panel on both pages (its text is in `pi.js` and `cube.js`). |
 | `REPORT.md` | How everything was calculated, checked and interpreted. |
 | `FINDINGS.md` | All the result tables, plus every repeated block found. |
 | `analysis/digits/` | The first million decimals of each number, each verified by two or more independent methods. |

@@ -60,6 +60,8 @@ Change the width and different digits line up, so different shapes appear.
 - Each **view** sets a number, a width, a number of rows, a square size, and optionally a first row,
   so a view can start partway into the number. The digits before the first row are still computed,
   because frame positions are given as true decimal places, but they aren't drawn.
+- An **About** button opens a plain-English explanation of the current view, written for readers
+  without a mathematical background. Its figures are taken from FINDINGS.md.
 - A menu switches between views without reloading the page, and a second menu folds the mosaic onto
   itself (section 9.4). The choices are stored in the address (e.g. `index.html#e-309/fold-left-right`),
   so refreshing, bookmarking and the back button all work.

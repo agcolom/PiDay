@@ -335,6 +335,8 @@ than chance in some arrangements).
 - `index.html`, `pi.js`, `piStyle.css`: the flat mosaic and its view settings.
 - `cube.html`, `cube.js`: the rotatable 3D cube (section 7.4).
 - `digits.js`: the formulas both pages use to compute every number's digits in the browser.
+- `about.js`: the plain-English "About" panel on both pages; its text is written in `pi.js` (one
+  paragraph per view, plus the folds) and `cube.js` (built from the cube's current settings).
 - `analysis/digits/`: the verified first million decimals of each number (square 0 = whole-number
   part), plus √2's second million (decimal places 1,000,001–2,000,000).
 - `analysis/results/*_repeats_14plus.json`: every repeat of 14 or more squares found at widths
