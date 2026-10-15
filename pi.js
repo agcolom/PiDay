@@ -199,8 +199,9 @@ const computeDigits = {
 // Calculate the alpha value based on the digits
 const calculateAlpha = (digit) => (parseInt(digit) / 9).toFixed(2); // Normalize to a value between 0 and 1
 
-// Draws one view, replacing whatever was on the page before
-const showView = (viewName) => {
+// Draws one view, replacing whatever was on the page before.
+// fold is "none", "left-right" (fold the left half onto the right) or "top-bottom".
+const showView = (viewName, fold = "none") => {
   // Size of each small div in pixels comes from the view
   const { number, columns, firstRow = 0, rows, divSize, repeats } = views[viewName];
 
@@ -248,14 +249,41 @@ const showView = (viewName) => {
     return "";
   };
 
+  // Folded, the page shows one half; each square is compared with its mirror image in the other half
+  const shownColumns = fold === "left-right" ? Math.floor(columns / 2) : columns;
+  const shownRows = fold === "top-bottom" ? Math.floor(rows / 2) : rows;
+
   // Create container element with an id and set the flex direction to row
       const container = document.createElement("div");
       container.id = "piContainer"; // Set the id
-      container.style.width = `${columns * divSize}px`;
-      container.style.height = `${rows * divSize}px`;
-    
+      container.style.width = `${shownColumns * divSize}px`;
+      container.style.height = `${shownRows * divSize}px`;
+
+      const foldInfo = document.getElementById("foldInfo");
+      if (fold === "none") foldInfo.textContent = "";
+      else {
+        // Solid where both layers have the same digit, pale where they differ
+        let matches = 0;
+        for (let row = 0; row < shownRows; row++) {
+          for (let col = 0; col < shownColumns; col++) {
+            const digit = digits[firstDigit + row * columns + col];
+            const partner = fold === "left-right"
+              ? digits[firstDigit + row * columns + (columns - 1 - col)]
+              : digits[firstDigit + (rows - 1 - row) * columns + col];
+            const div = document.createElement("div");
+            div.style.backgroundColor = digit === partner ? "rgb(128, 0, 128)" : "rgba(128, 0, 128, 0.08)";
+            div.style.width = `${divSize}px`;
+            div.style.height = `${divSize}px`;
+            if (digit === partner) matches++;
+            container.appendChild(div);
+          }
+        }
+        const share = (100 * matches) / (shownRows * shownColumns);
+        foldInfo.textContent = `${share.toFixed(1)}% of squares match (random digits: 10%)`;
+      }
+
       // Convert each digit to alpha transparency and create small divs
-      digits.slice(firstDigit).split("").forEach((digit, i) => {
+      if (fold === "none") digits.slice(firstDigit).split("").forEach((digit, i) => {
         const index = firstDigit + i; // position in the number, used for the frames
         const alpha = calculateAlpha(digit);
         const color = `rgba(128, 0, 128, ${alpha})`; // Use rgba to include alpha channel
@@ -297,24 +325,35 @@ const showView = (viewName) => {
       document.body.appendChild(container);
 
       // Start the page at the first copy of the repeat (if the view has one), then scroll down to find the second
-      if (repeats.length > 0) {
+      if (repeats.length > 0 && fold === "none") {
         container.children[repeats[0].start - firstDigit].scrollIntoView({ block: "center", inline: "center" });
       } else {
         window.scrollTo(0, 0);
       }
 };
 
-// Fill the menu with the views, and redraw when the choice changes
+// Fill the menus, and redraw when a choice changes.
+// The address remembers both choices, e.g. index.html#pi-147 or index.html#pi-147/fold-left-right
 const menu = document.getElementById("viewSelect");
 for (const [name, { label }] of Object.entries(views)) menu.add(new Option(label, name));
 
+const folds = { "none": "No fold", "left-right": "Fold left onto right", "top-bottom": "Fold top onto bottom" };
+const foldMenu = document.getElementById("foldSelect");
+for (const [name, label] of Object.entries(folds)) foldMenu.add(new Option(label, name));
+
 const showViewFromAddress = () => {
-  const name = location.hash.slice(1);
+  const [name, foldPart = ""] = location.hash.slice(1).split("/");
   const viewName = name in views ? name : defaultView;
+  const fold = foldPart.replace("fold-", "") in folds ? foldPart.replace("fold-", "") : "none";
   menu.value = viewName;
-  showView(viewName);
+  foldMenu.value = fold;
+  showView(viewName, fold);
 };
 
-menu.addEventListener("change", () => { location.hash = menu.value; }); // the hashchange below does the drawing
+const updateAddress = () => {
+  location.hash = menu.value + (foldMenu.value === "none" ? "" : `/fold-${foldMenu.value}`);
+};
+menu.addEventListener("change", updateAddress); // the hashchange below does the drawing
+foldMenu.addEventListener("change", updateAddress);
 window.addEventListener("hashchange", showViewFromAddress);
 showViewFromAddress();

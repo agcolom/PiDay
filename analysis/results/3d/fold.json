@@ -1,0 +1,266 @@
+{
+ "left onto right": {
+  "pi": {
+   "squares": 500000,
+   "match_share": 0.10008,
+   "two_by_two": 50,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 6,
+   "runs5_expected": 8.94750000000002
+  },
+  "sqrt2": {
+   "squares": 500000,
+   "match_share": 0.099998,
+   "two_by_two": 61,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 3,
+   "runs5_expected": 8.94750000000002
+  },
+  "e": {
+   "squares": 500000,
+   "match_share": 0.100738,
+   "two_by_two": 47,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 6,
+   "runs5_expected": 8.94750000000002
+  },
+  "phi": {
+   "squares": 500000,
+   "match_share": 0.0999,
+   "two_by_two": 49,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 10,
+   "runs5_expected": 8.94750000000002
+  },
+  "champernowne": {
+   "squares": 500000,
+   "match_share": 0.107908,
+   "two_by_two": 3313,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 2059,
+   "runs5_expected": 8.94750000000002
+  },
+  "1/9801": {
+   "squares": 500000,
+   "match_share": 0.100012,
+   "two_by_two": 0,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 0,
+   "runs5_expected": 8.94750000000002
+  },
+  "random 1": {
+   "squares": 500000,
+   "match_share": 0.100346,
+   "two_by_two": 54,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 14,
+   "runs5_expected": 8.94750000000002
+  },
+  "random 2": {
+   "squares": 500000,
+   "match_share": 0.099516,
+   "two_by_two": 59,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 7,
+   "runs5_expected": 8.94750000000002
+  }
+ },
+ "top onto bottom": {
+  "pi": {
+   "squares": 500000,
+   "match_share": 0.099916,
+   "two_by_two": 56,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 4,
+   "runs5_expected": 8.94750000000002
+  },
+  "sqrt2": {
+   "squares": 500000,
+   "match_share": 0.099828,
+   "two_by_two": 40,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 15,
+   "runs5_expected": 8.94750000000002
+  },
+  "e": {
+   "squares": 500000,
+   "match_share": 0.10057,
+   "two_by_two": 48,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 8,
+   "runs5_expected": 8.94750000000002
+  },
+  "phi": {
+   "squares": 500000,
+   "match_share": 0.100384,
+   "two_by_two": 54,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 10,
+   "runs5_expected": 8.94750000000002
+  },
+  "champernowne": {
+   "squares": 500000,
+   "match_share": 0.098652,
+   "two_by_two": 67,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 41,
+   "runs5_expected": 8.94750000000002
+  },
+  "1/9801": {
+   "squares": 500000,
+   "match_share": 0.09984,
+   "two_by_two": 0,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 2005,
+   "runs5_expected": 8.94750000000002
+  },
+  "random 1": {
+   "squares": 500000,
+   "match_share": 0.10032,
+   "two_by_two": 65,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 11,
+   "runs5_expected": 8.94750000000002
+  },
+  "random 2": {
+   "squares": 500000,
+   "match_share": 0.100176,
+   "two_by_two": 44,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 7,
+   "runs5_expected": 8.94750000000002
+  }
+ },
+ "main diagonal": {
+  "pi": {
+   "squares": 499500,
+   "match_share": 0.10012212212212213,
+   "two_by_two": 53,
+   "two_by_two_expected": 49.7503,
+   "runs5": 2,
+   "runs5_expected": 8.921170000000004
+  },
+  "sqrt2": {
+   "squares": 499500,
+   "match_share": 0.09957357357357358,
+   "two_by_two": 59,
+   "two_by_two_expected": 49.7503,
+   "runs5": 11,
+   "runs5_expected": 8.921170000000004
+  },
+  "e": {
+   "squares": 499500,
+   "match_share": 0.09984784784784785,
+   "two_by_two": 44,
+   "two_by_two_expected": 49.7503,
+   "runs5": 8,
+   "runs5_expected": 8.921170000000004
+  },
+  "phi": {
+   "squares": 499500,
+   "match_share": 0.09945945945945946,
+   "two_by_two": 50,
+   "two_by_two_expected": 49.7503,
+   "runs5": 8,
+   "runs5_expected": 8.921170000000004
+  },
+  "champernowne": {
+   "squares": 499500,
+   "match_share": 0.12596796796796797,
+   "two_by_two": 410,
+   "two_by_two_expected": 49.7503,
+   "runs5": 6,
+   "runs5_expected": 8.921170000000004
+  },
+  "1/9801": {
+   "squares": 499500,
+   "match_share": 0.04955955955955956,
+   "two_by_two": 0,
+   "two_by_two_expected": 49.7503,
+   "runs5": 0,
+   "runs5_expected": 8.921170000000004
+  },
+  "random 1": {
+   "squares": 499500,
+   "match_share": 0.1001001001001001,
+   "two_by_two": 49,
+   "two_by_two_expected": 49.7503,
+   "runs5": 4,
+   "runs5_expected": 8.921170000000004
+  },
+  "random 2": {
+   "squares": 499500,
+   "match_share": 0.09984584584584584,
+   "two_by_two": 42,
+   "two_by_two_expected": 49.7503,
+   "runs5": 5,
+   "runs5_expected": 8.921170000000004
+  }
+ },
+ "other diagonal": {
+  "pi": {
+   "squares": 499500,
+   "match_share": 0.100002002002002,
+   "two_by_two": 59,
+   "two_by_two_expected": 49.7503,
+   "runs5": 8,
+   "runs5_expected": 8.921170000000007
+  },
+  "sqrt2": {
+   "squares": 499500,
+   "match_share": 0.10039439439439439,
+   "two_by_two": 50,
+   "two_by_two_expected": 49.7503,
+   "runs5": 7,
+   "runs5_expected": 8.921170000000007
+  },
+  "e": {
+   "squares": 499500,
+   "match_share": 0.10023623623623623,
+   "two_by_two": 41,
+   "two_by_two_expected": 49.7503,
+   "runs5": 11,
+   "runs5_expected": 8.921170000000007
+  },
+  "phi": {
+   "squares": 499500,
+   "match_share": 0.09977577577577577,
+   "two_by_two": 50,
+   "two_by_two_expected": 49.7503,
+   "runs5": 7,
+   "runs5_expected": 8.921170000000007
+  },
+  "champernowne": {
+   "squares": 499500,
+   "match_share": 0.1007927927927928,
+   "two_by_two": 172,
+   "two_by_two_expected": 49.7503,
+   "runs5": 5,
+   "runs5_expected": 8.921170000000007
+  },
+  "1/9801": {
+   "squares": 499500,
+   "match_share": 0.05966966966966967,
+   "two_by_two": 0,
+   "two_by_two_expected": 49.7503,
+   "runs5": 0,
+   "runs5_expected": 8.921170000000007
+  },
+  "random 1": {
+   "squares": 499500,
+   "match_share": 0.10040840840840841,
+   "two_by_two": 53,
+   "two_by_two_expected": 49.7503,
+   "runs5": 11,
+   "runs5_expected": 8.921170000000007
+  },
+  "random 2": {
+   "squares": 499500,
+   "match_share": 0.09943943943943943,
+   "two_by_two": 51,
+   "two_by_two_expected": 49.7503,
+   "runs5": 11,
+   "runs5_expected": 8.921170000000007
+  }
+ }
+}

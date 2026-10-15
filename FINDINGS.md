@@ -22,8 +22,8 @@ None of this proves the digits of π (or the others) are random.
   up stacked above each other, so it decides which 2D shapes you see.
 - **Cyan frames** mark both copies of a repeated block. **Gold frames** mark runs of six or more
   of the same digit.
-- The menu in the top-right corner switches between views. The choice is kept in the address,
-  e.g. `index.html#e-309`.
+- The menu in the top-right corner switches between views, and a second menu folds the mosaic onto
+  itself (section 7.3). The choices are kept in the address, e.g. `index.html#e-309/fold-left-right`.
 
 | View | Number | Columns × rows | Squares | What's framed |
 |---|---|---|---|---|
@@ -214,14 +214,111 @@ far more repeats than chance.
 
 ---
 
-## 7. Still to do
+## 7. Beyond the flat mosaic: lines in 2D, 3D and 4D, 3D blocks, and folding
 
+All choices below (layouts, directions, lengths, shapes, folds) were fixed before any results were
+seen. Two strings of random digits were run alongside as controls. Methods: REPORT.md, section 9.
+
+### 7.1 Straight lines of one digit (any direction, no wrapping)
+
+Lines of L or more squares in a straight line, all the same digit. Directions: 4 in 2D, 13 in 3D,
+40 in 4D. The 2D and 3D layouts use decimal places 0–999,999; the 4D one uses 0–923,520.
+
+| Layout | Length | π | √2 | e | φ | Champernowne | 1/9801 | Random 1 | Random 2 | Chance |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 2D 1,000 × 1,000 | 5+ | 351 | 353 | 367 | 379 | 21,885 | 0 | 346 | 360 | 357.9 |
+| | 6+ | 47 | 43 | 46 | 24 | 2,961 | 0 | 32 | 31 | 35.7 |
+| | 7+ | 4 | 3 | 5 | 1 | 2,923 | 0 | 7 | 4 | 3.57 |
+| | 8+ | 0 | 0 | 1 | 1 | 2,899 | 0 | 4 | 0 | 0.36 |
+| 3D 100 × 100 × 100 | 5+ | 1,096 | 1,089 | 1,038 | 1,132 | 140,081 | 73,846 | 1,055 | 1,107 | 1,077.9 |
+| | 6+ | 109 | 125 | 114 | 99 | 38,796 | 71,640 | 90 | 97 | 105.5 |
+| | 7+ | 12 | 12 | 13 | 10 | 24,912 | 69,466 | 7 | 13 | 10.3 |
+| | 8+ | 1 | 3 | 2 | 1 | 21,646 | 67,320 | 1 | 3 | 1.01 |
+| 4D 31 × 31 × 31 × 31 | 5+ | 2,247 | 2,407 | 2,392 | 2,280 | 201,014 | 47,986 | 2,237 | 2,292 | 2,331.2 |
+| | 6+ | 209 | 215 | 218 | 184 | 160,192 | 42,464 | 218 | 221 | 211.6 |
+| | 7+ | 21 | 14 | 24 | 23 | 130,099 | 37,231 | 19 | 22 | 19.2 |
+| | 8+ | 1 | 1 | 3 | 6 | 113,739 | 32,292 | 2 | 1 | 1.73 |
+
+- **Longest lines:** 7 or 8 for π, √2, e and φ in every layout. For Champernowne, 488 squares in 2D
+  (a column through numbers that share their leading digits), 100 in 3D and 31 in 4D (the full width
+  of the box). For 1/9801, 100 in 3D.
+- **The chance column was checked** against 100 further random strings in 2D. Their averages were
+  356.4, 35.3, 3.38 and 0.26, against 357.9, 35.7, 3.57 and 0.36.
+- **Random string 1's four lines of 8+ in 2D** are real (checked square by square). That's about a
+  1-in-1,500 result; none of the 100 check strings had more than two. Truly random digits produce
+  striking results too.
+- **Unusual counts for the four constants** (less than 5% chance in one direction): π 2D 6+ (47,
+  4.0%), φ 2D 6+ (24, 2.5% low), √2 3D 6+ (125, 3.5%), π 4D 5+ (2,247, 4.1% low), φ 4D 6+ (184, 2.9%
+  low), φ 4D 8+ (6, 0.9%). That's 6 of 48 counts, against about 5 expected by chance.
+- **Follow-up:** φ's 4D count in fresh digits (decimal places 1,000,001–1,923,521) was 2,274 / 206 /
+  19 / **2** for 5+ / 6+ / 7+ / 8+. Not reproduced.
+- **1/9801 has no lines at all in 2D** at 1,000 columns, but tens of thousands in 3D: whether its
+  198-digit cycle lines up depends on the box, not just on the number having structure.
+
+By **van der Waerden's theorem**, any colouring of the whole numbers with finitely many colours
+contains arbitrarily long evenly spaced runs of one colour. So lines of one digit must exist in every
+number if enough directions are allowed; only their *number* compared with chance is informative.
+
+### 7.2 Repeated 3D blocks
+
+Digits fill W × W layers stacked into a box, for every W from 10 to 150 (141 layouts). Counts are of
+different blocks that appear twice or more, all orientations of each shape included.
+
+| Block | π | √2 | e | φ | Champernowne | 1/9801 | Random 1 | Random 2 | Chance |
+|---|---|---|---|---|---|---|---|---|---|
+| 2×2×3 (12 cubes) | 180 | 198 | 192 | 162 | 9,892,652 | 82,853 | 195 | 175 | 185.3 |
+| 2×2×4 (16 cubes) | 0 | 0 | 0 | 0 | 5,955,665 | 82,903 | 0 | 0 | 0.018 |
+| 2×3×3 (18 cubes) | 0 | 0 | 0 | 0 | 3,220,478 | 83,215 | 0 | 0 | 0.0002 |
+
+The furthest from chance among the four constants is φ's 162 (4.5% chance of 162 or fewer).
+
+### 7.3 Folding
+
+The 1,000 × 1,000 layout folded four ways. A square "matches" when it has the same digit as the square
+it lands on (squares on a diagonal fold line, which land on themselves, are left out). For random
+digits every pair matches with probability exactly 1/10, independently.
+
+| Fold | Measure | π | √2 | e | φ | Champernowne | 1/9801 | Random 1 | Random 2 | Chance |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Left onto right | match | 10.01% | 10.00% | 10.07% | 9.99% | 10.79% | 10.00% | 10.03% | 9.95% | 10% |
+| | all-matching 2×2 | 50 | 61 | 47 | 49 | 3,313 | 0 | 54 | 59 | 49.9 |
+| | runs of 5+ matches | 6 | 3 | 6 | 10 | 2,059 | 0 | 14 | 7 | 8.9 |
+| Top onto bottom | match | 9.99% | 9.98% | 10.06% | 10.04% | 9.87% | 9.98% | 10.03% | 10.02% | 10% |
+| | all-matching 2×2 | 56 | 40 | 48 | 54 | 67 | 0 | 65 | 44 | 49.9 |
+| | runs of 5+ matches | 4 | 15 | 8 | 10 | 41 | 2,005 | 11 | 7 | 8.9 |
+| Main diagonal | match | 10.01% | 9.96% | 9.98% | 9.95% | 12.60% | 4.96% | 10.01% | 9.98% | 10% |
+| | all-matching 2×2 | 53 | 59 | 44 | 50 | 410 | 0 | 49 | 42 | 49.8 |
+| | runs of 5+ matches | 2 | 11 | 8 | 8 | 6 | 0 | 4 | 5 | 8.9 |
+| Other diagonal | match | 10.00% | 10.04% | 10.02% | 9.98% | 10.08% | 5.97% | 10.04% | 9.94% | 10% |
+| | all-matching 2×2 | 59 | 50 | 41 | 50 | 172 | 0 | 53 | 51 | 49.8 |
+| | runs of 5+ matches | 8 | 7 | 11 | 7 | 5 | 0 | 11 | 11 | 8.9 |
+
+- The chance figures were checked against 100 random strings (averages 49.4–50.4 for 2×2 groups and
+  8.8–9.2 for runs).
+- Unusual counts for the four constants: √2 left onto right, 3 runs (2.2% low); √2 top onto bottom,
+  15 runs (4.0% high); π main diagonal, 2 runs (0.7% low; 2 of 400 random fold maps were this low).
+  That's 3 of the 32 scored counts (2×2 groups and runs), against about 3 expected.
+- 1/9801 shows its structure as a *shortage*: no all-matching groups at all, and only about 5% matching
+  along the diagonals.
+
+### 7.4 Summary
+
+Lines in 2D, 3D and 4D, repeated 3D blocks and folding all give the same answer as the flat mosaic:
+π, √2, e and φ are consistent with random digits on these tests, while Champernowne's constant and
+1/9801 stand out by factors of hundreds to millions (or, for 1/9801, by having far *fewer* matches
+than chance in some arrangements).
+
+---
+
+## 8. Still to do
+
+- A rotatable 3D view of the digit cube in the browser.
 - Ideas not yet tried: 22/7 (π's school approximation, repeats every 6 digits), Liouville's constant
   (almost all zeros), Euler–Mascheroni γ (not even known to be irrational), ∛2.
 
 ---
 
-## 8. Files
+## 9. Files
 
 - `index.html`, `pi.js`, `piStyle.css`: the mosaic. `pi.js` computes every number's digits in the
   browser and contains the view settings.
@@ -229,8 +326,9 @@ far more repeats than chance.
   part), plus √2's second million (decimal places 1,000,001–2,000,000).
 - `analysis/results/*_repeats_14plus.json`: every repeat of 14 or more squares found at widths
   2–2,000. Format: `{"3x5": [[columns, [decimal place of copy 1, decimal place of copy 2]], …]}`.
-- `analysis/scripts/`: the Python scripts used. They were run from `/tmp/<folder>/`, so file paths
-  inside them point there and need adjusting to rerun.
+- `analysis/scripts/`: the Python scripts used. Those in `analysis/scripts/3d/` run from the project
+  folder as they are; the older ones were run from `/tmp/<folder>/`, so their file paths need adjusting.
+- `analysis/results/3d/`: results of the line, 3D block and fold tests (JSON).
 
 ---
 

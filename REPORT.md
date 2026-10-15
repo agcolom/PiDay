@@ -60,8 +60,9 @@ Change the width and different digits line up, so different shapes appear.
 - Each **view** sets a number, a width, a number of rows, a square size, and optionally a first row,
   so a view can start partway into the number. The digits before the first row are still computed,
   because frame positions are given as true decimal places, but they aren't drawn.
-- A menu switches between views without reloading the page. The choice is stored in the address
-  (e.g. `index.html#e-309`), so refreshing, bookmarking and the back button all work.
+- A menu switches between views without reloading the page, and a second menu folds the mosaic onto
+  itself (section 9.4). The choices are stored in the address (e.g. `index.html#e-309/fold-left-right`),
+  so refreshing, bookmarking and the back button all work.
 
 ---
 
@@ -395,7 +396,83 @@ tell the difference.
 
 ---
 
-## 9. Limitations
+## 9. Beyond the flat mosaic: lines, 3D blocks and folding
+
+### 9.1 One idea behind all three
+
+Any arrangement of the digits, whether flat, folded, a cube or a hypercube, only decides which decimal
+places count as neighbours. If digits fill a box with sides n₁ × n₂ × … (last side filled first, like
+the mosaic's rows), a step along each side is a fixed jump in decimal places: 1, n_last, n_last ×
+n_second-last, and so on. A straight line in any direction is therefore a set of evenly spaced decimal
+places k, k + d, k + 2d, … (an arithmetic progression). A box in d dimensions has (3^d − 1)/2 line
+directions: 4 in 2D, 13 in 3D, 40 in 4D.
+
+To avoid choosing whatever happens to look good, all layouts, directions, lengths, block shapes and
+folds were fixed before any results were seen, and two strings of random digits were run alongside.
+
+### 9.2 Straight lines of one digit
+
+A line of length L is L cells in one direction, inside the box (no wrapping round an edge), all the
+same digit, and maximal: the cells just before and after it are outside the box or a different digit.
+The count works on the whole box at once. Pad the box with a border of −1, compare it with a copy
+shifted one step along the direction, and keep the cells that start a run (the cell one step back is
+different or outside). Then repeatedly test whether the run continues one more step. This gives the
+length of every maximal run in that direction.
+
+**Chance.** A maximal run of length L or more starts at cell c when cells c, …, c + (L−1)v are inside
+the box and all equal (probability 10^−(L−1)), and the cell before is outside the box (probability 1)
+or a different digit (probability 9/10). Summing over all cells and directions:
+
+  expected runs ≥ L = 10^−(L−1) × Σ over directions [ (cells where the run fits) − 0.1 × (cells where
+  the run fits and the cell before is inside) ]
+
+with "where the run fits" = Π (nᵢ − (L−1)|vᵢ|) and "and the cell before is inside" = Π (nᵢ − L|vᵢ|).
+On 100 random strings in the 2D layout the averages matched the formula (356.4 found against 357.9
+predicted for 5+; 0.26 against 0.36 for 8+). We also re-counted one result square by square with a
+simple loop and got the same lines.
+
+**Van der Waerden's theorem** (1927) says that colouring the whole numbers with finitely many colours
+always produces arbitrarily long evenly spaced runs of one colour. With 10 digits as colours, lines of
+one digit of any given length must exist in every number once enough directions and spacings are
+allowed. Finding a striking line therefore proves nothing; only the count compared with chance means
+anything.
+
+### 9.3 Repeated 3D blocks
+
+Digits fill W × W layers stacked into a box with ⌊N / W²⌋ full layers. A d × h × w block starting at
+decimal place p covers p + i·W² + j·W + k for i < d, j < h, k < w. Each block is encoded as one number
+and the codes are sorted, exactly as in 2D (section 4.2), for every W from 10 to 150 and every
+orientation of 2×2×3, 2×2×4 and 2×3×3. The chance figure uses the same pair formula as in 2D, with
+M = (layers − d + 1)(W − h + 1)(W − w + 1), counting only boxes where the block fits.
+
+### 9.4 Folding
+
+Folding lays the 1,000 × 1,000 layout onto itself: left half onto right (column c meets 999 − c), top
+onto bottom (row r meets 999 − r), or along either diagonal ((r, c) meets (c, r), or (999 − c, 999 − r)).
+A square matches when it has the same digit as its partner. Squares on a diagonal fold line meet
+themselves and are left out. For random digits each pair matches with probability exactly 1/10,
+independently of the others, so:
+
+- the match rate should be 10%;
+- an all-matching 2×2 group has probability 10⁻⁴, so the expected number is 10⁻⁴ × (number of 2×2
+  positions);
+- a maximal run of 5 or more matches along a row or column starting at a given place has probability
+  0.1⁵ × (1 or 0.9), giving about 8.9 per fold.
+
+These figures matched the averages from 100 random strings. In the mosaic, the fold menu shows one half
+of the current view, with matching squares solid and the rest pale, plus the match rate. Diagonal
+folds need a square grid, so they are only in the analysis, not in the mosaic.
+
+### 9.5 Reading the results
+
+The approach to unusual results is the one in section 7: Poisson probabilities as approximations,
+allowance for the number of counts examined, and recounting in fresh digits when something stands out.
+Results are in FINDINGS.md, section 7. In brief, about 1 count in 10 fell outside the middle 90% of
+chance (as expected); the most extreme, φ's six 4D lines of 8 or more (0.9%), was not reproduced in
+φ's next 923,521 digits (2 found, 1.73 expected). One random control string produced a 1-in-1,500
+result, a reminder that truly random digits look striking sometimes too.
+
+## 10. Limitations
 
 - **Base 10 only.** Normality in base 10 carries over to bases 100, 1,000 and other powers of 10,
   but not to other bases such as 2 or 7. Looking random in base 10 says nothing about other bases.
@@ -413,10 +490,12 @@ tell the difference.
 
 ---
 
-## 10. Reproducing the results
+## 11. Reproducing the results
 
 - The verified digits are in `analysis/digits/`. Square 0 is the whole-number part.
-- The Python scripts are in `analysis/scripts/`, grouped by the folder they were run from (`/tmp/pi1m`,
+- The line, 3D block and fold scripts are in `analysis/scripts/3d/` and run from the project folder
+  as they are, e.g. `python3 analysis/scripts/3d/alignments.py`.
+- The other Python scripts are in `analysis/scripts/`, grouped by the folder they were run from (`/tmp/pi1m`,
   `/tmp/sqrt2`, and so on). Their file paths point to those folders, so they need adjusting to run
   elsewhere. They need Python 3 and `numpy`. Scripts that use several cores must keep their
   `if __name__ == "__main__":` guard, because on macOS each worker process re-runs the script without it.
