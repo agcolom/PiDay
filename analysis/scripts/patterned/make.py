@@ -1,4 +1,4 @@
-import sys, re, random; sys.set_int_max_str_digits(0)
+import sys, re; sys.set_int_max_str_digits(0)
 N = 1_000_000
 
 # 1/9801. Index 0 is the whole-number part "0", so index k = decimal place k (same as the other numbers)
@@ -16,8 +16,9 @@ def digit_at(k):                                            # method 2: formula 
         k -= length * count; length += 1; count *= 10; start *= 10
     number = start + (k - 1) // length
     return str(number)[(k - 1) % length]
-sample = [1, 9, 10, 11, 189, 190, 2889, 2890, 38889, 38890, 488889, 488890, N] + random.Random(1).sample(range(1, N + 1), 20000)
-print("Champernowne: formula agrees at", len(sample), "places:", all(c[k] == digit_at(k) for k in sample), "| starts 0.", c[1:25])
+mismatches = [k for k in range(1, N + 1) if c[k] != digit_at(k)]   # every decimal place, 1 to N
+print("Champernowne: formula agrees at all", N, "places:", not mismatches, "| starts 0.", c[1:25])
+assert not mismatches, mismatches[:10]
 open("champ.txt", "w").write(c)
 
 for name, s in [("1/9801", a), ("Champernowne", c)]:

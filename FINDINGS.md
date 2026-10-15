@@ -1,6 +1,6 @@
 # Pi Mosaic: findings
 
-What we found while turning the digits of π (and six other numbers) into mosaics, and
+What we found while turning the digits of π (and five other numbers) into mosaics, and
 checking whether any patterns in them are real. Started 14 October 2026.
 
 **Short version:** on the tests we ran and the digits we examined, π, √2, e and the golden ratio φ
@@ -116,10 +116,13 @@ Chance figures count only widths where the shape fits (see the revision note at 
 | √2: only 10 repeats of 14 squares | about 19.4 expected (1.5% chance of 10 or fewer); lower than all 24 random million-digit strings tested (they gave 12–28, average 18.6) | second million of √2: **18** | not reproduced |
 | φ: 6 repeats of 15 squares | about 1.95 expected (1.5% chance of 6 or more) | second million of φ: **0** | not reproduced |
 | φ: 4×4 repeat | 0.097 expected for 4×4 blocks (9.3% chance of at least one); 0.29 for any 16-square shape (25%) | second million of φ: **0** 16-square repeats | not reproduced |
-| φ: only 10 repeats of 14 squares | about 19.4 expected | second million of φ: **16** | not reproduced |
+| φ: only 10 repeats of 14 squares | about 19.4 expected (1.5% chance of 10 or fewer) | second million of φ: **16** | not reproduced |
 
-We compared about 30 counts across these numbers, so a couple of 1-in-70 results are not
-surprising. None of the unusual counts was reproduced in fresh digits, which is consistent with
+Three counts were each about 1-in-70 (1.5%): √2's and φ's 10 repeats of 14 squares, and φ's 6 repeats
+of 15 squares. Among the roughly 30 counts in this section, one such result would be unremarkable, but
+three is more than usual (about 1 time in 100 if the counts were independent). The later tests
+(sections 7.1 to 7.6) added well over a hundred more counts, which makes a few 1.5% results expected
+overall (REPORT.md, section 7.2). None of the unusual counts was reproduced in fresh digits, which is consistent with
 chance variation, though it doesn't prove it. π and e had no counts unusual enough to need this
 check. The probabilities are Poisson approximations (see REPORT.md, section 7).
 
@@ -454,9 +457,10 @@ on our tests they did. What surprised us was in the details.
    strings confirmed it was real (section 7.1). Truly random digits sometimes look more "patterned" than π,
    which is why every striking result had to be compared with chance.
 
-4. **How convincing the false alarms looked.** √2's low count of 14-square repeats (10 against about 19),
-   φ's six 15-square repeats (against about 2) and φ's six 4D lines of eight (against about 1.7) each
-   looked significant on their own. None came back in the next million digits: 18, 0 and 2 (sections 4.3 and 7.1).
+4. **How convincing the false alarms looked.** √2's and φ's low counts of 14-square repeats (10 each
+   against about 19), φ's six 15-square repeats (against about 2) and φ's six 4D lines of eight (against
+   about 1.7) each looked significant on their own. None came back in the next million digits: 18, 16, 0
+   and 2 (sections 4.3 and 7.1).
    Without the re-check, at least one would have been reported as a discovery.
 
 5. **The Feynman point holds up.** π's famous six 9s by the 762nd decimal place passed every check:
@@ -594,3 +598,7 @@ expectation (9.3%) rather than the all-16-square one. Verdicts read "not reprodu
 "chance", wording about randomness and the structured numbers is less absolute, section 4.5's chance
 figure is 0.5 pairs, and the Champernowne check now covers all 1,000,000 places. Details in
 REPORT.md, "Revision notes".
+
+After a second review: section 4.3 now gives φ's 10 repeats of 14 squares its probability (1.5%) and
+discusses all three 1.5% results, noting that three among about 30 counts is itself unusual (about 1%)
+and that none was reproduced in fresh digits. The header now says five other numbers, not six.

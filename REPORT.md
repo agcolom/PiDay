@@ -96,14 +96,15 @@ against it.
 
 Each term adds about 14.18 correct digits, so a million digits needs about 70,500 terms. Adding the
 terms one at a time would mean dividing a huge number on every step. Instead we use **binary
-splitting**: the sum over terms *a* to *b* is written as a fraction P/Q (with an auxiliary T), the
+splitting**: the sum over terms *a* to *b* is written as a fraction T/Q (with an auxiliary product P), the
 range is cut in half, each half is summed recursively, and the two halves are combined with a few
 multiplications. All the work becomes multiplying large whole numbers, which is fast, with a single
 division at the end:
 
-  π = 426880 × √10005 × Q / T
+  π ≈ 426880 × √10005 × Q / T
 
-(426880 √10005 is 640320^(3/2) / 12, rewritten so that only √10005 needs computing.)
+The sum stops after finitely many terms, so this is an approximation; the guard digits (section 2.1)
+keep its error far below the last digit we keep. (426880 √10005 is 640320^(3/2) / 12, rewritten so that only √10005 needs computing.)
 
 **Gauss–Legendre iteration** (Python method 2, a completely different algorithm): start with
 a = 1, b = 1/√2, t = 1/4, p = 1 and repeat
@@ -131,7 +132,8 @@ squares.
 
 ### 2.4 √2
 
-- **Method 1:** the integer square root ⌊√(2 × 10^(2(N+g)))⌋, which is √2 × 10^(N+g) truncated.
+- **Method 1:** the integer square root ⌊√(2 × 10^(2(N+g)))⌋, which is √2 × 10^(N+g) truncated,
+  computed with Python's built-in `math.isqrt`.
 - **Method 2:** Python's `decimal` module, `Decimal(2).sqrt()`, at N + 30 digits. It uses a separate
   library (libmpdec) with its own arithmetic.
 
@@ -142,7 +144,8 @@ Both agree on 2,000,000 decimals.
 - **Method 1, the factorial series:** e = Σ_{k≥0} 1/k! = 1 + 1/1! + 1/2! + … . We add terms until
   k! > 10^(N+g), which takes 205,028 terms for a million digits. Binary splitting again turns the sum into
   one fraction P/Q, where the base case is 1/(a+1) and two halves combine as
-  P = P₁Q₂ + P₂, Q = Q₁Q₂. Then e × 10^(N+g) = ⌊10^(N+g) (Q + P) / Q⌋.
+  P = P₁Q₂ + P₂, Q = Q₁Q₂. Then e × 10^(N+g) ≈ ⌊10^(N+g) (Q + P) / Q⌋, an approximation because the series is cut off;
+  the guard digits keep the error out of the digits we keep.
 - **Method 2, the continued fraction:** e = [2; 1, 2, 1, 1, 4, 1, 1, 6, 1, …], meaning
   2 + 1/(1 + 1/(2 + 1/(1 + …))), with the pattern 1, 2k, 1 repeating. Its approximations h/k come from
   multiplying 2×2 matrices (again by halving the list). The error is below 1/k², so we used terms until
@@ -190,8 +193,9 @@ takes about 0.34 s; most of the rest is creating the squares.
 Each number's digits were computed by **at least two independently written methods**, then compared
 at every one of the million decimal places. Most pairs also use different mathematics: a series against
 an iteration for π, a square root against Fibonacci numbers for φ, a series against a continued fraction
-for e. The two √2 methods both compute a square root, but with separate implementations (our own
-Newton's method, and the libmpdec library behind Python's `decimal` module).
+for e. The two √2 methods both compute a square root, but with separate implementations (Python's
+built-in `math.isqrt`, and the libmpdec library behind Python's `decimal` module). The Newton's method
+in section 2.3 is our own and is used in the browser.
 
 Agreement between independent methods is strong evidence that both are right, because a bug would have
 to produce exactly the same wrong digits in both. It also makes the guard-digit risk from section 2.1
@@ -275,7 +279,7 @@ where M = (rows − h + 1) × (W − w + 1) is close to a million at most widths
 block are skipped, because the block can't fit there at all.
 
 **Example, 3×4 blocks (A = 12):** about 5 × 10¹¹ pairs × 10⁻¹² ≈ 0.5 repeats per width. Over the
-1,996 widths where a 3×4 block fits that's about 976; calculated width by width, it's 975.82. Adding
+1,997 widths where a 3×4 block fits (4 to 2,000) that's about 976; calculated width by width, it's 975.82. Adding
 the four 12-square shapes gives about 3,904. Each extra square divides the expected number by 10, which
 is why the expected count drops from thousands (12 squares) to about 19 (14), 2 (15), 0.3 (16) and
 0.004 (18).
@@ -322,6 +326,7 @@ rare events. It gives the approximate probability of a count at least as extreme
 | Observation | Expected | Probability of a result this extreme |
 |---|---|---|
 | √2: 10 repeats of 14 squares | 19.4 | 1.5% (10 or fewer). Also below all 24 random strings |
+| φ: 10 repeats of 14 squares | 19.4 | 1.5% (10 or fewer) |
 | φ: 6 repeats of 15 squares | 1.95 | 1.5% (6 or more) |
 | φ: one 4×4 repeat | 0.097 for 4×4 blocks | 9.3% (at least one 4×4 repeat) |
 | φ: one 16-square repeat of any shape | 0.29 for 4×4, 2×8 and 8×2 together | 25% (at least one) |
@@ -330,14 +335,23 @@ rare events. It gives the approximate probability of a count at least as extreme
 
 ### 7.2 Many comparisons
 
-Across the four random-looking numbers we looked at about 30 counts: five block sizes and several run
-statistics for each number, plus individual blocks. As an illustration, if those 30 counts were
-independent, a particular 1-in-50 result would turn up at least once about 45% of the time
-(1 − 0.98³⁰), and a 1-in-70 result about 35% of the time. Our two most unusual counts were each about
-1-in-70 (1.5%), and the chance of at least one result that extreme among 30 independent counts is about
-36%. The real counts are related, so these figures are only a guide. But the point stands: when many
-things are examined, an occasional unusual result is expected, so a single 1.5% result is **not**
-evidence of a pattern on its own.
+Across the four random-looking numbers, the repeat and run tests gave about 30 counts: five block
+sizes and several run statistics for each number, plus individual blocks. Three of them were each about
+1-in-70 (1.5%): √2's and φ's 10 repeats of 14 squares, and φ's 6 repeats of 15 squares.
+
+As an illustration, if those 30 counts were independent, at least one 1.5% result would turn up about
+36% of the time (1 − 0.985³⁰), but three or more only about 1% of the time. So among these 30 counts
+alone, three such results are more than chance usually gives. Two things temper this:
+
+- The later tests (lines, folds, counting runs and digit frequencies, section 9) added well over a
+  hundred more counts. Among 200 independent counts, three or more 1.5% results would turn up more
+  often than not (about 58%). This is only a rough guide, because those tests were added later and
+  their counts are not all of the same kind.
+- More decisively, none of the three was reproduced in fresh digits (section 7.3).
+
+The real counts are related and the probabilities are Poisson approximations, so all these figures are
+only a guide. The general point stands: when many things are examined, an occasional unusual result is
+expected, so a single 1.5% result is **not** evidence of a pattern on its own.
 
 ### 7.3 Testing again with fresh digits
 
@@ -562,9 +576,10 @@ on our tests they did. What surprised us was in the details.
    strings confirmed it was real (FINDINGS.md, section 7.1). Truly random digits sometimes look more "patterned" than π,
    which is why every striking result had to be compared with chance.
 
-4. **How convincing the false alarms looked.** √2's low count of 14-square repeats (10 against about 19),
-   φ's six 15-square repeats (against about 2) and φ's six 4D lines of eight (against about 1.7) each
-   looked significant on their own. None came back in the next million digits: 18, 0 and 2 (FINDINGS.md, sections 4.3 and 7.1).
+4. **How convincing the false alarms looked.** √2's and φ's low counts of 14-square repeats (10 each
+   against about 19), φ's six 15-square repeats (against about 2) and φ's six 4D lines of eight (against
+   about 1.7) each looked significant on their own. None came back in the next million digits: 18, 16, 0
+   and 2 (FINDINGS.md, sections 4.3 and 7.1).
    Without the re-check, at least one would have been reported as a discovery.
 
 5. **The Feynman point holds up.** π's famous six 9s by the 762nd decimal place passed every check:
@@ -587,7 +602,8 @@ digits.
 ## 11. Limitations
 
 - **Base 10 only.** Normality in base 10 carries over to bases 100, 1,000 and other powers of 10,
-  but not to other bases such as 2 or 7. Looking random in base 10 says nothing about other bases.
+  but it does not imply normality in bases such as 2 or 7. Our tests say nothing either way about
+  how the digits behave in those bases.
 - **Exact matches only.** Squares of nearby digits (say 8 and 9) look almost the same, so the eye finds
   many near-matches that this test ignores. A test for "similar" blocks would need its own definition
   of similarity and its own chance estimate.
@@ -660,3 +676,16 @@ Corrections made on 15 October 2026 after an external review of the first versio
   by construction", since every number here can be computed by a rule; "fail by a factor of millions" is
   replaced by the actual ratios; and the base-10 limitation now notes that normality does carry over to
   powers of 10.
+
+Further corrections made on 15 October 2026 after a second review:
+
+- **Unusual counts (§7.1, §7.2):** φ's 10 repeats of 14 squares (1.5%) was in the tables but missing from
+  the discussion, which spoke of two unusual counts. There are three, and three 1.5% results among 30
+  counts is itself unusual (about 1%); §7.2 now says so and explains why the fresh-digit checks matter more.
+- **Notation (§2.2, §2.5):** the finite sums are now written as approximations, and the Chudnovsky partial
+  sum is T/Q, with P an auxiliary product.
+- **Small facts:** a 3×4 block fits at 1,997 widths, not 1,996 (the figure 975.82 was already right); the
+  Python √2 uses `math.isqrt`, not our own Newton's method; base-10 normality "does not imply" normality
+  in other bases, rather than implying the opposite.
+- **Scripts:** `patterned/make.py` now checks the Champernowne formula at all 1,000,000 places, as the
+  report describes, and `sqrt2b/run.py` has the multiprocessing guard it needs on macOS and Windows.
