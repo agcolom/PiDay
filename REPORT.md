@@ -499,7 +499,53 @@ chance (as expected); the most extreme, φ's six 4D lines of 8 or more (0.9%), w
 φ's next 923,521 digits (2 found, 1.73 expected). One random control string produced a 1-in-1,500
 result, a reminder that truly random digits look striking sometimes too.
 
-## 10. Limitations
+## 10. What surprised us
+
+The overall result was expected: mathematicians expect π, √2, e and φ to behave like random digits, and
+on our tests they did. What surprised us was in the details.
+
+1. **Champernowne's constant.** It is proven that every digit and every block of digits appears equally
+   often in it in the long run, which nobody has managed to prove for π. Yet it failed every one of our
+   tests, with about 19,700 times as many repeated 12-square blocks as random digits and about 10 billion
+   times as many 18-square blocks (FINDINGS.md, sections 4.1 and 6). "Every digit equally often" and "looks random" are
+   known to be different properties, but the size of the gap, and how visible it is in the mosaic, were
+   unexpected. It is the most instructive result of the project.
+
+2. **1/9801 often shows its pattern through absence.** A repeating number might be expected to produce
+   *more* of everything. Instead 1/9801 has no lines of one digit at all in the 1,000 × 1,000 layout,
+   fewer matches than chance on the diagonal folds (about 5% instead of 10%), and no complementary pairs
+   at all when folded at 99, 297, 495 or any other odd multiple of 99 columns (FINDINGS.md, sections 7.1, 7.3 and 7.4).
+   A pattern can show up as something that never happens.
+
+3. **A random control nearly looked like a discovery.** One of the strings of genuinely random digits
+   produced four lines of eight identical digits in the 2D layout, a result random digits give only about
+   1 time in 1,500. Our first assumption was a bug; a square-by-square recount and 100 further random
+   strings confirmed it was real (FINDINGS.md, section 7.1). Truly random digits sometimes look more "patterned" than π,
+   which is why every striking result had to be compared with chance.
+
+4. **How convincing the false alarms looked.** √2's low count of 14-square repeats (10 against about 19),
+   φ's six 15-square repeats (against about 2) and φ's six 4D lines of eight (against about 1.7) each
+   looked significant on their own. None came back in the next million digits: 18, 0 and 2 (FINDINGS.md, sections 4.3 and 7.1).
+   Without the re-check, at least one would have been reported as a discovery.
+
+5. **The Feynman point holds up.** π's famous six 9s by the 762nd decimal place passed every check:
+   random digits put a run of six that early only about 1 time in 150 (FINDINGS.md, section 5). It is a coincidence
+   rather than a pattern, but a genuinely rare one, and its fame is deserved.
+
+6. **Errors in our own first version.** An external review caught a boundary error in the chance
+   formula, wrong arithmetic about how often unusual results appear when many things are tested, a
+   probability that described the wrong event (26% instead of 9.3% for φ's 4×4 repeat), and wording that
+   claimed more than the data showed. None changed the conclusions, but each had been stated with more
+   confidence than it deserved (see the revision notes). It is a strong argument for independent
+   checking.
+
+**The lesson:** the patterns people see in π are real visual effects, but not real structure. To tell the
+difference, ask how often random digits would produce the same thing, and then check again with fresh
+digits.
+
+---
+
+## 11. Limitations
 
 - **Base 10 only.** Normality in base 10 carries over to bases 100, 1,000 and other powers of 10,
   but not to other bases such as 2 or 7. Looking random in base 10 says nothing about other bases.
@@ -517,7 +563,7 @@ result, a reminder that truly random digits look striking sometimes too.
 
 ---
 
-## 11. Reproducing the results
+## 12. Reproducing the results
 
 - The verified digits are in `analysis/digits/`. Square 0 is the whole-number part.
 - The line, 3D block and fold scripts are in `analysis/scripts/3d/` and run from the project folder
