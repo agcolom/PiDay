@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pi Mosaic: 3D cube</title>
+  <link rel="stylesheet" href="piStyle.css">
+</head>
+<body class="cubePage">
+  <!-- cube.js draws the digit cube here; drag to rotate, scroll to zoom -->
+  <canvas id="cubeCanvas"></canvas>
+
+  <!-- Controls; cube.js fills in the options -->
+  <div id="cubeMenu">
+    <label>Number <select id="cubeNumber"></select></label>
+    <label>Side <select id="cubeSide"></select></label>
+    <label>Start at decimal place <input id="cubeStart" type="number" min="0" max="500000" step="1" value="0"></label>
+    <label>Show digits <select id="cubeFrom"></select> to 9</label>
+    <label>Gold lines <select id="cubeLines"></select></label>
+    <a href="index.html">Flat mosaic</a>
+    <div id="cubeSummary"></div>
+  </div>
+  <div id="cubeInfo">Drag to rotate, scroll to zoom, hover over a cube for its digit</div>
+
+  <!-- digits.js has the digit formulas used by cube.js -->
+  <script src="digits.js"></script>
+  <script src="cube.js"></script>
+</body>
+</html>

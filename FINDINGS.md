@@ -301,7 +301,20 @@ digits every pair matches with probability exactly 1/10, independently.
 - 1/9801 shows its structure as a *shortage*: no all-matching groups at all, and only about 5% matching
   along the diagonals.
 
-### 7.4 Summary
+### 7.4 The 3D cube page
+
+`cube.html` (linked from the mosaic's menu) shows the digits as a cube you can rotate (drag) and zoom
+(scroll). You choose the number, the cube's side (10 to 60), the decimal place to start from, which
+digits to show, and the minimum length of gold lines. Gold lines mark every straight line of one digit
+in the 13 directions, and the page shows how many there are next to the number random digits would give
+(the same formula as section 7.1). Hovering over a cube shows its decimal place and digit. Its line
+counts were checked against the Python analysis for eight cubes (all six numbers, sides 20 to 60,
+starting points up to decimal place 400,000) and were identical.
+
+When you look along the grid itself, dots that are simply neighbours line up into rows. These are an
+effect of the viewing angle, not of the digits; only the gold lines are real lines of one digit.
+
+### 7.5 Summary
 
 Lines in 2D, 3D and 4D, repeated 3D blocks and folding all give the same answer as the flat mosaic:
 π, √2, e and φ are consistent with random digits on these tests, while Champernowne's constant and
@@ -312,7 +325,6 @@ than chance in some arrangements).
 
 ## 8. Still to do
 
-- A rotatable 3D view of the digit cube in the browser.
 - Ideas not yet tried: 22/7 (π's school approximation, repeats every 6 digits), Liouville's constant
   (almost all zeros), Euler–Mascheroni γ (not even known to be irrational), ∛2.
 
@@ -320,8 +332,9 @@ than chance in some arrangements).
 
 ## 9. Files
 
-- `index.html`, `pi.js`, `piStyle.css`: the mosaic. `pi.js` computes every number's digits in the
-  browser and contains the view settings.
+- `index.html`, `pi.js`, `piStyle.css`: the flat mosaic and its view settings.
+- `cube.html`, `cube.js`: the rotatable 3D cube (section 7.4).
+- `digits.js`: the formulas both pages use to compute every number's digits in the browser.
 - `analysis/digits/`: the verified first million decimals of each number (square 0 = whole-number
   part), plus √2's second million (decimal places 1,000,001–2,000,000).
 - `analysis/results/*_repeats_14plus.json`: every repeat of 14 or more squares found at widths

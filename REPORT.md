@@ -463,7 +463,17 @@ These figures matched the averages from 100 random strings. In the mosaic, the f
 of the current view, with matching squares solid and the rest pale, plus the match rate. Diagonal
 folds need a square grid, so they are only in the analysis, not in the mosaic.
 
-### 9.5 Reading the results
+### 9.5 The 3D cube page
+
+`cube.html` draws a cube of side n (10 to 60) from a chosen starting decimal place, using the same
+layout as the analysis (column i mod n, row ⌊i/n⌋ mod n, layer ⌊i/n²⌋). Each digit is a small square at
+its position, turned with two angles (around the vertical axis, then tilted), shown in perspective, and
+drawn furthest first so nearer squares cover further ones. Squares are drawn at half their spacing so the
+inside of the cube stays visible. The gold lines use the same definition and chance formula as section
+9.2, and are cut into one piece per step so each piece is drawn at its own depth. The page's line
+finder gave exactly the same lines as the Python code on eight test cubes. It uses no outside libraries.
+
+### 9.6 Reading the results
 
 The approach to unusual results is the one in section 7: Poisson probabilities as approximations,
 allowance for the number of counts examined, and recounting in fresh digits when something stands out.
@@ -502,7 +512,7 @@ result, a reminder that truly random digits look striking sometimes too.
 - The saved scan scripts include the narrow-width fix described in the revision notes below.
 - Every repeat of 14 or more squares is listed in `analysis/results/*.json` and in the FINDINGS.md
   appendix.
-- The mosaic needs no installation: open `index.html` in a browser. To change the default view, edit
+- The mosaic needs no installation: open `index.html` in a browser (or `cube.html` for the 3D cube). To change the default view, edit
   `defaultView` at the top of `pi.js`. To add a view, add an entry to `views` with a `label`.
 
 ---
