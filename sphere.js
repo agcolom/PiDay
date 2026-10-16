@@ -13,6 +13,7 @@ const numberNames = {
   phi: "Golden ratio φ",
   oneOver9801: "1/9801",
   champernowne: "Champernowne",
+  leibniz: "Leibniz, 500,000 terms",
 };
 // Plain-English descriptions for the About panel
 const numberDescriptions = {
@@ -22,6 +23,7 @@ const numberDescriptions = {
   phi: "the <strong>golden ratio φ</strong> (1.61803…)",
   oneOver9801: "<strong>1 ÷ 9801</strong> (0.00 01 02 03 … 97 99, repeating every 198 digits)",
   champernowne: "<strong>Champernowne's constant</strong> (0.123456789101112…, the counting numbers written in a row)",
+  leibniz: "<strong>the Leibniz series stopped early</strong>: 4 × (1 − 1/3 + 1/5 − … − 1/999,999), the first 500,000 terms (3.14159065…, close to π but not equal to it)",
 };
 const dotCounts = [1000, 2000, 5000, 10000, 20000];
 const defaults = { number: "pi", count: 2000, start: 0, from: 0, to: 9 };

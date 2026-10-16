@@ -1,0 +1,20 @@
+{
+ "mean_z2": {
+  "same": 0.9944,
+  "nine": 1.0021,
+  "up": 1.0062,
+  "down": 1.0033
+ },
+ "max_abs_z": {
+  "same": 4.652,
+  "nine": 4.799,
+  "up": 4.454,
+  "down": 4.437
+ },
+ "blocks_below_5pct": 8,
+ "blocks_below_1pct": 0,
+ "smallest_block_p": 0.011160158672299107,
+ "whole_million_p": 0.3152792627884524,
+ "runs_6plus": 11,
+ "closest_runs": 2098
+}

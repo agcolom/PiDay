@@ -61,6 +61,7 @@ proof (that would need explicit error bounds). The digits the page computes in t
 | φ (2 million) | (1 + √5) / 2 | ratio of Fibonacci numbers F(n+1)/F(n) | | starts 1.61803398874989484820… |
 | 1/9801 | long division | writing out 00 01 … 97 99 and repeating | | |
 | Champernowne | writing out 1 2 3 … | formula for the digit at any place (all 1,000,000 places checked) | | |
+| Leibniz, 500,000 terms (2 million) | adding the terms one by one | one exact fraction (binary splitting), one division | π minus the Euler-number formula (first 1,000) | starts 3.14159065358979324046… (Borwein et al.) |
 
 ---
 
@@ -520,6 +521,11 @@ for any digits.
 
 The Leibniz series 1 − 1/3 + 1/5 − 1/7 + … adds up to exactly π/4, so on its own it gives nothing new: four
 times it is π. The interesting numbers are the **partial sums**, stopped after a fixed number of terms T.
+Section 7.10.1 compares them with π; section 7.10.2 tests one of them, 4 × the first 500,000 terms, in its
+own right, like the other numbers.
+
+#### 7.10.1 Compared with π
+
 Borwein, Borwein and Dilcher (1989) showed that, with N = 2T,
 
   π − 4 × (first T terms) = 2/N − 2/N³ + 10/N⁵ − 122/N⁷ + 2770/N⁹ − … = Σ 2 E₂ₘ / N^(2m+1),
@@ -541,8 +547,29 @@ except in small clusters of digits spaced 2 × log₁₀ N apart:
 
 - **The pattern dissolves.** The Euler numbers grow quickly (50521, 2702765, 199360981, …). Once one is
   longer than the spacing, neighbouring clusters merge, and after that the sum no longer tracks π: about
-  9 decimals in 10 differ, as for any two unrelated strings of digits. Ten times as many terms buys one more
-  correct digit and only 20 to 25 more decimals of pattern.
+  9 decimals in 10 differ, as for any two unrelated strings of digits.
+- **Closer approximations push the pattern much further.** Each tenfold increase in terms gives one more
+  correct decimal, but widens the spacing of the clusters by 2, so more clusters fit before they merge:
+
+  | Terms | Correct decimals | Pattern ends at (last 5 matching) | (last 6 matching) | Clusters merge (theory) |
+  |---|---|---|---|---|
+  | 5,000 | 3 | 25 | 25 | 60 |
+  | 500,000 | 5 | 71 | 60 | 114 |
+  | 5 × 10⁷ | 7 | 125 | 111 | 184 |
+  | 5 × 10⁹ | 9 | 176 | 176 | 250 |
+  | 5 × 10¹⁴ | 14 | 410 | 382 | 495 |
+  | 5 × 10¹⁹ | 19 | 705 | 667 | 820 |
+  | 5 × 10²⁴ | 24 | 1,031 | 1,031 | 1,175 |
+  | 5 × 10²⁹ | 29 | 1,474 | 1,417 | 1,650 |
+
+  The pattern reaches about 14 times further than the correct decimals at 500,000 terms, and about 50 times
+  further at 5 × 10²⁹; its gain per tenfold step grows from about 20 decimals to about 100. In theory the
+  clusters merge at the first Euler number whose double has as many digits as the spacing, which puts the
+  reach at roughly (digits of N)² / log(digits of N). The measured end is always a little before that,
+  because the matching gaps between clusters shrink below 5 digits just before they close; the two
+  measures converge as the series gets longer. Beyond 5,000,000 terms the digits come from the
+  Euler-number formula (adding 5 × 10²⁹ terms is impossible); up to there, both methods agree. All 30
+  lengths from 5 to 5 × 10²⁹ terms are in `analysis/results/leibniz/lengths.json`.
 - **The pattern needs a "round" number of terms, not just a fraction.** Every partial sum is a fraction,
   but the clean clusters appear only when N is a power of 10. Decimals 1 to 60 that differ from π:
   500,000 terms 10, 499,999 terms 17, 250,000 terms 23, 400,000 terms 40, 600,000 terms 51.
@@ -557,15 +584,72 @@ except in small clusters of digits spaced 2 × log₁₀ N apart:
   almost all the information needed to recover π.
 
 Each partial sum was computed two ways that agree on all 1,000 decimals: adding the terms directly, and
-π minus the Euler-number formula. The mosaic has three views, 10, 12 and 14 squares wide, with **red
-frames** on every digit that differs from π, so the clusters stack into a column and then break up. Script:
-`analysis/scripts/leibniz/leibniz.py`; results: `analysis/results/leibniz/leibniz.json`.
+π minus the Euler-number formula. Scripts: `analysis/scripts/leibniz/leibniz.py` and `lengths.py`;
+results: `analysis/results/leibniz/`.
+
+#### 7.10.2 The 500,000-term number in its own right
+
+Here the number 4 × (first 500,000 terms) = 3.14159065358979324046… is treated like π, √2, e and φ: its
+first million decimals (computed two independent ways, which agree on every digit) went through every
+test in this file, with the same scripts. Its decimal places 1,000,001–2,000,000 (also computed two ways)
+were used to re-check anything unusual.
+
+| Test | Leibniz number, first million | Chance (or random strings) | Chance of a result this extreme |
+|---|---|---|---|
+| Repeated blocks, widths 2–2,000 | 12 squares 3,989; 14: 25; 15: 4; 16: 1; 18: 0 | 3,904; 19.4; 1.95; 0.29; 0.004 | 12: within 1.4 sd; 14: 13%; 15: 13%; 16: 25% |
+| Runs of six or more | 8; none of seven | about 9; 0.9 | ordinary |
+| First run of six | `999999` at decimal place 136,524 | about 111,000 on average | 71% by then |
+| Digit frequencies | p 0.20; 5 of 100 blocks below 5% | about 5 | one block p 0.0001 (see below) |
+| Every distance 1–100,000 | biggest z 4.65; 25 beyond ±4 | 25.3 beyond ±4 | 73% for the biggest anywhere |
+| Counting runs, 1D–4D (20 counts) | 1 below 5%: 133 of 5+ along the digits (110 expected) | 20 random strings: 86–137 | about 2 such counts expected |
+| Counting runs with rollover (20 counts) | 1 below 5%: 51 of 7+ in 4D (38.3 expected) | | about 2 expected |
+| Lines of one digit, 2D | 5+ 376; 8+ 1; longest 9 | 357.9; 0.36; 9+: 0.036 | longest 9: 3.5% |
+| Lines of one digit, 3D | 5+ 1,129; 8+ 3 | 1,077.9; 1.01 | 8+: 8% |
+| Lines of one digit, 4D | 7+ 29; 8+ 6 | 19.2; 1.73 | 7+: 2.2%; 8+: 0.9% |
+| Repeated 3D blocks | 2×2×2: 196; 3×3×3: 0 | 185.3; 0.018 | ordinary |
+| Folding (four ways) | match 9.97–10.08% | 10% | ordinary |
+| Folding at every width and height | most extreme \|z\| 3.45–3.88 | random strings' highest: 4.28–4.90 | ordinary |
+
+**Re-checked in decimal places 1,000,001–2,000,000:**
+
+| Looked unusual in the first million | Second million |
+|---|---|
+| 6 lines of 8+ in 4D (1.73 expected, 0.9%) and 29 of 7+ (19.2) | 3 and 18: not reproduced |
+| A line of 9 in 2D (3.5%) | longest 8: not reproduced |
+| "Add up to 9" pairs over all gaps: average z² 1.0105, 2.4 standard deviations high | 1.0021: not reproduced |
+| One block of 10,000 decimals (490,001–500,000) with p 0.0001: too few 8s (885 instead of about 1,000) | no block below 1%; whole million p 0.32 |
+| Two runs of six starting 9 places apart | closest pair 2,098 places apart |
+
+- **The Leibniz number is consistent with random digits on every test.** Taken on its own, nothing in its
+  digits shows the Euler-number pattern of section 7.10.1, which only appears when it is compared with π.
+  Beyond its first 70 or so digits it is π minus an error with no visible structure, so this is what
+  should be expected.
+- **Its rarest single feature is a close pair of runs:** `999999` at decimal place 136,524 and `666666` at
+  136,533, so `999999081666666`. Two runs of six starting within 9 places happened in 3 of 20,000 strings of a
+  million random digits (about 1 in 7,000); π's closest pair is 710 places apart. It was found by looking
+  through the list of runs, not tested for in advance, and with so many things one could notice, a rare
+  one-off is to be expected; it is the Leibniz number's equivalent of π's Feynman point.
+- **The fresh digits produced their own one-off:** ten 4s in a straight line through the 4D box, starting at
+  decimal place 1,640,652 and 930 places apart (random digits give a line of 10 or more in this box about
+  1.4% of the time). It turned up while re-checking the 4D count of lines of 8, whose excess itself was
+  not repeated.
+- **Fresh digits are the deciding test.** About 100 counts were examined for this number, and four
+  results were near or beyond the 1% level (the 4D lines of 8, the "add up to 9" average, the uneven block
+  and the close runs), slightly more than the one or two expected by chance. But none of the ones that could
+  be re-checked came back in the next million digits, which is what chance, and not structure, would
+  produce.
+
+The mosaic view "Leibniz series (500,000 terms), 60 columns" shows decimal places 136,500 to 221,639, with
+the close pair of runs (gold) and a 7×2 block that repeats 52,668 places later (cyan). The number is also
+in the 3D cube and the sphere. Scripts: `analysis/scripts/leibniz/` (`digits_1m.py`, `scan.py`,
+`close_runs.py`, `second_million.py`, `lines_followup.py`) and the shared test scripts, which now include
+it; results: `analysis/results/leibniz/` and the shared results files.
 
 ### 7.11 Summary
 
 Digit frequencies, lines in 2D, 3D and 4D, counting runs with and without rollover, digits at every
 distance up to 100,000 places, repeated 3D blocks and folding all give the same answer as the flat mosaic:
-π, √2, e and φ are consistent with random digits on these tests, while Champernowne's constant and
+π, √2, e, φ and the Leibniz number (500,000 terms) are consistent with random digits on these tests, while Champernowne's constant and
 1/9801 stand out by factors of hundreds to millions (or, for 1/9801, by having far *fewer* matches
 than chance in some arrangements).
 
@@ -614,9 +698,9 @@ on our tests they did. What surprised us was in the details.
 
 7. **The Leibniz series' mistakes are where π hides.** Stopped after 500,000 terms, the series gets π
    wrong at the 6th decimal, but the wrong digits are the Euler numbers in neat columns, and they hold
-   enough information to rebuild π far beyond the sum's own accuracy (section 7.10). It is the one
-   place in this project where a mosaic of a π-like number shows a genuine pattern, and it fades within
-   about 70 digits.
+   enough information to rebuild π far beyond the sum's own accuracy (section 7.10.1). Yet taken on its
+   own, the same number's digits pass every test for randomness (section 7.10.2): the pattern is only in
+   how it differs from π.
 
 **The lesson:** the patterns people see in π are real visual effects, but not real structure. To tell the
 difference, ask how often random digits would produce the same thing, and then check again with fresh
@@ -640,7 +724,7 @@ digits.
 - `about.js`: the plain-English "About" panel on all three pages; its text is written in `pi.js` (one
   paragraph per view, plus the folds), `cube.js` and `sphere.js` (built from the current settings).
 - `analysis/digits/`: the verified first million decimals of each number (square 0 = whole-number
-  part), plus √2's second million (decimal places 1,000,001–2,000,000).
+  part), plus the second million (decimal places 1,000,001–2,000,000) of √2 and of the Leibniz number.
 - `analysis/results/*_repeats_14plus.json`: every repeat of 14 or more squares found at widths
   2–2,000. Format: `{"3x5": [[columns, [decimal place of copy 1, decimal place of copy 2]], …]}`.
 - `analysis/scripts/`: the Python scripts used. Those in `analysis/scripts/3d/` run from the project

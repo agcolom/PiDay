@@ -32,6 +32,11 @@ way they're built: 1/9801 and Champernowne's constant. Both show far more repeat
 would: from about 400 times as many (1/9801, 12-square blocks) to billions of times as many
 (Champernowne, 18-square blocks). So the tests can detect structure in the digits when it exists.
 
+Finally, we looked at the Leibniz series 1 − 1/3 + 1/5 − … stopped early. Four times its first 500,000
+terms matches π except at evenly spaced clusters of digits given by the Euler numbers, a pattern that
+dissolves after about 70 digits and reaches further the more terms are used. Tested in its own right,
+the same number's first million digits are consistent with random digits (section 9.12).
+
 ---
 
 ## 1. The mosaic
@@ -67,8 +72,8 @@ Change the width and different digits line up, so different shapes appear.
   (section 9.7); the 3D cube can show them as green lines. On both pages a **Counting** menu chooses
   whether counting stops at 9 and 0 or rolls over (89012), as in section 9.10.
 - A **sphere** page shows the digits on a rotatable ball (section 9.11).
-- Three **Leibniz series** views show the series stopped after 50,000, 500,000 and 5,000,000 terms, with
-  **red frames** on every digit that differs from π (section 9.12).
+- A **Leibniz series** view shows the number 4 × (first 500,000 terms) like the other numbers, and it is
+  also available in the 3D cube and the sphere (section 9.12).
 - When folded, a **Pairs** menu chooses whether to highlight same-digit pairs (purple), complementary
   pairs that add up to 9 (teal), or both.
 - An **About** button opens a plain-English explanation of the current view, written for readers
@@ -621,12 +626,30 @@ For T terms, the partial sum 4 × Σ_{k<T} (−1)^k / (2k+1) was computed in two
   code checks that every term it uses is smaller than the one before. For the N used here it is exact to
   far more than the D = 1,000 decimals compared.
 
-Both agree on all 1,000 decimals for 50,000, 500,000 and 5,000,000 terms. The browser computes the same
-sums by the first method (about 1 second for 5,000,000 terms), and its digits matched the Python digits.
+Both agree on all 1,000 decimals for 50,000, 500,000 and 5,000,000 terms.
 
+**Longer series.** For 5 to 5 × 10²⁹ terms (N = 10 to 10³⁰), the digits come from adding the terms up to
+5,000,000 terms (checked against the formula from 5,000 terms up) and from the formula alone beyond that.
 Where the pattern dissolves is measured as the last stretch of five decimals in a row that all match π.
-For unrelated digits such a stretch occurs about once in 100,000 places, so after the sum stops tracking π
-it is unlikely to appear again in the 1,000 decimals examined. The estimate of π from the Euler numbers
+For unrelated digits such a stretch occurs about once in 100,000 places, so the number of decimals
+compared is doubled from 400 until it is at least four times the measured end (up to 6,400); even so, a
+chance stretch can occasionally extend the measured end. As checks, the end was also measured with
+stretches of six (similar; stretches of four are too often produced by chance), and compared with the
+theoretical point where the clusters merge: cluster m ends at decimal place k(2m+1), with N = 10^k, and is
+about as wide as 2|E₂ₘ|, so they merge at the first m where 2|E₂ₘ| has at least 2k digits. Since
+log₁₀ |E₂ₘ| ≈ 2m log₁₀(4m/(πe)), that m is about k / log₁₀(4m/(πe)) and the merge point grows roughly
+like k² / log k.
+
+**The 500,000-term number on its own.** Its first million decimals were computed by adding the terms
+(12 processes, 20 guard digits) and, independently, by binary splitting into one exact fraction P/Q
+(Q, the product of the odd numbers below 10⁶, has about 3 million digits) followed by a single exact
+division; the two agree on every digit. Decimal places 1,000,001–2,000,000 were computed the same two
+ways for follow-up checks. The digits then went through every test in this report, using the same scripts as the other numbers
+(which reproduced every earlier result exactly when rerun with it included). Anything that looked
+unusual was re-checked in the second million (`second_million.py`, `lines_followup.py`), and the close pair
+of runs was compared with 20,000 random strings (`close_runs.py`). Results: FINDINGS.md, section 7.10.2. The browser computes
+the number by binary splitting, cutting P and Q down to the needed precision before dividing (about half
+a second), and its digits matched the verified digits for every length tested up to 216,001. The estimate of π from the Euler numbers
 uses |E₂ₘ| ≈ 2 (2m)! (2/π)^(2m+1), whose relative error is about 3^−(2m), so the ratio of neighbours gives
 π² ≈ 4 (2m+1)(2m+2) |E₂ₘ / E₂ₘ₊₂|. The corrected sums add the formula's terms while they keep shrinking.
 The best accuracy is then about (π N / 2) log₁₀ e decimals, since the smallest term is about e^(−πN/2).

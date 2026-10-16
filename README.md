@@ -40,4 +40,5 @@ On the tests we ran, the first million digits of π, √2, e and φ are consiste
 1/9801 and Champernowne's constant, whose digits are structured by construction, show hundreds to
 billions of times more repeats than random digits would. The Leibniz series stopped after 500,000 terms
 matches π except at evenly spaced digits given by the Euler numbers, a pattern that fades within about
-70 digits. See `REPORT.md` for details and limitations.
+70 digits (and reaches further the more terms are used); taken on its own, its digits are also consistent
+with random digits. See `REPORT.md` for details and limitations.

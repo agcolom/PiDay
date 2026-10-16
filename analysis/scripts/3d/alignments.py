@@ -11,7 +11,7 @@ import numpy as np
 
 LAYOUTS = {"2D 1000x1000": (1000, 1000), "3D 100x100x100": (100, 100, 100), "4D 31x31x31x31": (31, 31, 31, 31)}
 NUMBERS = {"pi": "pi_1M", "sqrt2": "sqrt2_1M", "e": "e_1M", "phi": "phi_1M",
-           "champernowne": "champernowne_1M", "1/9801": "one_over_9801_1M"}
+           "champernowne": "champernowne_1M", "1/9801": "one_over_9801_1M", "leibniz": "leibniz_500k_1M"}
 LENGTHS = (5, 6, 7, 8)
 PAD = 40
 

@@ -151,86 +151,33 @@ const views = {
     divSize: 5,
     repeats: [],
   },
-  // The Leibniz series stopped after 50,000 terms; red frames mark digits that differ from pi
-  "leibniz-50k": {
+  // The Leibniz series stopped after 500,000 terms, as a number in its own right. Starts at row 2,275 so that
+  // both copies of a 7x2 repeat (decimal places 168,574 and 221,242) and two close runs of six are in view.
+  "leibniz-60": {
     about: `
-      <p>The <strong>Leibniz series</strong> 1 − 1/3 + 1/5 − 1/7 + … adds up to exactly π/4, so four times it
-      is π. Here it is stopped early, after 50,000 terms, and multiplied by 4. Each square is one digit of that
-      number. <strong>Red frames</strong> mark the digits that differ from π.</p>
-      <p>The mistakes aren't random. The sum falls short of π by 2/N − 2/N³ + 10/N⁵ − 122/N⁷ + 2770/N⁹ − …,
-      where N is twice the number of terms (here 100,000). The numbers 1, 1, 5, 61, 1385, … (doubled here) are the
-      <em>Euler numbers</em>. With N a power of 10, each part of that shortfall lands 10 places after the
-      one before, so with 10 squares to a row the red frames stack up in a column, growing to the left
-      as the Euler numbers get longer.</p>
-      <p>Then the pattern dissolves. Once an Euler number is longer than the gap, neighbouring clusters run into
-      each other, and from decimal place about 50 on the digits no longer track π: about 9 in 10 differ, as for
-      any two unrelated strings of digits.</p>
-      <p>The way it dissolves holds π itself. The Euler numbers grow at a rate set by π: dividing one by the
-      next (two of 13 and 15 digits) already gives π to 8 decimals, and longer ones give it to hundreds.
-      And the mistakes can be undone: for a sum of 500 terms, adding the shortfall's terms back turns 1
-      correct decimal into 682. Compare the 50,000-, 500,000- and 5,000,000-term views: ten times as many
-      terms buys one more correct digit and 20 to 25 more places of pattern.</p>`,
-    label: "Leibniz series, 50,000 terms, 10 columns (differences from π)",
-    number: "leibniz50k",
-    columns: 10,
-    rows: 30,
-    divSize: 22,
-    repeats: [],
-    differences: true,
-  },
-  // The Leibniz series stopped after 500,000 terms; red frames mark digits that differ from pi
-  "leibniz-500k": {
-    about: `
-      <p>The <strong>Leibniz series</strong> 1 − 1/3 + 1/5 − 1/7 + … adds up to exactly π/4, so four times it
-      is π. Here it is stopped early, after 500,000 terms, and multiplied by 4. Each square is one digit of that
-      number. <strong>Red frames</strong> mark the digits that differ from π.</p>
-      <p>The mistakes aren't random. The sum falls short of π by 2/N − 2/N³ + 10/N⁵ − 122/N⁷ + 2770/N⁹ − …,
-      where N is twice the number of terms (here 1,000,000). The numbers 1, 1, 5, 61, 1385, … (doubled here) are the
-      <em>Euler numbers</em>. With N a power of 10, each part of that shortfall lands 12 places after the
-      one before, so with 12 squares to a row the red frames stack up in a column, growing to the left
-      as the Euler numbers get longer.</p>
-      <p>Then the pattern dissolves. Once an Euler number is longer than the gap, neighbouring clusters run into
-      each other, and from decimal place about 70 on the digits no longer track π: about 9 in 10 differ, as for
-      any two unrelated strings of digits.</p>
-      <p>The way it dissolves holds π itself. The Euler numbers grow at a rate set by π: dividing one by the
-      next (two of 13 and 15 digits) already gives π to 8 decimals, and longer ones give it to hundreds.
-      And the mistakes can be undone: for a sum of 500 terms, adding the shortfall's terms back turns 1
-      correct decimal into 682. Compare the 50,000-, 500,000- and 5,000,000-term views: ten times as many
-      terms buys one more correct digit and 20 to 25 more places of pattern.</p>`,
-    label: "Leibniz series, 500,000 terms, 12 columns (differences from π)",
-    number: "leibniz500k",
-    columns: 12,
-    rows: 30,
-    divSize: 22,
-    repeats: [],
-    differences: true,
-  },
-  // The Leibniz series stopped after 5,000,000 terms; red frames mark digits that differ from pi
-  "leibniz-5m": {
-    about: `
-      <p>The <strong>Leibniz series</strong> 1 − 1/3 + 1/5 − 1/7 + … adds up to exactly π/4, so four times it
-      is π. Here it is stopped early, after 5,000,000 terms, and multiplied by 4. Each square is one digit of that
-      number. <strong>Red frames</strong> mark the digits that differ from π.</p>
-      <p>The mistakes aren't random. The sum falls short of π by 2/N − 2/N³ + 10/N⁵ − 122/N⁷ + 2770/N⁹ − …,
-      where N is twice the number of terms (here 10,000,000). The numbers 1, 1, 5, 61, 1385, … (doubled here) are the
-      <em>Euler numbers</em>. With N a power of 10, each part of that shortfall lands 14 places after the
-      one before, so with 14 squares to a row the red frames stack up in a column, growing to the left
-      as the Euler numbers get longer.</p>
-      <p>Then the pattern dissolves. Once an Euler number is longer than the gap, neighbouring clusters run into
-      each other, and from decimal place about 95 on the digits no longer track π: about 9 in 10 differ, as for
-      any two unrelated strings of digits.</p>
-      <p>The way it dissolves holds π itself. The Euler numbers grow at a rate set by π: dividing one by the
-      next (two of 13 and 15 digits) already gives π to 8 decimals, and longer ones give it to hundreds.
-      And the mistakes can be undone: for a sum of 500 terms, adding the shortfall's terms back turns 1
-      correct decimal into 682. Compare the 50,000-, 500,000- and 5,000,000-term views: ten times as many
-      terms buys one more correct digit and 20 to 25 more places of pattern.</p>`,
-    label: "Leibniz series, 5,000,000 terms, 14 columns (differences from π)",
-    number: "leibniz5m",
-    columns: 14,
-    rows: 30,
-    divSize: 22,
-    repeats: [],
-    differences: true,
+      <p>The <strong>Leibniz series</strong> 1 − 1/3 + 1/5 − 1/7 + … adds up to exactly π/4. Stopped after its
+      first 500,000 terms and multiplied by 4, it gives a different number: 3.14159065358979324046…, which
+      agrees with π for only 5 decimals. Here it is examined in its own right, with the same tests as the
+      other numbers. This view shows decimal places 136,500 to 221,639, 60 to a row.</p>
+      <p><strong>Gold, row 2,275:</strong> two runs of six, <strong>999999</strong> at decimal place 136,524 and
+      <strong>666666</strong> just 9 places later. Random digits put two runs of six this close together only
+      about 1 time in 7,000. We spotted it by looking through the runs, rather than testing for it in
+      advance, so it counts as a rare coincidence, like π's Feynman point, not as evidence of a pattern.</p>
+      <p><strong>Cyan, rows 2,809 and 3,687:</strong> the same 7×2 block of digits appears twice, 52,668 digits
+      apart. Like the repeats in π, this is about as common as random digits would make it.</p>
+      <p>Its first 70 or so digits follow π with small, evenly spaced mistakes (they are the Euler numbers,
+      1, 1, 5, 61, 1385, …). After that, its digits no longer track π, and on every test we ran they behave
+      like random digits.</p>`,
+    label: "Leibniz series (500,000 terms), 60 columns (7×2 repeat)",
+    number: "leibniz",
+    columns: 60,
+    firstRow: 2275,
+    rows: 1419, // to row 3,693, the bottom of the second copy
+    divSize: 7,
+    repeats: [
+      { start: 168574, height: 7, width: 2 },
+      { start: 221242, height: 7, width: 2 },
+    ],
   },
 };
 
@@ -294,7 +241,7 @@ const aboutConclusion = `
 // rollover: whether green counting runs carry on from 9 to 0 and from 0 to 9 (89012), or stop there.
 const showView = (viewName, fold = "none", pairs = "same", rollover = false) => {
   // Size of each small div in pixels comes from the view
-  const { number, columns, firstRow = 0, rows, divSize, repeats, about, differences = false } = views[viewName];
+  const { number, columns, firstRow = 0, rows, divSize, repeats, about } = views[viewName];
   const pairsText = pairs === "both" ? aboutPairs.same + aboutPairs.complement : aboutPairs[pairs];
   setAboutText(aboutIntro(rollover) + about + (fold === "none" ? "" : aboutFolds[fold] + pairsText + aboutFoldMeaning) +
     aboutConclusion + aboutLinks);
@@ -337,17 +284,8 @@ const showView = (viewName, fold = "none", pairs = "same", rollover = false) => 
     }
   }
 
-  // Red: squares whose digit differs from π's at the same decimal place (the Leibniz views).
-  // Listed first so they win where frames overlap.
-  const differFromPi = [];
-  if (differences) {
-    const piDigits = computeDigits.pi(digitCount);
-    for (let i = firstDigit; i < digitCount; i++) if (digits[i] !== piDigits[i]) differFromPi.push(i);
-  }
-
   // Rectangles to frame, given as the digit index of the top-left square plus a size in squares
   const highlights = [
-    ...differFromPi.map((start) => ({ start, height: 1, width: 1, color: "red" })),
     ...runs,
     ...countingRuns,
     ...repeats.map((repeat) => ({ ...repeat, color: "cyan" })),
@@ -383,8 +321,7 @@ const showView = (viewName, fold = "none", pairs = "same", rollover = false) => 
       container.style.height = `${shownRows * divSize}px`;
 
       const foldInfo = document.getElementById("foldInfo");
-      if (fold === "none") foldInfo.textContent = differences
-        ? `Red: differs from π at ${differFromPi.length} of ${digitCount - firstDigit} places` : "";
+      if (fold === "none") foldInfo.textContent = "";
       else {
         // Purple where both layers have the same digit, teal where they add up to 9, pale otherwise
         let same = 0, complementary = 0;
@@ -453,9 +390,6 @@ const showView = (viewName, fold = "none", pairs = "same", rollover = false) => 
       /* To here */
       document.getElementById("piContainer")?.remove(); // clear the previous view
       document.body.appendChild(container);
-      // The small Leibniz views start below the menu, so their first rows (where the pattern is) aren't hidden
-      container.style.margin = differences
-        ? `${document.getElementById("viewMenu").getBoundingClientRect().bottom + 16}px 0 0 24px` : "";
 
       // Start the page at the first copy of the repeat (if the view has one), then scroll down to find the second
       if (repeats.length > 0 && fold === "none") {

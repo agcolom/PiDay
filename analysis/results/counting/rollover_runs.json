@@ -132,6 +132,17 @@
    "longest": 0,
    "long_runs": 0
   },
+  "leibniz": {
+   "at_least": {
+    "4": 1804,
+    "5": 191,
+    "6": 17,
+    "7": 1,
+    "8": 0
+   },
+   "longest": 7,
+   "long_runs": 1
+  },
   "random 1": {
    "at_least": {
     "4": 1766,
@@ -720,6 +731,17 @@
    },
    "longest": 0,
    "long_runs": 0
+  },
+  "leibniz": {
+   "at_least": {
+    "4": 7261,
+    "5": 754,
+    "6": 71,
+    "7": 6,
+    "8": 1
+   },
+   "longest": 8,
+   "long_runs": 6
   },
   "random 1": {
    "at_least": {
@@ -1998,6 +2020,17 @@
    },
    "longest": 99,
    "long_runs": 13154
+  },
+  "leibniz": {
+   "at_least": {
+    "4": 22185,
+    "5": 2167,
+    "6": 223,
+    "7": 19,
+    "8": 3
+   },
+   "longest": 8,
+   "long_runs": 19
   },
   "random 1": {
    "at_least": {
@@ -3857,6 +3890,17 @@
    },
    "longest": 31,
    "long_runs": 24917
+  },
+  "leibniz": {
+   "at_least": {
+    "4": 51291,
+    "5": 4743,
+    "6": 442,
+    "7": 51,
+    "8": 3
+   },
+   "longest": 8,
+   "long_runs": 51
   },
   "random 1": {
    "at_least": {

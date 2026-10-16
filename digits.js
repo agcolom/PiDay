@@ -95,16 +95,22 @@ const computeChampernowneDigits = (count) => {
   return parts.join("").slice(0, count);
 };
 
-// The Leibniz series stopped early: 4 x (1 - 1/3 + 1/5 - 1/7 + ...) with only `terms` terms.
-// Each term is rounded down, so up to `terms` units of the last digit are lost: 10 more guard digits cover that.
-const computeLeibnizDigits = (count, terms) => {
-  const one = 10n ** (BigInt(count) + guardDigits + 10n);
-  let sum = 0n;
-  for (let k = 0; k < terms; k++) {
-    const term = one / BigInt(2 * k + 1);
-    sum += k % 2 === 0 ? term : -term;
-  }
-  return (4n * sum).toString().slice(0, count);
+// The Leibniz series stopped early: 4 x (1 - 1/3 + 1/5 - ... - 1/999,999), its first 500,000 terms.
+// Binary splitting turns the terms into one exact fraction P/Q (Q is the product of the odd numbers up to
+// 999,999, about 3 million digits). Both are then cut down to the digits needed before dividing.
+const computeLeibnizDigits = (count, terms = 500_000) => {
+  const sumTerms = (a, b) => { // [P, Q] with P / Q = sum of (-1)^k / (2k+1) for a <= k < b
+    if (b - a === 1) return [a % 2 === 0 ? 1n : -1n, BigInt(2 * a + 1)];
+    const middle = (a + b) >> 1;
+    const [p1, q1] = sumTerms(a, middle);
+    const [p2, q2] = sumTerms(middle, b);
+    return [p1 * q2 + p2 * q1, q1 * q2];
+  };
+  const [P, Q] = sumTerms(0, terms);
+  // Dropping the low bits of P and Q changes P / Q by about 1 part in 2^(kept bits), far below the guard digits
+  const keptBits = BigInt(Math.ceil((count + Number(guardDigits) + 10) * Math.log2(10)));
+  const drop = BigInt(Q.toString(2).length) > keptBits ? BigInt(Q.toString(2).length) - keptBits : 0n;
+  return ((4n * (P >> drop) * 10n ** (BigInt(count) + guardDigits)) / (Q >> drop)).toString().slice(0, count);
 };
 
 const computeDigits = {
@@ -114,7 +120,5 @@ const computeDigits = {
   phi: computePhiDigits,
   oneOver9801: computeOneOver9801Digits,
   champernowne: computeChampernowneDigits,
-  leibniz50k: (count) => computeLeibnizDigits(count, 50_000),
-  leibniz500k: (count) => computeLeibnizDigits(count, 500_000),
-  leibniz5m: (count) => computeLeibnizDigits(count, 5_000_000),
+  leibniz: computeLeibnizDigits,
 };
