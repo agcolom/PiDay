@@ -1,6 +1,6 @@
 # Pi Mosaic: findings
 
-What we found while turning the digits of π (and five other numbers) into mosaics, and
+What we found while turning the digits of π (and six other numbers) into mosaics, and
 checking whether any patterns in them are real. Started 14 October 2026.
 
 **Short version:** on the tests we ran and the digits we examined, π, √2, e and the golden ratio φ
@@ -9,6 +9,9 @@ random digits would produce. √2 and φ had the most unusual counts; we checked
 digits too, and those counts were not reproduced there. The two numbers whose decimal digits are
 structured by construction, 1/9801 and Champernowne's constant, show far more repeats than random
 digits would: from about 400 times as many to billions of times as many, depending on block size.
+Liouville's constant (a 1 at every factorial decimal place, 0 elsewhere) fails every test too
+(section 7.12). It and Champernowne's constant are transcendental, like π and e: being algebraic or
+transcendental made no difference on our tests (section 7.13).
 Two ways of approaching π were looked at too (sections 7.10 and 7.11). The Leibniz series stopped early is
 a fraction, so its digits repeat, with a cycle pushed further away the more terms are added; the areas of
 Archimedes' polygons are irrational (except the 12-gon, exactly 3), so they never repeat, and π's digits
@@ -67,6 +70,7 @@ proof (that would need explicit error bounds). The digits the page computes in t
 | 1/9801 | long division | writing out 00 01 … 97 99 and repeating | | |
 | Champernowne | writing out 1 2 3 … | formula for the digit at any place (all 1,000,000 places checked) | | |
 | Leibniz, 500,000 terms (2 million) | adding the terms one by one | one exact fraction (binary splitting), one division | π minus the Euler-number formula (first 1,000) | starts 3.14159065358979324046… (Borwein et al.) |
+| Liouville's constant | a 1 at each factorial place, 0 elsewhere | the sum of 10^(N − k!) as one exact whole number | | starts 0.110001000000000000000001… |
 | Area of the 96-gon (2 million) | halving the angle from the hexagon (whole-number square roots) | nested square roots, 24 √(2 − √(2 + √(2 + √3))) (`decimal` module) | 48 sin(π/48) from the sine series, with π's digits (first 10,000) | |
 
 ---
@@ -224,7 +228,7 @@ far more repeats than chance.
 
 ---
 
-## 7. Beyond the flat mosaic: lines, 3D blocks, folding, counting runs, every distance, the Leibniz series and Archimedes' polygons
+## 7. Beyond the flat mosaic: lines, 3D blocks, folding, counting runs, every distance, the Leibniz series, Archimedes' polygons and Liouville's constant
 
 All choices below (layouts, directions, lengths, shapes, folds) were fixed before any results were
 seen. Two strings of random digits were run alongside as controls. Methods: REPORT.md, section 9.
@@ -772,7 +776,49 @@ sides, 144 to a row), and the same five can be chosen in the cube and the sphere
 n tan(180°/n), just over π) and a close-up of the gap, stretched upward when it gets too thin to see. Scripts:
 `analysis/scripts/polygons/`; results: `analysis/results/polygons/`.
 
-### 7.12 Does the type of number matter?
+### 7.12 Liouville's constant
+
+**Liouville's constant** is the sum of 10^−(k!) for k = 1, 2, 3, …: a 1 at decimal places 1, 2, 6, 24, 120, 720,
+5,040, 40,320 and 362,880 (the factorials), and 0 at every other place in the first million. Joseph Liouville
+built it in 1851 as the first number proven to be **transcendental**. It was added to see whether being
+transcendental, like π and e, has anything to do with looking random (section 7.13). The next 1 is at decimal
+place 10! = 3,628,800, so decimal places 1,000,001–2,000,000 are all 0 and there is nothing new to re-check
+there. The digits were written down two ways, which agree (section 3).
+
+| Test | Liouville's constant, first million | Chance (random digits) |
+|---|---|---|
+| Digit frequencies | 999,991 0s and nine 1s; all 100 blocks of 10,000 below 1% | each digit about 10% |
+| Repeated blocks, widths 2–2,000 | 12 squares 102,478; 14: 59,112; 15: 62,884; 16: 100,317; 18: 149,304 | 3,904; 19.4; 1.95; 0.29; 0.004 |
+| Runs of six or more | 7, the longest 637,120 0s (decimal places 362,881 to 1,000,000) | about 9 |
+| Lines of one digit, 5 or more (2D, 3D, 4D) | 5,997; 254,065; 2,371,213 | 357.9; 1,077.9; 2,331.2 |
+| Counting runs, with or without rollover, 1D–4D | none | e.g. about 110 of 5+ along the digits |
+| Repeated 3D blocks (12, 16, 18 cubes) | 4,839; 6,103; 6,787 | 185.3; 0.018; 0.0001 |
+| Folding (four ways) | 100.00% of pairs match | 10% |
+| Folding at every width and height | same digit 99.998%, adding up to 9: none, at every width and height | 10% and 10% |
+| Every distance 1–100,000 | same digit 99.998% at every distance; adding up to 9: never | 10% and 10% |
+
+- **Every test picks it out.** The repeated 18-square blocks are about 39 million times the chance figure,
+  the 3D lines of five about 240 times, and the 4D lines of five about 1,000 times.
+- **What repeats.** At each width and block shape, the repeated blocks are the all-zero block and one
+  block for each place a single 1 can sit in it (12 for a 12-square block, 18 for an 18-square one), because
+  the nine 1s are so far apart that each is surrounded by 0s. This was checked directly at widths 100 and
+  777. So the counts are high, but there is little variety: only about 13 to 19 different blocks per width
+  and shape.
+- **Some counts are too low, not too high.** It has *fewer* runs of six than random digits (7 against
+  about 9), because the 0s merge into seven enormous runs; no counting runs at all, because with only 0s
+  and 1s nothing can count past "01"; and no pairs adding up to 9, at any distance or fold. Like 1/9801
+  (section 8, surprise 2), its pattern shows partly through what never happens.
+- **It is not a fraction.** The gaps between its 1s keep growing (1, 4, 18, 96, 600, …), so its digits
+  never settle into a repeating cycle. That only shows over the whole number, though: any stretch of its
+  digits could be part of a fraction's, a 1 followed by many 0s.
+
+The mosaic view "Liouville's constant, 120 columns" shows its first 5,160 digits. 120 is 5!, and every later
+factorial is a multiple of 120, so from decimal place 120 on every 1 lands in the first column. Frames are
+switched off in this view, since almost every row would be one long gold run of 0s. The number is also in the
+3D cube and the sphere. Script: `analysis/scripts/liouville/liouville.py` and the shared test scripts;
+results: `analysis/results/liouville/patterns.json` and the shared results files.
+
+### 7.13 Does the type of number matter?
 
 The numbers tested fall into three kinds. A **rational** number is a fraction; an **algebraic** number is
 a solution of an equation with whole-number coefficients (such as x² = 2); a **transcendental** number is
@@ -783,29 +829,30 @@ group. This comparison was not planned as a test; it reads across the results ab
 |---|---|---|
 | Rational | 1/9801, the Leibniz series stopped early, the 12-gon's area (exactly 3) | The digits always end up repeating in a cycle. With a short cycle this dominates: 1/9801 repeats every 198 digits (sections 6 and 7.1 to 7.4), the 4-term Leibniz sum every 6 (7.10.3), and the 12-gon is all zeros. With a long cycle nothing shows: the 500,000-term Leibniz number repeats only after at least 10^57,331 digits, and its first million are consistent with random digits (7.10.2). |
 | Irrational, algebraic | √2, φ, the 96-gon's area (built from square roots, 7.11) | Consistent with random digits. |
-| Transcendental | π, e, Champernowne's constant | π and e are consistent with random digits; Champernowne failed every test (sections 4.1 and 6). |
+| Transcendental | π, e, Champernowne's constant, Liouville's constant | π and e are consistent with random digits; Champernowne and Liouville failed every test (sections 4.1, 6 and 7.12). |
 
 - **Rational or irrational matters, but only through the length of the cycle.** A fraction must repeat
   eventually, but if the cycle is much longer than the digits examined, the digits can look random.
 - **Algebraic or transcendental made no difference here.** √2, φ and the 96-gon behaved like π and e,
-  and the least random number tested, Champernowne's constant, is transcendental.
-- **What separated the numbers was how they are made.** The two that stood out, 1/9801 and Champernowne,
-  have digits written down by a simple rule (one is rational, the other transcendental). The others come
+  and the two least random numbers tested, Champernowne's and Liouville's constants, are transcendental.
+  Liouville's constant was built to be transcendental, and its digits are almost all 0.
+- **What separated the numbers was how they are made.** The three that stood out, 1/9801, Champernowne
+  and Liouville, have digits written down by a simple rule (one is rational, the other two transcendental). The others come
   from roots, series or geometry, and their digits look random. Being proven to have every digit and block
   of digits equally often in the long run did not make Champernowne look random.
 
 This is what our tests showed on the digits examined, not a proof: it is not known whether π, e, √2 or φ
 has every block of digits equally often. Numbers that would test the comparison further are in section 9:
-Liouville's constant (transcendental, almost all zeros), ∛2 (algebraic, not built from square roots),
-22/7 (rational, cycle of 6) and Euler–Mascheroni γ (not known to be irrational).
+∛2 (algebraic, not built from square roots), 22/7 (rational, cycle of 6) and Euler–Mascheroni γ (not known
+to be irrational).
 
-### 7.13 Summary
+### 7.14 Summary
 
 Digit frequencies, lines in 2D, 3D and 4D, counting runs with and without rollover, digits at every
 distance up to 100,000 places, repeated 3D blocks and folding all give the same answer as the flat mosaic:
-π, √2, e, φ, the Leibniz number (500,000 terms) and the area of Archimedes' 96-gon are consistent with random digits on these tests, while Champernowne's constant and
-1/9801 stand out by factors of hundreds to millions (or, for 1/9801, by having far *fewer* matches
-than chance in some arrangements).
+π, √2, e, φ, the Leibniz number (500,000 terms) and the area of Archimedes' 96-gon are consistent with random digits on these tests, while Champernowne's constant,
+1/9801 and Liouville's constant stand out by factors of tens to millions (or, for 1/9801 and Liouville's
+constant, by having far *fewer* matches than chance in some arrangements).
 
 ---
 
@@ -861,6 +908,10 @@ on our tests they did. What surprised us was in the details.
    a 1-in-8,000 result. Its next million gave 15 (section 7.11). And among all the polygons, one has a
    perfectly plain area: the 12-gon's is exactly 3, so every digit after the 3 is 0.
 
+9. **Being transcendental doesn't make digits look random.** π and e are transcendental, and their digits
+   look random. But so is Liouville's constant, whose first million decimals are nine 1s and 999,991 0s, and
+   so is Champernowne's constant, the least random-looking number tested (sections 7.12 and 7.13).
+
 **The lesson:** the patterns people see in π are real visual effects, but not real structure. To tell the
 difference, ask how often random digits would produce the same thing, and then check again with fresh
 digits.
@@ -869,8 +920,8 @@ digits.
 
 ## 9. Still to do
 
-- Ideas not yet tried: 22/7 (π's school approximation, repeats every 6 digits), Liouville's constant
-  (almost all zeros), Euler–Mascheroni γ (not even known to be irrational), ∛2.
+- Ideas not yet tried: 22/7 (π's school approximation, repeats every 6 digits), Euler–Mascheroni γ (not
+  even known to be irrational), ∛2.
 
 ---
 
@@ -899,6 +950,7 @@ digits.
   100,000 places (section 7.7).
 - `analysis/scripts/leibniz/`, `analysis/results/leibniz/`: the Leibniz series stopped early (section 7.10).
 - `analysis/scripts/polygons/`, `analysis/results/polygons/`: Archimedes' polygons (section 7.11).
+- `analysis/scripts/liouville/`, `analysis/results/liouville/`: Liouville's constant (section 7.12).
 - `analysis/scripts/frequencies/`, `analysis/results/frequencies/`: how often each digit appears (section 7.6).
 
 ---

@@ -25,7 +25,7 @@ LAYOUTS = {"1D 1,000,000": (1_000_000,), "2D 1000x1000": (1000, 1000), "3D 100x1
            "4D 31x31x31x31": (31, 31, 31, 31)}
 NUMBERS = {"pi": "pi_1M", "sqrt2": "sqrt2_1M", "e": "e_1M", "phi": "phi_1M",
            "champernowne": "champernowne_1M", "1/9801": "one_over_9801_1M", "leibniz": "leibniz_500k_1M",
-           "polygon96": "polygon96_1M"}
+           "polygon96": "polygon96_1M", "liouville": "liouville_1M"}
 LENGTHS = (4, 5, 6, 7, 8)
 PAD = 12
 EMPTY = -100   # padding value that can never continue a count

@@ -12,6 +12,7 @@ const numberNames = {
   phi: "Golden ratio φ",
   oneOver9801: "1/9801",
   champernowne: "Champernowne",
+  liouville: "Liouville",
   leibniz: "Leibniz, 500,000 terms",
   leibniz4: "Leibniz, 4 terms",
   leibniz10: "Leibniz, 10 terms",
@@ -33,6 +34,7 @@ const numberDescriptions = {
   phi: "the <strong>golden ratio φ</strong> (1.61803…)",
   oneOver9801: "<strong>1 ÷ 9801</strong> (0.00 01 02 03 … 97 99, repeating every 198 digits)",
   champernowne: "<strong>Champernowne's constant</strong> (0.123456789101112…, the counting numbers written in a row)",
+  liouville: "<strong>Liouville's constant</strong> (0.110001000…, a 1 at decimal places 1, 2, 6, 24, 120, 720, … (the factorials) and 0 everywhere else; transcendental, like π)",
   leibniz: "<strong>the Leibniz series stopped early</strong>: 4 × (1 − 1/3 + 1/5 − … − 1/999,999), the first 500,000 terms (3.14159065…, close to π but not equal to it)",
   leibniz4: "<strong>the Leibniz series stopped after 4 terms</strong>: 4 × (1 − 1/3 + 1/5 − … − 1/7), a fraction whose digits repeat every 6 digits",
   leibniz10: "<strong>the Leibniz series stopped after 10 terms</strong>: 4 × (1 − 1/3 + 1/5 − … − 1/19), a fraction whose digits repeat every 144 digits",
@@ -85,6 +87,16 @@ const findLines = (cells, side, minLength, steps = [0], rollover = false) => {
   return lines;
 };
 const stepsFor = { same: [0], counting: [1, -1], both: [0, 1, -1] };
+
+// Drawing every line is too slow when nearly every dot is on one (e.g. Liouville's constant, almost all 0s),
+// so above this many line pieces only 1 line in every `every` is drawn. The lines are listed by direction and
+// then position, so the ones drawn are spread through the whole cube. Random digits stay far below it.
+const maxPieces = 20000;
+const linesToDraw = (lines) => {
+  const pieces = lines.reduce((total, line) => total + line.length - 1, 0);
+  const every = Math.ceil(pieces / maxPieces);
+  return { every, drawn: every > 1 ? lines.filter((line, i) => i % every === 0) : lines };
+};
 
 // How many such lines random digits would give on average (REPORT.md, sections 9.2 and 9.7).
 // For counting lines without rollover the first digit must leave room to count (e.g. a rising line of 7
@@ -183,16 +195,17 @@ const build = () => {
   for (let i = 0; i < count; i++) cells[i] = digits.charCodeAt(start + i) - 48;
 
   const lines = minLength > 0 ? findLines(cells, side, minLength, stepsFor[kind], rollover) : [];
+  const { every, drawn: drawnLines } = linesToDraw(lines);
   const onLine = new Uint8Array(count);
-  for (const { x, y, z, dx, dy, dz, length } of lines) {
+  for (const { x, y, z, dx, dy, dz, length } of drawnLines) {
     for (let step = 0; step < length; step++) onLine[((z + step * dz) * side + (y + step * dy)) * side + (x + step * dx)] = 1;
   }
 
-  // Cubes to draw: digits in the chosen range, plus every cube on a line
+  // Cubes to draw: digits in the chosen range, plus every cube on a drawn line
   const visible = [];
   for (let i = 0; i < count; i++) if ((cells[i] >= from && cells[i] <= to) || onLine[i]) visible.push(i);
 
-  cube = { side, start, cells, lines, visible: Int32Array.from(visible) };
+  cube = { side, start, cells, lines: drawnLines, visible: Int32Array.from(visible) };
   document.getElementById("cubeInfo").textContent = "Drag to rotate, scroll to zoom, hover over a cube for its digit";
 
   const sameCount = lines.filter((line) => line.step === 0).length;
@@ -203,16 +216,17 @@ const build = () => {
     ...(kind !== "same" ? [tally(countingCount, "green", "counting")] : []),
   ];
   const range = `decimal places ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()}`;
+  const capped = every > 1 ? ` · drawing 1 in every ${every}` : "";
   document.getElementById("cubeSummary").textContent = parts.length
-    ? `${parts.join(" · ")} of ${minLength} or more · ${range}` : range.charAt(0).toUpperCase() + range.slice(1);
+    ? `${parts.join(" · ")} of ${minLength} or more${capped} · ${range}` : range.charAt(0).toUpperCase() + range.slice(1);
   const digitTally = drawDigitChart(cells);
-  setAboutText(aboutCube(settings, sameCount, countingCount, digitTally));
+  setAboutText(aboutCube(settings, sameCount, countingCount, digitTally, every));
   needsDrawing = true;
 };
 window.addEventListener("hashchange", build);
 
 // The About panel's text for the current settings
-const aboutCube = ({ number, side, start, from, to, lines: minLength, kind, rollover }, sameCount, countingCount, digitTally) => {
+const aboutCube = ({ number, side, start, from, to, lines: minLength, kind, rollover }, sameCount, countingCount, digitTally, every) => {
   const count = side ** 3;
   const shown = from === 0 && to === 9 ? "every digit"
     : from === to ? `only the ${from}s`
@@ -226,8 +240,11 @@ const aboutCube = ({ number, side, start, from, to, lines: minLength, kind, roll
     of ${minLength} or more dots whose digits count up or down by one (such as 3 4 5 6 7, or 8 7 6 5 4)${rollover === "on"
       ? ", carrying on from 9 to 0 and from 0 to 9 (such as 8 9 0 1 2)" : ", stopping at 9 and 0"}.
     Random digits would give about ${expectedLines(side, minLength, "counting", rollover === "on").toFixed(1)}.</p>`;
+  const cappedText = every > 1
+    ? `<p>There are too many lines to draw them all quickly, so only 1 line in every ${every} is drawn, spread
+      through the whole cube; the counts above include them all.</p>` : "";
   const linesText = minLength === 0 ? "<p>Lines are switched off.</p>"
-    : (kind !== "counting" ? sameText : "") + (kind !== "same" ? countingText : "");
+    : (kind !== "counting" ? sameText : "") + (kind !== "same" ? countingText : "") + cappedText;
   return `
     <h2>What you're looking at</h2>
     <p>The digits of a number stacked into a cube, like threading a long string of beads into a box: left to
@@ -256,7 +273,7 @@ const aboutCube = ({ number, side, start, from, to, lines: minLength, kind, roll
     <p>A theorem from 1927 (van der Waerden's) guarantees that any long enough string of digits contains
     straight lines of the same digit, as long as enough directions are allowed. So finding lines proves
     nothing on its own: what matters is whether there are more than random digits would give. The same goes
-    for counting lines. For π, √2, e and the golden ratio there aren't more than chance, for either kind. For 1/9801 and Champernowne's constant the count is often wildly
+    for counting lines. For π, √2, e and the golden ratio there aren't more than chance, for either kind. For 1/9801, Champernowne's constant and Liouville's constant the count is often wildly
     different, because their digits follow a pattern.</p>
     <p><strong>Beware of illusions:</strong> when you look straight along the grid, neighbouring dots line up
     into rows. That's the viewing angle, not the digits. Only the gold and green lines are real.</p>

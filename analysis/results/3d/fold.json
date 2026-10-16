@@ -64,6 +64,14 @@
    "runs5": 12,
    "runs5_expected": 8.94750000000002
   },
+  "liouville": {
+   "squares": 500000,
+   "match_share": 0.999982,
+   "two_by_two": 498478,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 1509,
+   "runs5_expected": 8.94750000000002
+  },
   "random 1": {
    "squares": 500000,
    "match_share": 0.100346,
@@ -144,6 +152,14 @@
    "two_by_two": 53,
    "two_by_two_expected": 49.850100000000005,
    "runs5": 8,
+   "runs5_expected": 8.94750000000002
+  },
+  "liouville": {
+   "squares": 500000,
+   "match_share": 0.999982,
+   "two_by_two": 498478,
+   "two_by_two_expected": 49.850100000000005,
+   "runs5": 1509,
    "runs5_expected": 8.94750000000002
   },
   "random 1": {
@@ -228,6 +244,14 @@
    "runs5": 8,
    "runs5_expected": 8.921170000000004
   },
+  "liouville": {
+   "squares": 499500,
+   "match_share": 0.999981981981982,
+   "two_by_two": 497482,
+   "two_by_two_expected": 49.7503,
+   "runs5": 1999,
+   "runs5_expected": 8.921170000000004
+  },
   "random 1": {
    "squares": 499500,
    "match_share": 0.1001001001001001,
@@ -308,6 +332,14 @@
    "two_by_two": 45,
    "two_by_two_expected": 49.7503,
    "runs5": 6,
+   "runs5_expected": 8.921170000000007
+  },
+  "liouville": {
+   "squares": 499500,
+   "match_share": 0.999981981981982,
+   "two_by_two": 497480,
+   "two_by_two_expected": 49.7503,
+   "runs5": 1999,
    "runs5_expected": 8.921170000000007
   },
   "random 1": {

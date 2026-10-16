@@ -13,7 +13,8 @@ BASE_SHAPES = [(2, 2, 3), (2, 2, 4), (2, 3, 3)]                       # depth x 
 SHAPES = sorted({p for s in BASE_SHAPES for p in itertools.permutations(s)})
 NUMBERS = {"pi": "pi_1M", "sqrt2": "sqrt2_1M", "e": "e_1M", "phi": "phi_1M",
            "champernowne": "champernowne_1M", "1/9801": "one_over_9801_1M", "leibniz": "leibniz_500k_1M",
-           "polygon96": "polygon96_1M"}
+           "polygon96": "polygon96_1M", "liouville": "liouville_1M"}
+STRUCTURED = ("champernowne", "1/9801", "liouville")  # repeats everywhere, so their positions are not listed
 
 def scan(args):
     name, digits, W = args
@@ -32,7 +33,7 @@ def scan(args):
         dup = np.unique(f[1:][f[1:] == f[:-1]])
         M = flat.size
         rec = {"repeats": int(len(dup)), "expected": M * (M - 1) / 2 * 10.0 ** -(d * h * w)}
-        if d * h * w >= 16 and 0 < len(dup) <= 50:                         # record where the big ones are
+        if d * h * w >= 16 and 0 < len(dup) <= 50 and name not in STRUCTURED:  # record where the big ones are
             places = []
             for v in dup:
                 idx = np.nonzero(flat == v)[0]
@@ -60,8 +61,8 @@ if __name__ == "__main__":
     print(f"{'number':13} | " + " | ".join(f"{c} cubes: found (chance)" for c in (12, 16, 18)))
     for name, s in summary.items():
         print(f"{name:13} | " + " | ".join(f"{s[c][0]:>12,} ({s[c][1]:.3f})" for c in (12, 16, 18)))
-    json.dump({"summary": summary, "big_repeats": {k: v for k, v in big.items() if k not in ("champernowne", "1/9801")}},
+    json.dump({"summary": summary, "big_repeats": {k: v for k, v in big.items() if k not in STRUCTURED}},
               open("analysis/results/3d/blocks3d.json", "w"), indent=1)
     for name, lst in big.items():
-        if name in ("champernowne", "1/9801"): continue
+        if name in STRUCTURED: continue
         for r in lst: print(name, r)

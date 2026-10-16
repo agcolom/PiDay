@@ -118,6 +118,17 @@
    "longest": 6,
    "long_runs": []
   },
+  "liouville": {
+   "at_least": {
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "7": 0,
+    "8": 0
+   },
+   "longest": 0,
+   "long_runs": []
+  },
   "random 1": {
    "at_least": {
     "4": 1269,
@@ -600,6 +611,17 @@
      "digits": "6543210"
     }
    ]
+  },
+  "liouville": {
+   "at_least": {
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "7": 0,
+    "8": 0
+   },
+   "longest": 0,
+   "long_runs": []
   },
   "random 1": {
    "at_least": {
@@ -1517,6 +1539,17 @@
      "digits": "2345678"
     }
    ]
+  },
+  "liouville": {
+   "at_least": {
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "7": 0,
+    "8": 0
+   },
+   "longest": 0,
+   "long_runs": []
   },
   "random 1": {
    "at_least": {
@@ -2836,6 +2869,17 @@
      "digits": "7654321"
     }
    ]
+  },
+  "liouville": {
+   "at_least": {
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "7": 0,
+    "8": 0
+   },
+   "longest": 0,
+   "long_runs": []
   },
   "random 1": {
    "at_least": {

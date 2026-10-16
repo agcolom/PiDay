@@ -154,6 +154,17 @@
    "longest": 8,
    "long_runs": 2
   },
+  "liouville": {
+   "at_least": {
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "7": 0,
+    "8": 0
+   },
+   "longest": 0,
+   "long_runs": 0
+  },
   "random 1": {
    "at_least": {
     "4": 1766,
@@ -764,6 +775,17 @@
    },
    "longest": 8,
    "long_runs": 8
+  },
+  "liouville": {
+   "at_least": {
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "7": 0,
+    "8": 0
+   },
+   "longest": 0,
+   "long_runs": 0
   },
   "random 1": {
    "at_least": {
@@ -2064,6 +2086,17 @@
    },
    "longest": 8,
    "long_runs": 21
+  },
+  "liouville": {
+   "at_least": {
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "7": 0,
+    "8": 0
+   },
+   "longest": 0,
+   "long_runs": 0
   },
   "random 1": {
    "at_least": {
@@ -3945,6 +3978,17 @@
    },
    "longest": 8,
    "long_runs": 36
+  },
+  "liouville": {
+   "at_least": {
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "7": 0,
+    "8": 0
+   },
+   "longest": 0,
+   "long_runs": 0
   },
   "random 1": {
    "at_least": {

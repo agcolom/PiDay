@@ -45,6 +45,12 @@ one striking count (twice the expected number of repeated 14-square blocks, abou
 not reproduced in its next million digits; like the others, it is consistent with random digits (section
 9.13).
 
+Finally, Liouville's constant (a 1 at every factorial decimal place, 0 elsewhere), the first number proven
+to be transcendental, was added to see whether being transcendental, like π and e, has anything to do with
+looking random. It fails every test, as do 1/9801 (a fraction) and Champernowne's constant (also
+transcendental). On our tests, what separated the numbers was not their type but whether their digits are
+written down by a simple rule (section 9.14).
+
 ---
 
 ## 1. The mosaic
@@ -87,6 +93,9 @@ Change the width and different digits line up, so different shapes appear.
 - A **Polygon ladder** view stacks the areas of Archimedes' polygons (6, 12, 24, … sides), one per row,
   with π as the bottom row; five more views show single polygons (6, 12, 96, 6,144 and 6,291,456 sides),
   and the same five are in the 3D cube and the sphere (section 9.13).
+- A **Liouville's constant** view shows its first 5,160 digits, 120 to a row, with frames switched off
+  (almost every row would be one gold run of 0s); the number is also in the 3D cube and the sphere
+  (section 9.14).
 - A **polygons** page (`polygons.html`) draws the polygons inside and outside the circle, from 6 to
   6,291,456 sides, with a close-up of the gap and the two areas next to π. The outside area n tan(π/n)
   uses the same halving, with tan(x/2) = sin x / (1 + cos x). Above 1,536 sides the whole-circle picture
@@ -195,7 +204,7 @@ All three agree on all 1,000,000 decimals.
 
 Both agree on 2,000,000 decimals.
 
-### 2.7 The two patterned numbers
+### 2.7 The patterned numbers
 
 - **1/9801:** method 1 is long division, ⌊10^N / 9801⌋ with leading zeros restored. Method 2 writes out
   the two-digit numbers 00, 01, …, 97, 99 (98 is skipped), which is 198 digits, and repeats them. The
@@ -205,12 +214,16 @@ Both agree on 2,000,000 decimals.
   until k falls inside a block of d-digit numbers, then work out which number and which of its digits.
   The two agree at all 1,000,000 places. (The first check covered 20,013 places, the block
   boundaries plus 20,000 random places; the full check was added after review.)
+- **Liouville's constant** (added later, section 9.14): method 1 puts a 1 at each factorial place up to a
+  million (1, 2, 6, 24, 120, 720, 5,040, 40,320, 362,880) and 0 everywhere else. Method 2 adds up
+  10^(N − k!) for each of those k as one exact whole number and writes it out with its leading zeros. The two
+  agree on all million decimals.
 
 ### 2.8 In the browser
 
 `pi.js` computes the digits each time a view is shown, using the same formulas: Chudnovsky for π,
 integer square roots for √2 and φ, the factorial series for e, long division for 1/9801, and writing
-out the numbers for Champernowne. We checked every view's digits against the verified million-digit
+out the numbers for Champernowne, and placing the 1s at the factorials for Liouville's constant. We checked every view's digits against the verified million-digit
 files. Computing and drawing a view takes from about 0.1 s (π at 147 columns, 20,727 squares) to about
 1 s (e at 309 columns, 338,355 squares) in the test browser. Of that, computing φ's 792,170 digits
 takes about 0.34 s; most of the rest is creating the squares.
@@ -447,7 +460,7 @@ tell the difference.
 
 ---
 
-## 9. Beyond the flat mosaic: lines, 3D blocks, folding, counting runs, every distance, the Leibniz series and Archimedes' polygons
+## 9. Beyond the flat mosaic: lines, 3D blocks, folding, counting runs, every distance, the Leibniz series, Archimedes' polygons and Liouville's constant
 
 ### 9.1 One idea behind all three
 
@@ -536,6 +549,10 @@ drawn furthest first so nearer squares cover further ones. Squares are drawn at 
 inside of the cube stays visible. The gold lines use the same definition and chance formula as section
 9.2, and are cut into one piece per step so each piece is drawn at its own depth. The page's line
 finder gave exactly the same lines as the Python code on eight test cubes. It uses no outside libraries.
+When the lines would need more than 20,000 pieces (only the structured numbers in large cubes, such as
+Liouville's constant or the 12-gon, almost all 0s), every line is still counted but only 1 line in every k
+is drawn, spread through the cube, and the page says so; drawing them all froze the page. Random digits
+stay far below the limit (about 7,000 pieces in a cube of side 60 with lines of 4 or more).
 
 ### 9.7 Counting runs
 
@@ -735,7 +752,21 @@ looked unusual in the first million (14-square repeats, counting runs of 5+ with
 3D lines of 6+) were recounted there with the same functions (`second_million.py`, `followup.py`). None
 was reproduced. Results: FINDINGS.md, section 7.11.
 
-### 9.14 Reading the results
+### 9.14 Liouville's constant
+
+Liouville's constant, the sum of 10^−(k!) for k = 1, 2, 3, …, was the first number proven transcendental
+(Liouville, 1851). It was added as a fourth structured number, to see whether being transcendental has
+anything to do with looking random. Its digits are described in section 2.7; in the first million
+decimals there are nine 1s and 999,991 0s. The next 1 is at decimal place 10! = 3,628,800, so decimal places
+1,000,001–2,000,000 are all 0, and there is nothing new to re-check there.
+
+It went through every test in this report with the same scripts as the other numbers (every earlier
+result was reproduced exactly with it included), plus repeated blocks at every width
+(`analysis/scripts/liouville/liouville.py`). The 3D block script lists the positions of every large
+repeat; for Liouville, as for Champernowne and 1/9801, it no longer does, because the all-zero block repeats
+at almost every position (the list came to 10 GB). Its counts are unchanged. Results: FINDINGS.md, section 7.12.
+
+### 9.15 Reading the results
 
 The approach to unusual results is the one in section 7: Poisson probabilities as approximations,
 allowance for the number of counts examined, and recounting in fresh digits when something stands out.
@@ -791,6 +822,11 @@ on our tests they did. What surprised us was in the details.
    in its first million decimals, about twice the 19.4 expected and more than any of 24 random strings:
    a 1-in-8,000 result. Its next million gave 15 (section 9.13).
 
+8. **Being transcendental doesn't make digits look random.** Liouville's constant is transcendental, like
+   π and e, yet its first million decimals are nine 1s and 999,991 0s, and it fails every test; so does
+   Champernowne's constant, also transcendental. Being algebraic or transcendental made no difference on
+   our tests (FINDINGS.md, sections 7.12 and 7.13).
+
 **The lesson:** the patterns people see in π are real visual effects, but not real structure. To tell the
 difference, ask how often random digits would produce the same thing, and then check again with fresh
 digits.
@@ -830,7 +866,7 @@ digits.
 - The saved scan scripts include the narrow-width fix described in the revision notes below.
 - Every repeat of 14 or more squares is listed in `analysis/results/*.json` and in the FINDINGS.md
   appendix.
-- The every-distance test (`analysis/scripts/distances/`), the Leibniz and polygon scripts (`analysis/scripts/leibniz/`, `analysis/scripts/polygons/`), the counting-run scripts
+- The every-distance test (`analysis/scripts/distances/`), the Leibniz, polygon and Liouville scripts (`analysis/scripts/leibniz/`, `analysis/scripts/polygons/`, `analysis/scripts/liouville/`), the counting-run scripts
   (`analysis/scripts/counting/`) and the digit-frequency script also run from the project folder as they
   are.
 - The mosaic needs no installation: open `index.html` in a browser (or `cube.html` for the 3D cube, or

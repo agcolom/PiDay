@@ -19,7 +19,7 @@ N = 1_000_000
 SIZES = range(2, 2001)
 NUMBERS = {"pi": "pi_1M", "sqrt2": "sqrt2_1M", "e": "e_1M", "phi": "phi_1M",
            "champernowne": "champernowne_1M", "1/9801": "one_over_9801_1M", "leibniz": "leibniz_500k_1M",
-           "polygon96": "polygon96_1M"}
+           "polygon96": "polygon96_1M", "liouville": "liouville_1M"}
 RANDOM_STRINGS = 20
 
 def scan(args):

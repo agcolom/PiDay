@@ -95,6 +95,14 @@ const computeChampernowneDigits = (count) => {
   return parts.join("").slice(0, count);
 };
 
+// Liouville's constant: the sum of 10^-(k!), so a 1 at decimal places 1, 2, 6, 24, 120, 720, ... (the factorials)
+// and 0 everywhere else
+const computeLiouvilleDigits = (count) => {
+  const digits = Array(count).fill("0");
+  for (let k = 1, place = 1; place < count; k++, place *= k) digits[place] = "1";
+  return digits.join("");
+};
+
 // The Leibniz series stopped early: 4 x (1 - 1/3 + 1/5 - ... - 1/999,999), its first 500,000 terms.
 // Binary splitting turns the terms into one exact fraction P/Q (Q is the product of the odd numbers up to
 // 999,999, about 3 million digits). Both are then cut down to the digits needed before dividing.
@@ -152,6 +160,7 @@ const computeDigits = {
   phi: computePhiDigits,
   oneOver9801: computeOneOver9801Digits,
   champernowne: computeChampernowneDigits,
+  liouville: computeLiouvilleDigits,
   leibniz: computeLeibnizDigits,
   // The same series stopped after only a few terms (fractions whose digits repeat; see the mosaic's Leibniz views)
   leibniz4: (count) => computeLeibnizDigits(count, 4),

@@ -1,6 +1,6 @@
 # Pi Mosaic
 
-A mosaic of the digits of π (and five other numbers, plus two ways of approaching π: the Leibniz series
+A mosaic of the digits of π (and six other numbers, plus two ways of approaching π: the Leibniz series
 stopped early, and the areas of Archimedes' polygons): one
 square per digit, darker for higher digits.
 It started as a Pi Day CodePen in 2024 and grew into a check of whether the digits contain repeating
@@ -12,7 +12,7 @@ patterns.
 [Archimedes' polygons](https://agcolom.github.io/PiDay/polygons.html).
 
 **Or locally:** open `index.html` in a browser. Use the menu in the top-right corner to switch between
-π, √2, e, the golden ratio, 1/9801, Champernowne's constant, the Leibniz series and Archimedes' polygons
+π, √2, e, the golden ratio, 1/9801, Champernowne's constant, Liouville's constant, the Leibniz series and Archimedes' polygons
 (the *Polygon ladder* view stacks the polygons' areas, one per row, with π underneath). Cyan frames mark repeated blocks;
 gold frames mark runs of six or more of the same digit; green frames mark digits counting up or down
 (such as 34567; the Counting menu lets 9 roll over to 0, as in 89012). The Fold menu folds the mosaic
@@ -43,8 +43,11 @@ the shrinking gap and the areas, the part that matches π in bold. On every page
 ## Short version of the findings
 
 On the tests we ran, the first million digits of π, √2, e and φ are consistent with random digits.
-1/9801 and Champernowne's constant, whose digits are structured by construction, show hundreds to
-billions of times more repeats than random digits would. The Leibniz series stopped after 500,000 terms
+1/9801, Champernowne's constant and Liouville's constant (0.110001000…, a 1 at every factorial place),
+whose digits are structured by construction, show tens to billions of times more repeats than random digits
+would. Liouville's and Champernowne's constants are transcendental, like π and e: on our tests, being
+algebraic or transcendental made no difference to how random the digits look; what mattered was whether
+they are written down by a simple rule (FINDINGS.md, section 7.13). The Leibniz series stopped after 500,000 terms
 matches π except at evenly spaced digits given by the Euler numbers, a pattern that fades within about
 70 digits (and reaches further the more terms are used); taken on its own, its digits are also consistent
 with random digits. Stopped after only a few terms, the series is a fraction whose digits visibly repeat; the

@@ -13,6 +13,7 @@ const numberNames = {
   phi: "Golden ratio φ",
   oneOver9801: "1/9801",
   champernowne: "Champernowne",
+  liouville: "Liouville",
   leibniz: "Leibniz, 500,000 terms",
   leibniz4: "Leibniz, 4 terms",
   leibniz10: "Leibniz, 10 terms",
@@ -34,6 +35,7 @@ const numberDescriptions = {
   phi: "the <strong>golden ratio φ</strong> (1.61803…)",
   oneOver9801: "<strong>1 ÷ 9801</strong> (0.00 01 02 03 … 97 99, repeating every 198 digits)",
   champernowne: "<strong>Champernowne's constant</strong> (0.123456789101112…, the counting numbers written in a row)",
+  liouville: "<strong>Liouville's constant</strong> (0.110001000…, a 1 at decimal places 1, 2, 6, 24, 120, 720, … (the factorials) and 0 everywhere else; transcendental, like π)",
   leibniz: "<strong>the Leibniz series stopped early</strong>: 4 × (1 − 1/3 + 1/5 − … − 1/999,999), the first 500,000 terms (3.14159065…, close to π but not equal to it)",
   leibniz4: "<strong>the Leibniz series stopped after 4 terms</strong>: 4 × (1 − 1/3 + 1/5 − … − 1/7), a fraction whose digits repeat every 6 digits",
   leibniz10: "<strong>the Leibniz series stopped after 10 terms</strong>: 4 × (1 − 1/3 + 1/5 − … − 1/19), a fraction whose digits repeat every 144 digits",
@@ -176,7 +178,8 @@ const aboutSphere = ({ number, count, start }, gaps) => `
   <p>We tested every distance from 1 to 100,000 places in the first million digits: for each one, how often
   the two digits are the same, add up to 9, or count up or down by one. For π, √2, e and the golden ratio,
   every distance gave about 10%, as random digits would; the biggest differences were no larger than in
-  strings of random digits. 1/9801 and Champernowne's constant stand out at thousands of distances.</p>
+  strings of random digits. 1/9801 and Champernowne's constant stand out at thousands of distances, and Liouville's
+  constant, almost all 0s, at every one.</p>
   <p><strong>Beware of illusions:</strong> the dots seem to form spiral arms curving across the ball, like the
   seeds of a sunflower. Those arms come from the golden-angle layout and appear for any digits at all; they
   aren't in the digits.</p>

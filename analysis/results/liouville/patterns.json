@@ -1,0 +1,66 @@
+{
+ "ones_at": [
+  1,
+  2,
+  6,
+  24,
+  120,
+  720,
+  5040,
+  40320,
+  362880
+ ],
+ "methods_agree": true,
+ "repeated_blocks_by_size": {
+  "12": {
+   "different_blocks": 102478,
+   "all_zero": 7989
+  },
+  "14": {
+   "different_blocks": 59112,
+   "all_zero": 3993
+  },
+  "15": {
+   "different_blocks": 62884,
+   "all_zero": 3994
+  },
+  "16": {
+   "different_blocks": 100317,
+   "all_zero": 5989
+  },
+  "18": {
+   "different_blocks": 149304,
+   "all_zero": 7984
+  }
+ },
+ "runs_6plus": [
+  [
+   7,
+   17
+  ],
+  [
+   25,
+   95
+  ],
+  [
+   121,
+   599
+  ],
+  [
+   721,
+   4319
+  ],
+  [
+   5041,
+   35279
+  ],
+  [
+   40321,
+   322559
+  ],
+  [
+   362881,
+   637120
+  ]
+ ]
+}
