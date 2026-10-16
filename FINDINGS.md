@@ -772,7 +772,34 @@ sides, 144 to a row), and the same five can be chosen in the cube and the sphere
 n tan(180°/n), just over π) and a close-up of the gap, stretched upward when it gets too thin to see. Scripts:
 `analysis/scripts/polygons/`; results: `analysis/results/polygons/`.
 
-### 7.12 Summary
+### 7.12 Does the type of number matter?
+
+The numbers tested fall into three kinds. A **rational** number is a fraction; an **algebraic** number is
+a solution of an equation with whole-number coefficients (such as x² = 2); a **transcendental** number is
+not algebraic. Every rational number is algebraic, so the irrational algebraic numbers are the middle
+group. This comparison was not planned as a test; it reads across the results above.
+
+| Type | Numbers | What the tests showed |
+|---|---|---|
+| Rational | 1/9801, the Leibniz series stopped early, the 12-gon's area (exactly 3) | The digits always end up repeating in a cycle. With a short cycle this dominates: 1/9801 repeats every 198 digits (sections 6 and 7.1 to 7.4), the 4-term Leibniz sum every 6 (7.10.3), and the 12-gon is all zeros. With a long cycle nothing shows: the 500,000-term Leibniz number repeats only after at least 10^57,331 digits, and its first million are consistent with random digits (7.10.2). |
+| Irrational, algebraic | √2, φ, the 96-gon's area (built from square roots, 7.11) | Consistent with random digits. |
+| Transcendental | π, e, Champernowne's constant | π and e are consistent with random digits; Champernowne failed every test (sections 4.1 and 6). |
+
+- **Rational or irrational matters, but only through the length of the cycle.** A fraction must repeat
+  eventually, but if the cycle is much longer than the digits examined, the digits can look random.
+- **Algebraic or transcendental made no difference here.** √2, φ and the 96-gon behaved like π and e,
+  and the least random number tested, Champernowne's constant, is transcendental.
+- **What separated the numbers was how they are made.** The two that stood out, 1/9801 and Champernowne,
+  have digits written down by a simple rule (one is rational, the other transcendental). The others come
+  from roots, series or geometry, and their digits look random. Being proven to have every digit and block
+  of digits equally often in the long run did not make Champernowne look random.
+
+This is what our tests showed on the digits examined, not a proof: it is not known whether π, e, √2 or φ
+has every block of digits equally often. Numbers that would test the comparison further are in section 9:
+Liouville's constant (transcendental, almost all zeros), ∛2 (algebraic, not built from square roots),
+22/7 (rational, cycle of 6) and Euler–Mascheroni γ (not known to be irrational).
+
+### 7.13 Summary
 
 Digit frequencies, lines in 2D, 3D and 4D, counting runs with and without rollover, digits at every
 distance up to 100,000 places, repeated 3D blocks and folding all give the same answer as the flat mosaic:
