@@ -639,10 +639,12 @@ direct search. Results: FINDINGS.md, section 7.8.
 
 ### 9.11 The sphere page
 
-`sphere.html` places n dots (1,000 to 20,000) on a ball of radius 1 along a Fibonacci spiral: dot i is at
+`sphere.html` places n dots (10, 50, 100, or 1,000 to 20,000) on a ball of radius 1 along a Fibonacci spiral: dot i is at
 height y = 1 − 2(i + ½)/n and angle i × 137.5° (the golden angle, π(3 − √5) radians), at radius √(1 − y²)
 from the axis. Dot i holds the digit at decimal place start + i. The drawing uses the same projection and
-furthest-first painting as the cube (section 9.6), with dots on the far half drawn paler.
+furthest-first painting as the cube (section 9.6), with dots on the far half drawn paler. With 100 dots or
+fewer, each dot is labelled with its decimal place and the spiral between consecutive dots is drawn (the same
+formula with i taken between whole numbers), to show how the layout works.
 
 On such a spiral, a dot's nearest neighbours are dots a Fibonacci number of steps away (a known property of
 these spirals, which we confirmed numerically): with 2,000 dots, the four nearest dots in the middle band are

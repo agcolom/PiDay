@@ -49,7 +49,8 @@ const numberDescriptions = {
   polygon6144: "<strong>the area of a regular 6,144-sided polygon</strong> inside a circle of radius 1: 3.1415921…, irrational, sharing 6 decimals with π",
   polygon6291456: "<strong>the area of a regular 6,291,456-sided polygon</strong> inside a circle of radius 1: 3.1415926535892…, irrational, sharing 12 decimals with π",
 };
-const dotCounts = [1000, 2000, 5000, 10000, 20000];
+const dotCounts = [10, 50, 100, 1000, 2000, 5000, 10000, 20000];
+const smallCount = 100; // up to this many dots, each is numbered and the spiral joining them is drawn
 const defaults = { number: "pi", count: 2000, start: 0, from: 0, to: 9 };
 const goldenAngle = Math.PI * (3 - Math.sqrt(5)); // 137.5°, in radians
 
@@ -101,13 +102,15 @@ const digitsFor = (number, count) => {
   return cachedDigits;
 };
 
-// Positions on a sphere of radius 1: x to the right, y up, z towards the viewer
+// Position on a sphere of radius 1 of dot i out of count (x to the right, y up, z towards the viewer).
+// i need not be a whole number: in between, it follows the spiral from one dot to the next.
+const spiralPoint = (i, count) => {
+  const y = 1 - (2 * (i + 0.5)) / count, radius = Math.sqrt(1 - y * y), turn = i * goldenAngle;
+  return [radius * Math.cos(turn), y, radius * Math.sin(turn)];
+};
 const fibonacciSphere = (count) => {
   const points = new Float64Array(count * 3);
-  for (let i = 0; i < count; i++) {
-    const y = 1 - (2 * (i + 0.5)) / count, radius = Math.sqrt(1 - y * y), turn = i * goldenAngle;
-    points.set([radius * Math.cos(turn), y, radius * Math.sin(turn)], i * 3);
-  }
+  for (let i = 0; i < count; i++) points.set(spiralPoint(i, count), i * 3);
   return points;
 };
 
@@ -166,7 +169,13 @@ const aboutSphere = ({ number, count, start }, gaps) => `
   digit, darker for bigger digits (9 is full purple, 0 the lightest). The first digit is at the top; the
   digits then spiral down to the bottom, each one turned 137.5° further round than the last. That angle is the
   <strong>golden angle</strong>, which comes from the golden ratio. It spreads the dots evenly, as in a
-  sunflower head.</p>
+  sunflower head.</p>${count <= smallCount ? `
+  <p>With only ${count} dots, each is numbered with its decimal place (its position in the number, not its
+  digit: the shade still shows the digit; hover over a dot to see both), and a thin line follows the spiral
+  from each digit to the next: a little way down, and 137.5° round. So digits next to each other in the
+  number are <em>not</em> next to each other on the ball; each one lands well over a third of the way round
+  from the last. Turn the ball to follow the line from the top to the bottom. With more dots the same rule
+  fills the ball evenly.</p>` : ""}
   <p>Use "Show digits" to pick which digits appear, for example 9 to 9 for only the 9s. Drag to turn the ball,
   scroll to zoom, and hover over a dot to see its decimal place, its digit, and how far away (in decimal
   places) its nearest neighbours on the ball are. Dots on the far side are paler.</p>
@@ -226,7 +235,7 @@ const makeProjection = () => {
 };
 
 const draw = () => {
-  const { count, cells, points, visible } = sphere;
+  const { count, start, cells, points, visible } = sphere;
   const { project, centreX, centreY, outline } = makeProjection();
   context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -239,17 +248,46 @@ const draw = () => {
 
   const at = (i) => project(points[i * 3], points[i * 3 + 1], points[i * 3 + 2]);
   const dots = Array.from(visible, (i) => ({ i, ...at(i) }));
-  dots.sort((a, b) => a.nearness - b.nearness);
+  // With only a few dots, the spiral from each dot to the next, in short pieces along the ball's surface
+  const pieces = [];
+  if (count <= smallCount) {
+    const steps = 24;
+    for (let i = 0; i < count - 1; i++) {
+      for (let k = 0; k < steps; k++) {
+        const from = project(...spiralPoint(i + k / steps, count)), to = project(...spiralPoint(i + (k + 1) / steps, count));
+        pieces.push({ from, to, nearness: (from.nearness + to.nearness) / 2 - 0.05 }); // just behind the dots it joins
+      }
+    }
+  }
   const spacing = Math.sqrt((4 * Math.PI) / count); // typical gap between neighbouring dots, on a ball of radius 1
   // Furthest first, so nearer dots are drawn on top; dots on the far half are paler
-  for (const dot of dots) {
-    const facing = dot.nearness >= 0 ? 1 : 0.3;
+  const items = [...dots, ...pieces].sort((a, b) => a.nearness - b.nearness);
+  for (const item of items) {
+    const facing = item.nearness >= 0 ? 1 : 0.3;
+    if (item.from) {
+      context.strokeStyle = `rgba(0, 0, 0, ${(0.6 * facing).toFixed(2)})`;
+      context.lineWidth = 1.5;
+      context.beginPath();
+      context.moveTo(item.from.x, item.from.y);
+      context.lineTo(item.to.x, item.to.y);
+      context.stroke();
+      continue;
+    }
+    const size = item.scale * Math.min(spacing * 0.33, 0.07); // smaller than the gap when there are only a few dots
     // Darker for bigger digits, as in the mosaic, but never fainter than 0.3 so 0s and 1s stay visible
-    context.fillStyle = `rgba(128, 0, 128, ${((0.3 + 0.7 * (cells[dot.i] / 9)) * facing).toFixed(2)})`;
+    context.fillStyle = `rgba(128, 0, 128, ${((0.3 + 0.7 * (cells[item.i] / 9)) * facing).toFixed(2)})`;
     context.beginPath();
-    context.arc(dot.x, dot.y, dot.scale * spacing * 0.33, 0, 2 * Math.PI);
+    context.arc(item.x, item.y, size, 0, 2 * Math.PI);
     context.fill();
+    if (count <= smallCount) { // number each dot with its decimal place, so the order can be followed
+      context.fillStyle = cells[item.i] >= 4 && facing === 1 ? "white" : `rgba(60, 0, 60, ${facing})`;
+      context.font = `bold ${Math.max(10, Math.round(size * 0.9))}px sans-serif`;
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.fillText(start + item.i, item.x, item.y);
+    }
   }
+  dots.sort((a, b) => a.nearness - b.nearness);
   projected = dots;
 };
 
@@ -288,7 +326,7 @@ const info = document.getElementById("sphereInfo");
 const showDigitUnder = (pointerX, pointerY) => {
   if (!projected) return;
   const { count, start, cells, points } = sphere;
-  const reach = Math.sqrt((4 * Math.PI) / count) * 0.5;
+  const reach = Math.min(Math.sqrt((4 * Math.PI) / count) * 0.5, 0.1); // a little bigger than the dots drawn
   let best = null;
   for (const point of projected) {
     const radius = Math.max(point.scale * reach, 4);

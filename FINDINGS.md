@@ -520,8 +520,9 @@ effect of the viewing angle, not of the digits; only the gold lines are real lin
 
 `sphere.html` winds the digits onto a ball instead, along a **Fibonacci spiral**: the first digit at the
 top, each later one a little lower and turned 137.5° (the golden angle) further round, which spreads the
-dots evenly. You choose the number, how many dots (1,000 to 20,000), where to start and which digits to
-show. On this ball, a dot's nearest neighbours are always a Fibonacci number of places away along the
+dots evenly. You choose the number, how many dots (10, 50, 100, or 1,000 to 20,000), where to start and
+which digits to show. With 100 dots or fewer, each dot is numbered with its decimal place and a thin line
+follows the spiral from each digit to the next, so the layout itself can be followed. On this ball, a dot's nearest neighbours are always a Fibonacci number of places away along the
 digits: mostly 34 and 55 places before and after it with 2,000 dots, and 89, 144 and 233 with 20,000.
 Hovering over a dot shows its digit and these distances. Section 7.7 tests every such distance, so the
 sphere is a way of looking rather than a new test. Its visible spiral arms come from the layout and appear
