@@ -522,7 +522,7 @@ for any digits.
 The Leibniz series 1 − 1/3 + 1/5 − 1/7 + … adds up to exactly π/4, so on its own it gives nothing new: four
 times it is π. The interesting numbers are the **partial sums**, stopped after a fixed number of terms T.
 Section 7.10.1 compares them with π; section 7.10.2 tests one of them, 4 × the first 500,000 terms, in its
-own right, like the other numbers.
+own right, like the other numbers; section 7.10.3 follows the repeating cycle that every stopped sum has.
 
 #### 7.10.1 Compared with π
 
@@ -644,6 +644,40 @@ the close pair of runs (gold) and a 7×2 block that repeats 52,668 places later 
 in the 3D cube and the sphere. Scripts: `analysis/scripts/leibniz/` (`digits_1m.py`, `scan.py`,
 `close_runs.py`, `second_million.py`, `lines_followup.py`) and the shared test scripts, which now include
 it; results: `analysis/results/leibniz/` and the shared results files.
+
+#### 7.10.3 The repeating cycle, pushed away as the series grows
+
+Every stopped sum is a fraction, and the decimals of a fraction always end up repeating in a cycle. For a
+short series the cycle is short and easy to see; each new term can bring a new prime into the denominator,
+and the cycle jumps in length:
+
+| Terms | 4 × sum | Cycle length (digits) | Rows of 144 |
+|---|---|---|---|
+| 2 | 2.666… (8/3) | 1 | |
+| 4 | 2.8952380 952380 … (304/105) | 6 | |
+| 9 | 3.2523659… | 48 | |
+| 10 | 3.0418396… | 144 | 1 |
+| 12 | 3.0584027… | 1,584 | 11 |
+| 15 | 3.2081856… | 11,088 | 77 |
+| 16 | 3.0791533… | 55,440 | 385 |
+| 24 | 3.0999440… | 1,275,120 | 8,855 |
+| 27 | 3.1786170… | 16,576,560 | 115,115 |
+| 30 | 3.1082685… | 480,720,240 | 3,338,335 |
+| 500,000 | 3.14159065… | at least 10^57,331 | |
+
+The cycle starts after the first decimal (after the second from 13 terms on). The more terms, the closer
+the sum gets to π, and the further away the repetition is pushed; π itself is irrational and never
+repeats, so in the limit the cycle is pushed away forever. The cycle length stays the same for several
+terms in a row when the new term's denominator brings no new prime power (17 to 23 terms all repeat every
+55,440 digits).
+
+Cycle lengths were found two independent ways: from the denominator (the order of 10 modulo its part
+coprime to 10) and by long division, stopping when a remainder repeats. They agree for every length from 1
+to 29 terms; for 30 terms only the first was used. The mosaic has six views, 144 squares wide, for 4, 10,
+12, 15, 16 and 24 terms: with 4 and 10 terms every row is the same (stripes), with 12, 15 and 16 terms the
+rows repeat every 11, 77 and 385 rows (cyan frames on the first two copies), and with 24 terms the cycle
+is longer than the view. Script: `analysis/scripts/leibniz/cycles.py`; results:
+`analysis/results/leibniz/cycles.json`.
 
 ### 7.11 Summary
 

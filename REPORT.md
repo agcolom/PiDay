@@ -73,7 +73,8 @@ Change the width and different digits line up, so different shapes appear.
   whether counting stops at 9 and 0 or rolls over (89012), as in section 9.10.
 - A **sphere** page shows the digits on a rotatable ball (section 9.11).
 - A **Leibniz series** view shows the number 4 × (first 500,000 terms) like the other numbers, and it is
-  also available in the 3D cube and the sphere (section 9.12).
+  also available in the 3D cube and the sphere (section 9.12). Six more views show the series stopped
+  after 4 to 24 terms, 144 to a row, where the repeating cycle of each fraction shows as repeated rows.
 - When folded, a **Pairs** menu chooses whether to highlight same-digit pairs (purple), complementary
   pairs that add up to 9 (teal), or both.
 - An **About** button opens a plain-English explanation of the current view, written for readers
@@ -653,6 +654,16 @@ a second), and its digits matched the verified digits for every length tested up
 uses |E₂ₘ| ≈ 2 (2m)! (2/π)^(2m+1), whose relative error is about 3^−(2m), so the ratio of neighbours gives
 π² ≈ 4 (2m+1)(2m+2) |E₂ₘ / E₂ₘ₊₂|. The corrected sums add the formula's terms while they keep shrinking.
 The best accuracy is then about (π N / 2) log₁₀ e decimals, since the smallest term is about e^(−πN/2).
+
+**Cycles for short series.** For 1 to 30 terms, the stopped sum was formed as an exact fraction a/b. With
+b = 2^i 5^j c and c coprime to 10, the decimals repeat after max(i, j) digits with a cycle equal to the order
+of 10 modulo c, found by factoring φ(c) and dividing out prime factors while 10 to the reduced power is
+still 1 modulo c. Independently, long division of a by b recorded the decimal place at which each
+remainder first appeared; the first remainder to recur gives the start and length of the cycle. The two
+agree for 1 to 29 terms (cycles up to 16,576,560 digits). The mosaic views use 144 columns because 144
+divides every cycle length from 10 terms on, so the cycle is a whole number of rows; the browser computes
+the digits from the exact fraction, and the rows inside the two cyan frames were checked to match digit for
+digit.
 
 The lower bound on the repeating cycle uses the fact that a fraction a/b in lowest terms, with b = 2^i 5^j c
 and c coprime to 10, repeats with a cycle equal to the order of 10 modulo c. That is a multiple of the order
