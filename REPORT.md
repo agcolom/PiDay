@@ -74,7 +74,8 @@ Change the width and different digits line up, so different shapes appear.
 - A **sphere** page shows the digits on a rotatable ball (section 9.11).
 - A **Leibniz series** view shows the number 4 × (first 500,000 terms) like the other numbers, and it is
   also available in the 3D cube and the sphere (section 9.12). Six more views show the series stopped
-  after 4 to 24 terms, 144 to a row, where the repeating cycle of each fraction shows as repeated rows.
+  after 4 to 24 terms, 144 to a row, where the repeating cycle of each fraction shows as repeated rows;
+  these six can also be chosen in the 3D cube and the sphere.
 - When folded, a **Pairs** menu chooses whether to highlight same-digit pairs (purple), complementary
   pairs that add up to 9 (teal), or both.
 - An **About** button opens a plain-English explanation of the current view, written for readers

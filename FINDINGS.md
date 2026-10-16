@@ -676,7 +676,10 @@ coprime to 10) and by long division, stopping when a remainder repeats. They agr
 to 29 terms; for 30 terms only the first was used. The mosaic has six views, 144 squares wide, for 4, 10,
 12, 15, 16 and 24 terms: with 4 and 10 terms every row is the same (stripes), with 12, 15 and 16 terms the
 rows repeat every 11, 77 and 385 rows (cyan frames on the first two copies), and with 24 terms the cycle
-is longer than the view. Script: `analysis/scripts/leibniz/cycles.py`; results:
+is longer than the view. The same six stopped sums can also be chosen in the 3D cube and the sphere; with 4
+terms, for example, a cube of side 30 holds 4,860 gold lines of five or more (about 24 for random digits),
+because its 6-digit cycle lines up in every direction, and its digit chart shows only the six digits of
+the cycle (0, 2, 3, 5, 8, 9). Script: `analysis/scripts/leibniz/cycles.py`; results:
 `analysis/results/leibniz/cycles.json`.
 
 ### 7.11 Summary

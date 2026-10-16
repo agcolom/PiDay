@@ -121,4 +121,11 @@ const computeDigits = {
   oneOver9801: computeOneOver9801Digits,
   champernowne: computeChampernowneDigits,
   leibniz: computeLeibnizDigits,
+  // The same series stopped after only a few terms (fractions whose digits repeat; see the mosaic's Leibniz views)
+  leibniz4: (count) => computeLeibnizDigits(count, 4),
+  leibniz10: (count) => computeLeibnizDigits(count, 10),
+  leibniz12: (count) => computeLeibnizDigits(count, 12),
+  leibniz15: (count) => computeLeibnizDigits(count, 15),
+  leibniz16: (count) => computeLeibnizDigits(count, 16),
+  leibniz24: (count) => computeLeibnizDigits(count, 24),
 };

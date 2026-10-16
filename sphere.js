@@ -14,6 +14,12 @@ const numberNames = {
   oneOver9801: "1/9801",
   champernowne: "Champernowne",
   leibniz: "Leibniz, 500,000 terms",
+  leibniz4: "Leibniz, 4 terms",
+  leibniz10: "Leibniz, 10 terms",
+  leibniz12: "Leibniz, 12 terms",
+  leibniz15: "Leibniz, 15 terms",
+  leibniz16: "Leibniz, 16 terms",
+  leibniz24: "Leibniz, 24 terms",
 };
 // Plain-English descriptions for the About panel
 const numberDescriptions = {
@@ -24,6 +30,12 @@ const numberDescriptions = {
   oneOver9801: "<strong>1 ÷ 9801</strong> (0.00 01 02 03 … 97 99, repeating every 198 digits)",
   champernowne: "<strong>Champernowne's constant</strong> (0.123456789101112…, the counting numbers written in a row)",
   leibniz: "<strong>the Leibniz series stopped early</strong>: 4 × (1 − 1/3 + 1/5 − … − 1/999,999), the first 500,000 terms (3.14159065…, close to π but not equal to it)",
+  leibniz4: "<strong>the Leibniz series stopped after 4 terms</strong>: 4 × (1 − 1/3 + 1/5 − … − 1/7), a fraction whose digits repeat every 6 digits",
+  leibniz10: "<strong>the Leibniz series stopped after 10 terms</strong>: 4 × (1 − 1/3 + 1/5 − … − 1/19), a fraction whose digits repeat every 144 digits",
+  leibniz12: "<strong>the Leibniz series stopped after 12 terms</strong>: 4 × (1 − 1/3 + 1/5 − … − 1/23), a fraction whose digits repeat every 1,584 digits",
+  leibniz15: "<strong>the Leibniz series stopped after 15 terms</strong>: 4 × (1 − 1/3 + 1/5 − … + 1/29), a fraction whose digits repeat every 11,088 digits",
+  leibniz16: "<strong>the Leibniz series stopped after 16 terms</strong>: 4 × (1 − 1/3 + 1/5 − … − 1/31), a fraction whose digits repeat every 55,440 digits",
+  leibniz24: "<strong>the Leibniz series stopped after 24 terms</strong>: 4 × (1 − 1/3 + 1/5 − … − 1/47), a fraction whose digits repeat every 1,275,120 digits",
 };
 const dotCounts = [1000, 2000, 5000, 10000, 20000];
 const defaults = { number: "pi", count: 2000, start: 0, from: 0, to: 9 };

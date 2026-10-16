@@ -43,4 +43,4 @@ matches π except at evenly spaced digits given by the Euler numbers, a pattern 
 70 digits (and reaches further the more terms are used); taken on its own, its digits are also consistent
 with random digits. Stopped after only a few terms, the series is a fraction whose digits visibly repeat; the
 cycle grows from 6 digits (4 terms) to 55,440 (16 terms) to 480,720,240 (30 terms), pushed further away as
-the sum gets closer to π. See `REPORT.md` for details and limitations.
+the sum gets closer to π. These stopped sums can be viewed in the mosaic, the cube and the sphere. See `REPORT.md` for details and limitations.
