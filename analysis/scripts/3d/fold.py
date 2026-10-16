@@ -9,7 +9,8 @@ import numpy as np
 
 S = 1000
 NUMBERS = {"pi": "pi_1M", "sqrt2": "sqrt2_1M", "e": "e_1M", "phi": "phi_1M",
-           "champernowne": "champernowne_1M", "1/9801": "one_over_9801_1M", "leibniz": "leibniz_500k_1M"}
+           "champernowne": "champernowne_1M", "1/9801": "one_over_9801_1M", "leibniz": "leibniz_500k_1M",
+           "polygon96": "polygon96_1M"}
 
 def folds(A):
     """Match maps (True where the two layers agree), keeping one half; None marks squares left out."""

@@ -107,6 +107,17 @@
     }
    ]
   },
+  "polygon96": {
+   "at_least": {
+    "4": 1254,
+    "5": 80,
+    "6": 10,
+    "7": 0,
+    "8": 0
+   },
+   "longest": 6,
+   "long_runs": []
+  },
   "random 1": {
    "at_least": {
     "4": 1269,
@@ -545,6 +556,48 @@
       0
      ],
      "digits": "0123456"
+    }
+   ]
+  },
+  "polygon96": {
+   "at_least": {
+    "4": 5044,
+    "5": 408,
+    "6": 40,
+    "7": 3,
+    "8": 0
+   },
+   "longest": 7,
+   "long_runs": [
+    {
+     "length": 7,
+     "first_decimal_place": 414306,
+     "step_in_places": 999,
+     "direction": [
+      1,
+      -1
+     ],
+     "digits": "1234567"
+    },
+    {
+     "length": 7,
+     "first_decimal_place": 711842,
+     "step_in_places": 1000,
+     "direction": [
+      1,
+      0
+     ],
+     "digits": "2345678"
+    },
+    {
+     "length": 7,
+     "first_decimal_place": 595126,
+     "step_in_places": 1001,
+     "direction": [
+      1,
+      1
+     ],
+     "digits": "6543210"
     }
    ]
   },
@@ -1373,6 +1426,95 @@
       0
      ],
      "digits": "9876543"
+    }
+   ]
+  },
+  "polygon96": {
+   "at_least": {
+    "4": 15592,
+    "5": 1279,
+    "6": 103,
+    "7": 7,
+    "8": 1
+   },
+   "longest": 8,
+   "long_runs": [
+    {
+     "length": 7,
+     "first_decimal_place": 435387,
+     "step_in_places": 99,
+     "direction": [
+      0,
+      1,
+      -1
+     ],
+     "digits": "3456789"
+    },
+    {
+     "length": 8,
+     "first_decimal_place": 682389,
+     "step_in_places": 101,
+     "direction": [
+      0,
+      1,
+      1
+     ],
+     "digits": "01234567"
+    },
+    {
+     "length": 7,
+     "first_decimal_place": 290734,
+     "step_in_places": 9899,
+     "direction": [
+      1,
+      -1,
+      -1
+     ],
+     "digits": "8765432"
+    },
+    {
+     "length": 7,
+     "first_decimal_place": 586217,
+     "step_in_places": 9899,
+     "direction": [
+      1,
+      -1,
+      -1
+     ],
+     "digits": "9876543"
+    },
+    {
+     "length": 7,
+     "first_decimal_place": 642722,
+     "step_in_places": 9899,
+     "direction": [
+      1,
+      -1,
+      -1
+     ],
+     "digits": "9876543"
+    },
+    {
+     "length": 7,
+     "first_decimal_place": 107544,
+     "step_in_places": 9900,
+     "direction": [
+      1,
+      -1,
+      0
+     ],
+     "digits": "9876543"
+    },
+    {
+     "length": 7,
+     "first_decimal_place": 313455,
+     "step_in_places": 10101,
+     "direction": [
+      1,
+      1,
+      1
+     ],
+     "digits": "2345678"
     }
    ]
   },
@@ -2548,6 +2690,150 @@
       1
      ],
      "digits": "6543210"
+    }
+   ]
+  },
+  "polygon96": {
+   "at_least": {
+    "4": 36313,
+    "5": 2931,
+    "6": 230,
+    "7": 11,
+    "8": 2
+   },
+   "longest": 8,
+   "long_runs": [
+    {
+     "length": 8,
+     "first_decimal_place": 38193,
+     "step_in_places": 31,
+     "direction": [
+      0,
+      0,
+      1,
+      0
+     ],
+     "digits": "23456789"
+    },
+    {
+     "length": 7,
+     "first_decimal_place": 102069,
+     "step_in_places": 993,
+     "direction": [
+      0,
+      1,
+      1,
+      1
+     ],
+     "digits": "2345678"
+    },
+    {
+     "length": 7,
+     "first_decimal_place": 39382,
+     "step_in_places": 28799,
+     "direction": [
+      1,
+      -1,
+      -1,
+      0
+     ],
+     "digits": "0123456"
+    },
+    {
+     "length": 7,
+     "first_decimal_place": 104777,
+     "step_in_places": 28860,
+     "direction": [
+      1,
+      -1,
+      1,
+      -1
+     ],
+     "digits": "3456789"
+    },
+    {
+     "length": 8,
+     "first_decimal_place": 294147,
+     "step_in_places": 28861,
+     "direction": [
+      1,
+      -1,
+      1,
+      0
+     ],
+     "digits": "76543210"
+    },
+    {
+     "length": 7,
+     "first_decimal_place": 542159,
+     "step_in_places": 28862,
+     "direction": [
+      1,
+      -1,
+      1,
+      1
+     ],
+     "digits": "1234567"
+    },
+    {
+     "length": 7,
+     "first_decimal_place": 590475,
+     "step_in_places": 29759,
+     "direction": [
+      1,
+      0,
+      -1,
+      -1
+     ],
+     "digits": "6543210"
+    },
+    {
+     "length": 7,
+     "first_decimal_place": 424042,
+     "step_in_places": 29761,
+     "direction": [
+      1,
+      0,
+      -1,
+      1
+     ],
+     "digits": "2345678"
+    },
+    {
+     "length": 7,
+     "first_decimal_place": 728086,
+     "step_in_places": 29790,
+     "direction": [
+      1,
+      0,
+      0,
+      -1
+     ],
+     "digits": "8765432"
+    },
+    {
+     "length": 7,
+     "first_decimal_place": 647841,
+     "step_in_places": 29791,
+     "direction": [
+      1,
+      0,
+      0,
+      0
+     ],
+     "digits": "2345678"
+    },
+    {
+     "length": 7,
+     "first_decimal_place": 56963,
+     "step_in_places": 29792,
+     "direction": [
+      1,
+      0,
+      0,
+      1
+     ],
+     "digits": "7654321"
     }
    ]
   },

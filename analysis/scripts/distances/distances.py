@@ -28,7 +28,8 @@ import numpy as np
 
 N, D = 1_000_000, 100_000
 NUMBERS = {"pi": "pi_1M", "sqrt2": "sqrt2_1M", "e": "e_1M", "phi": "phi_1M",
-           "champernowne": "champernowne_1M", "1/9801": "one_over_9801_1M", "leibniz": "leibniz_500k_1M"}
+           "champernowne": "champernowne_1M", "1/9801": "one_over_9801_1M", "leibniz": "leibniz_500k_1M",
+           "polygon96": "polygon96_1M"}
 PARTNER = {"same": lambda v: v, "nine": lambda v: 9 - v, "up": lambda v: (v + 1) % 10, "down": lambda v: (v - 1) % 10}
 
 def counts_by_gap(d):

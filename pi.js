@@ -46,6 +46,35 @@ const leibnizTermsView = (terms, value, cycle) => {
   };
 };
 
+// A view of the area of one of Archimedes' polygons (a regular polygon inside a circle of radius 1), 144 to a row.
+// Areas and the decimals they share with pi are from analysis/scripts/polygons/polygons.py.
+const polygonView = (sides, value, shared, text, rows = 200) => ({
+  about: `
+    <p>The area of a <strong>regular polygon with ${sides.toLocaleString()} sides</strong> drawn inside a circle of
+    radius 1: ${value}, 144 digits to a row.</p>
+    ${text}
+    <p>Archimedes trapped π between polygons inside and outside a circle, starting from the hexagon and doubling
+    the number of sides four times, to 96. The more sides, the closer the polygon hugs the circle, and the
+    closer its area gets to the circle's area, π. Each doubling cuts the gap to π by about 4, so the area
+    shares about 0.6 more decimals with π each time (this one shares ${shared}). The <em>Polygon ladder</em>
+    view shows every step together.</p>`,
+  label: `Polygon with ${sides.toLocaleString()} sides, area ${value}, 144 columns`,
+  number: `polygon${sides}`,
+  columns: 144,
+  rows,
+  divSize: rows > 100 ? 5 : 6,
+  belowMenu: true,
+  repeats: [],
+});
+
+// Each doubling of the sides only needs square roots, so the areas are not fractions, except the square (2)
+// and the 12-gon (3): by Niven's theorem these are the only polygons where sin(2 pi / sides) is a fraction.
+const irrationalText = `
+  <p>Each doubling of the sides takes a square root, so the area is built from nested square roots, and it is
+  <strong>irrational</strong> (only the square and the 12-gon have whole numbers as areas, and no polygon
+  has any other fraction). So its decimals never settle into a repeating cycle, unlike the Leibniz series
+  stopped early, which is always a fraction.</p>`;
+
 const views = {
   // A 3x4 block (7068 / 1461 / 2311) appears twice. The copies are 5,430 digits apart.
   "pi-147": {
@@ -225,6 +254,45 @@ const views = {
       { start: 221242, height: 7, width: 2 },
     ],
   },
+  // Archimedes' polygons: every doubling from the hexagon, one per row, with pi underneath.
+  // Rows are different numbers, so there are no frames and no folds.
+  "polygon-ladder": {
+    about: `
+      <p><strong>Archimedes' polygons.</strong> Each row is the area of a regular polygon drawn inside a circle
+      of radius 1, first 100 digits. The top row is the hexagon (6 sides, area 2.598…). Each row down doubles
+      the number of sides: 12, 24, 48, 96 (where Archimedes stopped, in row 5), 192, … The 80th row is a
+      polygon with about 3.6 × 10<sup>24</sup> sides. The <strong>bottom row is π</strong>, the area of the
+      circle itself.</p>
+      <p>The more sides, the closer the polygon hugs the circle, so the left-hand digits settle down to π's and
+      stay put: there, every row has the same digits as the rows below it, and the columns become vertical
+      stripes. Each doubling cuts the gap to π by about 4, so the settled part grows by about 0.6 digits a
+      row, a slow staircase: 1 decimal at 96 sides, 6 at 6,144 sides, 47 at the 80th row.</p>
+      <p>Row 2, the 12-gon, is exactly <strong>3</strong>, followed by zeros forever. Its area is 12 triangles
+      of area ¼. Every other row is irrational: to the right of the staircase, the digits are new in every
+      row and never settle into a repeating cycle. So, unlike the Leibniz series, there is no repeating
+      pattern being pushed away, just π's digits growing from the left.</p>
+      <p>There are no frames in this view: each row is a different number.</p>`,
+    label: "Polygon ladder: 6 to 6 × 2⁷⁹ sides, one per row, π at the bottom",
+    number: "polygonLadder",
+    columns: ladderColumns,
+    rows: 81,
+    divSize: 8,
+    belowMenu: true,
+    ladder: true,
+    repeats: [],
+  },
+  "polygon-6": polygonView(6, "2.5980762…", 0, `
+    <p>The hexagon is six triangles with sides of length 1, so its area is 3√3/2, half of three times
+    √3.</p>` + irrationalText),
+  "polygon-12": polygonView(12, "3 exactly", 0, `
+    <p>The 12-gon is twelve triangles, each with two sides of length 1 meeting at 30°, and area ½ × sin 30°
+    = ¼. So its area is exactly <strong>3</strong>: after the 3, every digit is 0, and every row is one
+    long gold frame (six or more of the same digit in a row). Only two polygons have a whole number, or
+    even a fraction, as their area: the square (2) and this one.</p>`, 30),
+  "polygon-96": polygonView(96, "3.1393502…", 1, `
+    <p>This is the polygon Archimedes stopped at.</p>` + irrationalText),
+  "polygon-6144": polygonView(6144, "3.1415921…", 6, irrationalText),
+  "polygon-6291456": polygonView(6291456, "3.1415926535892…", 12, irrationalText),
 };
 
 // The digit formulas (computeDigits) are in digits.js, which index.html loads first
@@ -287,7 +355,8 @@ const aboutConclusion = `
 // rollover: whether green counting runs carry on from 9 to 0 and from 0 to 9 (89012), or stop there.
 const showView = (viewName, fold = "none", pairs = "same", rollover = false) => {
   // Size of each small div in pixels comes from the view
-  const { number, terms, columns, firstRow = 0, rows, divSize, repeats, about, belowMenu = false } = views[viewName];
+  const { number, terms, columns, firstRow = 0, rows, divSize, repeats, about, belowMenu = false, ladder = false } = views[viewName];
+  if (ladder) fold = "none"; // each row is a different number, so folds and frames mean nothing
   const pairsText = pairs === "both" ? aboutPairs.same + aboutPairs.complement : aboutPairs[pairs];
   setAboutText(aboutIntro(rollover) + about + (fold === "none" ? "" : aboutFolds[fold] + pairsText + aboutFoldMeaning) +
     aboutConclusion + aboutLinks);
@@ -331,7 +400,7 @@ const showView = (viewName, fold = "none", pairs = "same", rollover = false) => 
   }
 
   // Rectangles to frame, given as the digit index of the top-left square plus a size in squares
-  const highlights = [
+  const highlights = ladder ? [] : [
     ...runs,
     ...countingRuns,
     ...repeats.map((repeat) => ({ ...repeat, color: "cyan" })),
@@ -477,8 +546,10 @@ const showViewFromAddress = () => {
   foldMenu.value = fold;
   pairMenu.value = pairs;
   rolloverMenu.value = rollover ? "on" : "off";
-  pairMenu.disabled = fold === "none"; // pairs only mean something when folded
-  rolloverMenu.disabled = fold !== "none"; // the green frames are hidden when folded
+  const { ladder = false } = views[viewName]; // the ladder has no folds or frames
+  foldMenu.disabled = ladder;
+  pairMenu.disabled = ladder || fold === "none"; // pairs only mean something when folded
+  rolloverMenu.disabled = ladder || fold !== "none"; // the green frames are hidden when folded
   showView(viewName, fold, pairs, rollover);
 };
 

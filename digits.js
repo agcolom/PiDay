@@ -113,6 +113,38 @@ const computeLeibnizDigits = (count, terms = 500_000) => {
   return ((4n * (P >> drop) * 10n ** (BigInt(count) + guardDigits)) / (Q >> drop)).toString().slice(0, count);
 };
 
+// Archimedes' polygons: the area of a regular polygon with `sides` sides inside a circle of radius 1,
+// (sides / 2) x sin(2 pi / sides). Starting from the hexagon (cos and sin of 60 degrees), each doubling of the
+// sides halves the angle: cos(x/2) = square root of (1 + cos x)/2 and sin(x/2) = sin x / (2 cos(x/2)).
+// Returns the areas of the 6-, 12-, 24-, ... gons up to `sides` (6 x a power of 2), each as a digit string
+// (or only the last one, as turning big numbers into strings is slow).
+const computePolygonAreas = (count, sides, lastOnly = false) => {
+  // sin(2 pi / sides) is tiny and gets multiplied by the number of sides, so it needs more guard digits
+  const guard = guardDigits + BigInt(String(sides).length);
+  const scale = 10n ** (BigInt(count) + guard);
+  const nudge = 10n ** (guard / 2n); // rounding errors are a few units low; this stops the 12-gon's 3 coming out as 2.999...
+  let cos = scale / 2n, sin = squareRoot(3n * scale * scale) / 2n;
+  const areas = [];
+  for (let n = 6n; n <= BigInt(sides); n *= 2n) {
+    if (!lastOnly || n === BigInt(sides)) areas.push(((n * sin) / 2n + nudge).toString().slice(0, count));
+    if (n === BigInt(sides)) break;
+    const cosHalf = squareRoot((scale * (scale + cos)) / 2n);
+    sin = (sin * scale) / (2n * cosHalf);
+    cos = cosHalf;
+  }
+  return areas;
+};
+const computePolygonDigits = (count, sides) => computePolygonAreas(count, sides, true)[0];
+
+// The polygon ladder: one row per polygon (6, 12, 24, ... sides), each row the first 100 digits of its area,
+// with pi itself as the last row
+const ladderColumns = 100;
+const computePolygonLadderDigits = (count) => {
+  const rows = Math.ceil(count / ladderColumns);
+  const areas = computePolygonAreas(ladderColumns, 6 * 2 ** (rows - 2));
+  return (areas.join("") + computePiDigits(ladderColumns)).slice(0, count);
+};
+
 const computeDigits = {
   pi: computePiDigits,
   sqrt2: computeSqrt2Digits,
@@ -128,4 +160,11 @@ const computeDigits = {
   leibniz15: (count) => computeLeibnizDigits(count, 15),
   leibniz16: (count) => computeLeibnizDigits(count, 16),
   leibniz24: (count) => computeLeibnizDigits(count, 24),
+  // Areas of regular polygons inside a circle of radius 1 (Archimedes' polygons; see the mosaic's polygon views)
+  polygon6: (count) => computePolygonDigits(count, 6),
+  polygon12: (count) => computePolygonDigits(count, 12),
+  polygon96: (count) => computePolygonDigits(count, 96),
+  polygon6144: (count) => computePolygonDigits(count, 6144),
+  polygon6291456: (count) => computePolygonDigits(count, 6291456),
+  polygonLadder: computePolygonLadderDigits,
 };

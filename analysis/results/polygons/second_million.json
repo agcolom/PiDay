@@ -1,0 +1,10 @@
+{
+ "first million (whole number and decimals, as scan.py)": {
+  "found": 38,
+  "expected": 19.42231480487043
+ },
+ "second million": {
+  "found": 15,
+  "expected": 19.422312921991534
+ }
+}

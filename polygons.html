@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- The ?v= numbers make browsers fetch new copies after an update; change them when the files change -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pi Mosaic: Archimedes' polygons</title>
+  <link rel="stylesheet" href="piStyle.css?v=2026-10-16d">
+</head>
+<body class="polygonPage">
+  <!-- Controls; polygons.js fills in the options -->
+  <div id="polygonMenu">
+    <label>Sides <select id="polygonSides"></select></label>
+    <label><input id="polygonOutside" type="checkbox" checked> Outside polygon too</label>
+    <a href="index.html">Flat mosaic</a>
+    <a href="cube.html">3D cube</a>
+    <a href="sphere.html">Sphere</a>
+    <button id="aboutButton" type="button" aria-controls="aboutPanel">About</button>
+  </div>
+  <!-- Plain-English explanation of what's on screen; the page's script fills in the text -->
+  <aside id="aboutPanel" hidden>
+    <button id="aboutClose" type="button" aria-label="Close">×</button>
+    <div id="aboutText"></div>
+  </aside>
+
+  <!-- polygons.js draws the two pictures and writes the areas -->
+  <main id="polygonMain">
+    <div id="polygonPictures">
+      <figure>
+        <svg id="polygonWhole" viewBox="-1.25 -1.25 2.5 2.5" role="img" aria-label="The polygon inside the circle"></svg>
+        <figcaption id="wholeCaption"></figcaption>
+      </figure>
+      <figure>
+        <svg id="polygonCloseUp" viewBox="0 0 400 400" role="img" aria-label="Close-up of the top side"></svg>
+        <figcaption id="closeUpCaption"></figcaption>
+      </figure>
+    </div>
+    <table id="polygonAreas"></table>
+  </main>
+
+  <!-- digits.js has the digit formulas used by polygons.js -->
+  <script src="digits.js?v=2026-10-16d"></script>
+  <script src="about.js?v=2026-10-16d"></script>
+  <script src="polygons.js?v=2026-10-16d"></script>
+</body>
+</html>

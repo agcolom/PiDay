@@ -9,6 +9,11 @@ random digits would produce. √2 and φ had the most unusual counts; we checked
 digits too, and those counts were not reproduced there. The two numbers whose decimal digits are
 structured by construction, 1/9801 and Champernowne's constant, show far more repeats than random
 digits would: from about 400 times as many to billions of times as many, depending on block size.
+Two ways of approaching π were looked at too (sections 7.10 and 7.11). The Leibniz series stopped early is
+a fraction, so its digits repeat, with a cycle pushed further away the more terms are added; the areas of
+Archimedes' polygons are irrational (except the 12-gon, exactly 3), so they never repeat, and π's digits
+grow in from the left, about 0.6 digits per doubling of the sides. Taken on their own, the 500,000-term
+Leibniz number and the 96-gon's area are consistent with random digits too.
 None of this proves the digits of π (or the others) are random.
 
 ---
@@ -62,6 +67,7 @@ proof (that would need explicit error bounds). The digits the page computes in t
 | 1/9801 | long division | writing out 00 01 … 97 99 and repeating | | |
 | Champernowne | writing out 1 2 3 … | formula for the digit at any place (all 1,000,000 places checked) | | |
 | Leibniz, 500,000 terms (2 million) | adding the terms one by one | one exact fraction (binary splitting), one division | π minus the Euler-number formula (first 1,000) | starts 3.14159065358979324046… (Borwein et al.) |
+| Area of the 96-gon (2 million) | halving the angle from the hexagon (whole-number square roots) | nested square roots, 24 √(2 − √(2 + √(2 + √3))) (`decimal` module) | 48 sin(π/48) from the sine series, with π's digits (first 10,000) | |
 
 ---
 
@@ -218,7 +224,7 @@ far more repeats than chance.
 
 ---
 
-## 7. Beyond the flat mosaic: lines, 3D blocks, folding, counting runs, every distance, and the Leibniz series
+## 7. Beyond the flat mosaic: lines, 3D blocks, folding, counting runs, every distance, the Leibniz series and Archimedes' polygons
 
 All choices below (layouts, directions, lengths, shapes, folds) were fixed before any results were
 seen. Two strings of random digits were run alongside as controls. Methods: REPORT.md, section 9.
@@ -682,11 +688,95 @@ because its 6-digit cycle lines up in every direction, and its digit chart shows
 the cycle (0, 2, 3, 5, 8, 9). Script: `analysis/scripts/leibniz/cycles.py`; results:
 `analysis/results/leibniz/cycles.json`.
 
-### 7.11 Summary
+### 7.11 Archimedes' polygons
+
+A colleague suggested looking at π the way Archimedes did: through the areas of regular polygons drawn
+inside a circle of radius 1. A polygon with n sides has area (n/2) sin(2π/n), always a little less than the
+circle's area, π. Starting from the hexagon and doubling the number of sides, as Archimedes did, every area
+comes from square roots of whole numbers, with no π needed. (Archimedes used the perimeters, but the
+numbers are the same, one doubling apart: the area of the 2n-gon equals half the perimeter of the n-gon.)
+The areas were computed two independent ways (REPORT.md, section 9.13).
+
+| Row | Sides | Area | Decimals shared with π |
+|---|---|---|---|
+| 1 | 6 | 2.5980762113… (3√3/2) | 0 |
+| 2 | 12 | 3 exactly | 0 |
+| 3 | 24 | 3.1058285412… | 1 |
+| 5 | 96 (Archimedes) | 3.1393502030… | 1 |
+| 6 | 192 | 3.1410319508… | 3 |
+| 11 | 6,144 | 3.1415921059… | 6 |
+| 21 | 6,291,456 | 3.1415926535892… | 12 |
+| 31 | about 6.4 × 10⁹ | | 17 |
+| 41 | about 6.6 × 10¹² | | 23 |
+| 61 | about 6.9 × 10¹⁸ | | 35 |
+| 80 | about 3.6 × 10²⁴ | | 47 |
+
+Each doubling cuts the gap to π by about 4, so the areas gain about 0.6 decimals of π per doubling: a much
+steadier approach than the Leibniz series, whose gap shrinks only in proportion to the number of terms.
+
+**No repeating pattern to push away.** The Leibniz series stopped early is always a fraction, so its
+digits repeat (section 7.10.3). The polygons are different: only the square (area 2) and the 12-gon (area
+3) have whole-number areas, and no polygon has any other fraction as its area (Niven's theorem: the only
+fractions that the sine of a fraction of π can equal are 0, ½ and 1, and their negatives). Every other area in the sequence is
+irrational, so its digits never repeat in a cycle. The digits do not dissolve a pattern as they approach
+π; instead, π's digits grow in from the left, about 0.6 digits per doubling, and beyond them each
+polygon's digits are new.
+
+**The 96-gon in its own right.** Archimedes' polygon, area 3.13935020304686720713…, was treated like π,
+√2, e, φ and the Leibniz number: its first million decimals (computed two independent ways, which agree
+on every digit) went through every test in this file with the same scripts, and its decimal places
+1,000,001–2,000,000 (also computed two ways) were used to re-check anything unusual.
+
+| Test | 96-gon, first million | Chance (or random strings) | Chance of a result this extreme |
+|---|---|---|---|
+| Repeated blocks, widths 2–2,000 | 12 squares 3,999; 14: **38**; 15: 1; 16: 0; 18: 0 | 3,904; 19.4; 1.95; 0.29; 0.004 | 12: within 1.5 sd; 14: **0.012%** (about 1 in 8,000); 24 random strings gave 12–28 |
+| Runs of six or more | 12; one of seven (`8888888` at decimal place 334,693) | about 9; 0.9 | 20% for 12 or more |
+| Digit frequencies | p 0.37; 5 of 100 blocks below 5% | about 5 | ordinary |
+| Every distance 1–100,000 | biggest z 4.67; 28 beyond ±4 | 25.3 beyond ±4 | ordinary |
+| Counting runs, 1D–4D (20 counts) | 1 below 5%: **80** of 5+ along the digits (110 expected, 0.17%) | 20 random strings: 86–137 | about 2 such counts expected |
+| Counting runs with rollover (20 counts) | 1 below 5%: 151 of 5+ along the digits (180 expected, 1.5%) | | about 2 expected |
+| Lines of one digit, 2D | 5+ 370; 7+ 7; longest 7 | 357.9; 3.57 | 7+: 7% |
+| Lines of one digit, 3D | 6+ **133**; 8+ 1 | 105.5; 1.01 | 6+: 0.55% |
+| Lines of one digit, 4D | 6+ 190; 8+ 0 | 211.6; 1.73 | 6+: 7% (few); 8+: 18% |
+| Repeated 3D blocks | 2×2×2: 181; 3×3×3: 0 | 185.3; 0.018 | ordinary |
+| Folding (four ways) | match 9.92–10.05% | 10% | ordinary |
+| Folding at every width and height | most extreme \|z\| 3.39–3.99 | random strings' highest: 4.28–4.90 | ordinary |
+
+**Re-checked in decimal places 1,000,001–2,000,000:**
+
+| Looked unusual in the first million | Second million |
+|---|---|
+| 38 repeated blocks of 14 squares (19.4 expected, 0.012%) | **15**: not reproduced |
+| 80 counting runs of 5+ along the digits (110 expected, 0.17%) | 130: not reproduced |
+| 151 counting runs of 5+ with rollover (180 expected, 1.5%; the same digits as the line above) | 200: not reproduced |
+| 133 lines of 6+ in the 3D cube (105.5 expected, 0.55%) | 98: not reproduced |
+
+- **The 96-gon is consistent with random digits.** Its most unusual count was 38 repeated 14-square
+  blocks in the first million, about twice the 19.4 expected and above all 24 random strings. Three of the
+  38 are the same coincidence counted at two neighbouring widths (1,358 and 1,359, 1,452 and 1,453, 1,464 and
+  1,465), which happens when the two copies match over 15 digits (7 on one row and 8 on the next); random
+  digits produce these too, and every number is counted the same way. In the next million digits the count was 15, an ordinary number, and the other three unusual
+  counts also went back to ordinary.
+- **More unusual counts than usual, but none that lasts.** About 100 counts were examined for this number,
+  and four were below 2% (one of them, the rollover count, uses the same digits as another), slightly more
+  than the one or two chance would give. As with √2, φ and the Leibniz number, fresh digits are the
+  deciding test, and none of them came back.
+
+The mosaic view "Polygon with 96 sides" shows its first 28,800 digits, 144 to a row.
+
+The mosaic has a *Polygon ladder* view: one row per polygon from 6 to 6 × 2⁷⁹ sides, 100 digits each,
+with π as the bottom row. The settled digits form a staircase of vertical stripes on the left, and the
+12-gon's row is blank (all zeros). There are also views of single polygons (6, 12, 96, 6,144 and 6,291,456
+sides, 144 to a row), and the same five can be chosen in the cube and the sphere. A separate page,
+`polygons.html`, draws the polygons themselves inside the circle, with Archimedes' outside polygon (area
+n tan(180°/n), just over π) and a close-up of the gap, stretched upward when it gets too thin to see. Scripts:
+`analysis/scripts/polygons/`; results: `analysis/results/polygons/`.
+
+### 7.12 Summary
 
 Digit frequencies, lines in 2D, 3D and 4D, counting runs with and without rollover, digits at every
 distance up to 100,000 places, repeated 3D blocks and folding all give the same answer as the flat mosaic:
-π, √2, e, φ and the Leibniz number (500,000 terms) are consistent with random digits on these tests, while Champernowne's constant and
+π, √2, e, φ, the Leibniz number (500,000 terms) and the area of Archimedes' 96-gon are consistent with random digits on these tests, while Champernowne's constant and
 1/9801 stand out by factors of hundreds to millions (or, for 1/9801, by having far *fewer* matches
 than chance in some arrangements).
 
@@ -739,6 +829,11 @@ on our tests they did. What surprised us was in the details.
    own, the same number's digits pass every test for randomness (section 7.10.2): the pattern is only in
    how it differs from π.
 
+8. **The biggest false alarm came from Archimedes.** The 96-gon's area gave 38 repeated 14-square blocks
+   in its first million decimals, about twice the 19.4 expected and more than any of 24 random strings:
+   a 1-in-8,000 result. Its next million gave 15 (section 7.11). And among all the polygons, one has a
+   perfectly plain area: the 12-gon's is exactly 3, so every digit after the 3 is 0.
+
 **The lesson:** the patterns people see in π are real visual effects, but not real structure. To tell the
 difference, ask how often random digits would produce the same thing, and then check again with fresh
 digits.
@@ -757,11 +852,13 @@ digits.
 - `index.html`, `pi.js`, `piStyle.css`: the flat mosaic and its view settings.
 - `cube.html`, `cube.js`: the rotatable 3D cube (section 7.9).
 - `sphere.html`, `sphere.js`: the digits on a rotatable sphere (section 7.9).
-- `digits.js`: the formulas both pages use to compute every number's digits in the browser.
-- `about.js`: the plain-English "About" panel on all three pages; its text is written in `pi.js` (one
-  paragraph per view, plus the folds), `cube.js` and `sphere.js` (built from the current settings).
+- `polygons.html`, `polygons.js`: Archimedes' polygons drawn, with their areas (section 7.11).
+- `digits.js`: the formulas all four pages use to compute every number's digits in the browser.
+- `about.js`: the plain-English "About" panel on all four pages; its text is written in `pi.js` (one
+  paragraph per view, plus the folds), `cube.js`, `sphere.js` and `polygons.js` (built from the current settings).
 - `analysis/digits/`: the verified first million decimals of each number (square 0 = whole-number
-  part), plus the second million (decimal places 1,000,001–2,000,000) of √2 and of the Leibniz number.
+  part), plus the second million (decimal places 1,000,001–2,000,000) of √2, of the Leibniz number and of
+  the 96-gon's area.
 - `analysis/results/*_repeats_14plus.json`: every repeat of 14 or more squares found at widths
   2–2,000. Format: `{"3x5": [[columns, [decimal place of copy 1, decimal place of copy 2]], …]}`.
 - `analysis/scripts/`: the Python scripts used. Those in `analysis/scripts/3d/` run from the project
@@ -774,6 +871,7 @@ digits.
 - `analysis/scripts/distances/`, `analysis/results/distances/`: digits at every distance from 1 to
   100,000 places (section 7.7).
 - `analysis/scripts/leibniz/`, `analysis/results/leibniz/`: the Leibniz series stopped early (section 7.10).
+- `analysis/scripts/polygons/`, `analysis/results/polygons/`: Archimedes' polygons (section 7.11).
 - `analysis/scripts/frequencies/`, `analysis/results/frequencies/`: how often each digit appears (section 7.6).
 
 ---

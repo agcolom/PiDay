@@ -11,7 +11,8 @@ import json, math
 import numpy as np
 
 NUMBERS = {"pi": "pi_1M", "sqrt2": "sqrt2_1M", "e": "e_1M", "phi": "phi_1M",
-           "champernowne": "champernowne_1M", "1/9801": "one_over_9801_1M", "leibniz": "leibniz_500k_1M"}
+           "champernowne": "champernowne_1M", "1/9801": "one_over_9801_1M", "leibniz": "leibniz_500k_1M",
+           "polygon96": "polygon96_1M"}
 STRETCHES = (1_000, 10_000, 100_000, 1_000_000)
 BLOCK = 10_000
 

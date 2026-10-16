@@ -1,0 +1,14 @@
+{
+ "counting runs 1D, 5+": {
+  "found": 130,
+  "expected": 109.99957
+ },
+ "counting runs 1D with rollover, 5+": {
+  "found": 200,
+  "expected": 179.9993
+ },
+ "lines 3D 100x100x100, 6+": {
+  "found": 98,
+  "expected": 105.50106400000003
+ }
+}

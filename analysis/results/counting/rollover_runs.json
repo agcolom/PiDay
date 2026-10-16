@@ -143,6 +143,17 @@
    "longest": 7,
    "long_runs": 1
   },
+  "polygon96": {
+   "at_least": {
+    "4": 1754,
+    "5": 151,
+    "6": 17,
+    "7": 2,
+    "8": 1
+   },
+   "longest": 8,
+   "long_runs": 2
+  },
   "random 1": {
    "at_least": {
     "4": 1766,
@@ -742,6 +753,17 @@
    },
    "longest": 8,
    "long_runs": 6
+  },
+  "polygon96": {
+   "at_least": {
+    "4": 7115,
+    "5": 686,
+    "6": 74,
+    "7": 8,
+    "8": 1
+   },
+   "longest": 8,
+   "long_runs": 8
   },
   "random 1": {
    "at_least": {
@@ -2031,6 +2053,17 @@
    },
    "longest": 8,
    "long_runs": 19
+  },
+  "polygon96": {
+   "at_least": {
+    "4": 22027,
+    "5": 2145,
+    "6": 197,
+    "7": 21,
+    "8": 4
+   },
+   "longest": 8,
+   "long_runs": 21
   },
   "random 1": {
    "at_least": {
@@ -3901,6 +3934,17 @@
    },
    "longest": 8,
    "long_runs": 51
+  },
+  "polygon96": {
+   "at_least": {
+    "4": 51328,
+    "5": 4660,
+    "6": 441,
+    "7": 36,
+    "8": 6
+   },
+   "longest": 8,
+   "long_runs": 36
   },
   "random 1": {
    "at_least": {

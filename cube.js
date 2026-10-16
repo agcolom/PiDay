@@ -19,6 +19,11 @@ const numberNames = {
   leibniz15: "Leibniz, 15 terms",
   leibniz16: "Leibniz, 16 terms",
   leibniz24: "Leibniz, 24 terms",
+  polygon6: "Polygon area, 6 sides",
+  polygon12: "Polygon area, 12 sides",
+  polygon96: "Polygon area, 96 sides",
+  polygon6144: "Polygon area, 6,144 sides",
+  polygon6291456: "Polygon area, 6,291,456 sides",
 };
 // Plain-English descriptions for the About panel
 const numberDescriptions = {
@@ -35,6 +40,11 @@ const numberDescriptions = {
   leibniz15: "<strong>the Leibniz series stopped after 15 terms</strong>: 4 × (1 − 1/3 + 1/5 − … + 1/29), a fraction whose digits repeat every 11,088 digits",
   leibniz16: "<strong>the Leibniz series stopped after 16 terms</strong>: 4 × (1 − 1/3 + 1/5 − … − 1/31), a fraction whose digits repeat every 55,440 digits",
   leibniz24: "<strong>the Leibniz series stopped after 24 terms</strong>: 4 × (1 − 1/3 + 1/5 − … − 1/47), a fraction whose digits repeat every 1,275,120 digits",
+  polygon6: "<strong>the area of a regular hexagon</strong> inside a circle of radius 1: 3√3/2 = 2.5980762…, irrational",
+  polygon12: "<strong>the area of a regular 12-sided polygon</strong> inside a circle of radius 1: exactly 3, so every digit after the 3 is 0",
+  polygon96: "<strong>the area of a regular 96-sided polygon</strong> inside a circle of radius 1, where Archimedes stopped: 3.1393502…, irrational",
+  polygon6144: "<strong>the area of a regular 6,144-sided polygon</strong> inside a circle of radius 1: 3.1415921…, irrational, sharing 6 decimals with π",
+  polygon6291456: "<strong>the area of a regular 6,291,456-sided polygon</strong> inside a circle of radius 1: 3.1415926535892…, irrational, sharing 12 decimals with π",
 };
 const sides = [10, 15, 20, 30, 40, 50, 60];
 const lineOptions = { 0: "Off", 4: "4 or more in a line", 5: "5 or more in a line", 6: "6 or more in a line" };

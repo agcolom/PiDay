@@ -37,6 +37,14 @@ terms matches π except at evenly spaced clusters of digits given by the Euler n
 dissolves after about 70 digits and reaches further the more terms are used. Tested in its own right,
 the same number's first million digits are consistent with random digits (section 9.12).
 
+A colleague suggested a second way of approaching π, the way Archimedes did: the areas of regular polygons
+inside a circle of radius 1, doubling the number of sides from the hexagon. Unlike the stopped Leibniz
+sums, these areas are irrational (except the 12-gon, exactly 3), so their digits never repeat; π's digits
+grow in from the left, about 0.6 digits per doubling. Archimedes' 96-gon, tested in its own right, gave
+one striking count (twice the expected number of repeated 14-square blocks, about 1 in 8,000), which was
+not reproduced in its next million digits; like the others, it is consistent with random digits (section
+9.13).
+
 ---
 
 ## 1. The mosaic
@@ -76,6 +84,15 @@ Change the width and different digits line up, so different shapes appear.
   also available in the 3D cube and the sphere (section 9.12). Six more views show the series stopped
   after 4 to 24 terms, 144 to a row, where the repeating cycle of each fraction shows as repeated rows;
   these six can also be chosen in the 3D cube and the sphere.
+- A **Polygon ladder** view stacks the areas of Archimedes' polygons (6, 12, 24, … sides), one per row,
+  with π as the bottom row; five more views show single polygons (6, 12, 96, 6,144 and 6,291,456 sides),
+  and the same five are in the 3D cube and the sphere (section 9.13).
+- A **polygons** page (`polygons.html`) draws the polygons inside and outside the circle, from 6 to
+  6,291,456 sides, with a close-up of the gap and the two areas next to π. The outside area n tan(π/n)
+  uses the same halving, with tan(x/2) = sin x / (1 + cos x). Above 1,536 sides the whole-circle picture
+  is drawn with 1,536 corners, since the difference is far below a pixel; the close-up uses the exact
+  corners for every number of sides, with gap heights computed as 2 sin²(x/2) rather than 1 − cos x, so
+  they stay accurate when tiny.
 - When folded, a **Pairs** menu chooses whether to highlight same-digit pairs (purple), complementary
   pairs that add up to 9 (teal), or both.
 - An **About** button opens a plain-English explanation of the current view, written for readers
@@ -430,7 +447,7 @@ tell the difference.
 
 ---
 
-## 9. Beyond the flat mosaic: lines, 3D blocks, folding, counting runs, every distance and the Leibniz series
+## 9. Beyond the flat mosaic: lines, 3D blocks, folding, counting runs, every distance, the Leibniz series and Archimedes' polygons
 
 ### 9.1 One idea behind all three
 
@@ -672,7 +689,53 @@ of 10 modulo each prime p dividing c. Every prime p with 333,333 < p < 1,000,000
 exactly one term (3p is too big to be another), so p divides b. The orders were found by factoring p − 1
 with a sieve. Results: FINDINGS.md, section 7.10.
 
-### 9.13 Reading the results
+### 9.13 Archimedes' polygons
+
+The area of a regular n-gon inscribed in a circle of radius 1 is A(n) = (n/2) sin(2π/n). Following
+Archimedes, n starts at 6 and doubles (6, 12, 24, …, 6 × 2^k). The area of the 2n-gon, n sin(π/n), equals
+half the perimeter of the n-gon, so these are also Archimedes' perimeter estimates, one doubling later
+(Archimedes himself used perimeters, inside and outside the circle). No π is needed: everything comes from
+square roots of whole numbers, computed two independent ways.
+
+- **Halving:** from cos 60° = 1/2 and sin 60° = √3/2, cos(x/2) = √((1 + cos x)/2) and
+  sin(x/2) = sin x / (2 cos(x/2)), in scaled whole numbers with `math.isqrt`. Because sin(2π/n) is tiny and is
+  then multiplied by n, the guard digits are 20 plus the number of digits of n.
+- **Nested roots:** 2 sin(2π/n) = √(2 − 2 cos(4π/n)), with 2 cos(x/2) = √(2 + 2 cos x) unwound from
+  2 cos 60° = 1; for example A(96) = 24 √(2 − √(2 + √(2 + √3))). The subtraction cancels about 2 log₁₀ n
+  digits, so the guard digits are 20 plus twice the number of digits of n. For the 96-gon's million digits
+  this method uses Python's `decimal` module (libmpdec) rather than `math.isqrt`, a separate square-root
+  implementation.
+- **Check with π:** (n/2) sin(2π/n) from the sine series, using the verified digits of π, for the first 200
+  digits of every polygon up to 6 × 2²⁰ sides and the first 10,000 digits of the 96-gon.
+
+Both methods agree on the first 200 digits of all 81 polygons from 6 to 6 × 2⁸⁰ sides, and on the 96-gon's
+first two million decimals. Rounding errors leave a computed value a few units *below* the truth, which would
+turn the 12-gon's exact 3 into 2.999…; a small nudge (10^(g/2) units, with g guard digits) is added before
+the guard digits are cut off. It can only change the last digit kept if the true digits just beyond it are
+g/2 nines in a row (about 1 chance in 10^(g/2)). The `decimal` method for the 96-gon has no nudge, so its
+agreement rules this out there; for the ladder, the 12 digits after digit 200 of every row were checked
+and none is a run of nines. The browser uses the halving method with the
+same guard rule and nudge; its digits match the verified ones for the 96-gon (first 100,000), all 100 digits
+of the 80 ladder rows, and the 12-gon (30,000 zeros after the 3).
+
+**Which areas are fractions.** A(n) is rational exactly when sin(2π/n) is. By Niven's theorem the only
+rational values of the sine at rational multiples of π are 0, ±1/2 and ±1, so among polygons only the square
+(area 2) and the 12-gon (area 3) have rational areas. Every polygon in the doubling sequence except the
+12-gon therefore has an irrational area, whose decimals never repeat in a cycle.
+
+**How fast the areas approach π.** sin x = x − x³/6 + … gives π − A(n) ≈ 2π³/(3n²), so each doubling divides
+the gap by about 4 and adds about log₁₀ 4 ≈ 0.6 shared decimals. Because the areas increase towards π,
+the shared decimals never decrease from one polygon to the next.
+
+**The 96-gon on its own.** Its first million decimals went through every test in this report with the same
+scripts as the other numbers (every earlier result was reproduced exactly when they were rerun with it
+included), plus repeated blocks at every width (`analysis/scripts/polygons/scan.py`). Its decimal places
+1,000,001–2,000,000 were computed the same two ways (`second_million.py`), and the four counts that
+looked unusual in the first million (14-square repeats, counting runs of 5+ with and without rollover,
+3D lines of 6+) were recounted there with the same functions (`second_million.py`, `followup.py`). None
+was reproduced. Results: FINDINGS.md, section 7.11.
+
+### 9.14 Reading the results
 
 The approach to unusual results is the one in section 7: Poisson probabilities as approximations,
 allowance for the number of counts examined, and recounting in fresh digits when something stands out.
@@ -724,6 +787,10 @@ on our tests they did. What surprised us was in the details.
    confidence than it deserved (see the revision notes). It is a strong argument for independent
    checking.
 
+7. **The biggest false alarm came from Archimedes.** The 96-gon's area gave 38 repeated 14-square blocks
+   in its first million decimals, about twice the 19.4 expected and more than any of 24 random strings:
+   a 1-in-8,000 result. Its next million gave 15 (section 9.13).
+
 **The lesson:** the patterns people see in π are real visual effects, but not real structure. To tell the
 difference, ask how often random digits would produce the same thing, and then check again with fresh
 digits.
@@ -763,7 +830,7 @@ digits.
 - The saved scan scripts include the narrow-width fix described in the revision notes below.
 - Every repeat of 14 or more squares is listed in `analysis/results/*.json` and in the FINDINGS.md
   appendix.
-- The every-distance test (`analysis/scripts/distances/`), the Leibniz script (`analysis/scripts/leibniz/`), the counting-run scripts
+- The every-distance test (`analysis/scripts/distances/`), the Leibniz and polygon scripts (`analysis/scripts/leibniz/`, `analysis/scripts/polygons/`), the counting-run scripts
   (`analysis/scripts/counting/`) and the digit-frequency script also run from the project folder as they
   are.
 - The mosaic needs no installation: open `index.html` in a browser (or `cube.html` for the 3D cube, or
