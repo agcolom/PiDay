@@ -97,7 +97,11 @@ Change the width and different digits line up, so different shapes appear.
   of the triangle on row n of the mosaic, shaded so that p − 1 is full purple; frames and folds are off. The
   entries are built by the addition rule, and match exact binomial coefficients and Lucas's theorem in Python
   for every entry shown. They are not numbers and are not tested; they are a contrast with π, a pattern that is
-  completely explained.
+  completely explained. The 3D cube has **Pascal's pyramid mod p** (p = 2, 3, 5, sides 64, 81 and 25): the value
+  at (x, y, z) is (x + y + z)! / (x! y! z!) mod p, built by adding the three values just before it, and filled
+  by position rather than from a string of digits; lines, the start place and the digit chart are switched off.
+  The values match exact multinomial coefficients and Lucas's theorem for three groups at every point
+  (`analysis/scripts/pascal/pyramid.py`, which also rechecks the triangles).
 - A **Liouville's constant** view shows its first 5,160 digits, 120 to a row, with frames switched off
   (almost every row would be one gold run of 0s); the number is also in the 3D cube and the sphere
   (section 9.14).

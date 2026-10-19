@@ -5,6 +5,10 @@
 // layer floor(i / side^2). So a step along a row, down a column or back a layer is a fixed jump in
 // decimal places (1, side and side^2), and a straight line is a set of evenly spaced decimal places.
 
+// Not numbers: Pascal's pyramid mod p fills the cube by position instead (see pascalPyramid below), with a side
+// that is a power of p so the whole pattern fits
+const pyramids = { pyramid2: { p: 2, side: 64 }, pyramid3: { p: 3, side: 81 }, pyramid5: { p: 5, side: 25 } };
+
 const numberNames = {
   pi: "π",
   sqrt2: "√2",
@@ -25,6 +29,9 @@ const numberNames = {
   polygon96: "Polygon area, 96 sides",
   polygon6144: "Polygon area, 6,144 sides",
   polygon6291456: "Polygon area, 6,291,456 sides",
+  pyramid2: "Pascal's pyramid mod 2",
+  pyramid3: "Pascal's pyramid mod 3",
+  pyramid5: "Pascal's pyramid mod 5",
 };
 // Plain-English descriptions for the About panel
 const numberDescriptions = {
@@ -128,6 +135,12 @@ const controls = {
 };
 for (const [name, label] of Object.entries(numberNames)) controls.number.add(new Option(label, name));
 for (const side of sides) controls.side.add(new Option(`${side} × ${side} × ${side} (${(side ** 3).toLocaleString()} digits)`, side));
+// Pascal's pyramid sides, only shown (greyed out) while a pyramid is chosen
+for (const { side } of Object.values(pyramids)) {
+  const option = new Option(`${side} × ${side} × ${side}`, side);
+  option.hidden = true;
+  controls.side.add(option);
+}
 for (let digit = 0; digit <= 9; digit++) {
   controls.from.add(new Option(digit, digit));
   controls.to.add(new Option(digit, digit));
@@ -173,7 +186,20 @@ const digitsFor = (number, count) => {
   return cachedDigits;
 };
 
-let cube = null; // { side, start, cells, lines, visible }
+// Pascal's pyramid mod p: the value at (column x, row y, layer z) is (x + y + z)! / (x! y! z!) mod p, the number of
+// ways to split x + y + z things into groups of x, y and z. Each value is the sum of the three just before it
+// (one step back along a row, a column or the layers), as each number in Pascal's triangle is the sum of two.
+// Checked against exact values and Lucas's theorem in analysis/scripts/pascal/pyramid.py.
+const pascalPyramid = (p, side) => {
+  const cells = new Int8Array(side ** 3);
+  const at = (x, y, z) => (x < 0 || y < 0 || z < 0 ? 0 : cells[(z * side + y) * side + x]);
+  for (let z = 0; z < side; z++) for (let y = 0; y < side; y++) for (let x = 0; x < side; x++) {
+    cells[(z * side + y) * side + x] = x + y + z === 0 ? 1 : (at(x - 1, y, z) + at(x, y - 1, z) + at(x, y, z - 1)) % p;
+  }
+  return cells;
+};
+
+let cube = null; // { side, start, cells, lines, visible, shadeScale, pyramid }
 const build = () => {
   const settings = readSettings();
   controls.number.value = settings.number;
@@ -187,12 +213,29 @@ const build = () => {
   controls.rollover.value = settings.rollover;
   controls.rollover.disabled = settings.kind === "same"; // rollover only matters for counting lines
 
+  // Pascal's pyramid has its own side, no start, no lines (they would compare it with random digits, which means
+  // nothing here) and shows only the non-zero values unless other digits are chosen
+  const pyramid = pyramids[settings.number];
+  for (const key of ["side", "start", "lines", "kind", "rollover"]) controls[key].disabled = Boolean(pyramid) || (key === "rollover" && settings.kind === "same");
+  document.getElementById("digitPanel").hidden = Boolean(pyramid);
+  if (pyramid) {
+    Object.assign(settings, { side: pyramid.side, start: 0, lines: 0 });
+    controls.side.value = pyramid.side;
+    if (settings.from > pyramid.p - 1) Object.assign(settings, { from: 1, to: pyramid.p - 1 });
+    controls.from.value = settings.from;
+    controls.to.value = settings.to;
+  }
+
   const { number, side, start, from, to, lines: minLength, kind } = settings;
   const rollover = settings.rollover === "on";
   const count = side ** 3;
-  const digits = digitsFor(number, start + count);
-  const cells = new Int8Array(count);
-  for (let i = 0; i < count; i++) cells[i] = digits.charCodeAt(start + i) - 48;
+  let cells;
+  if (pyramid) cells = pascalPyramid(pyramid.p, side);
+  else {
+    const digits = digitsFor(number, start + count);
+    cells = new Int8Array(count);
+    for (let i = 0; i < count; i++) cells[i] = digits.charCodeAt(start + i) - 48;
+  }
 
   const lines = minLength > 0 ? findLines(cells, side, minLength, stepsFor[kind], rollover) : [];
   const { every, drawn: drawnLines } = linesToDraw(lines);
@@ -205,7 +248,7 @@ const build = () => {
   const visible = [];
   for (let i = 0; i < count; i++) if ((cells[i] >= from && cells[i] <= to) || onLine[i]) visible.push(i);
 
-  cube = { side, start, cells, lines: drawnLines, visible: Int32Array.from(visible) };
+  cube = { side, start, cells, lines: drawnLines, visible: Int32Array.from(visible), shadeScale: pyramid ? pyramid.p - 1 : 9, pyramid };
   document.getElementById("cubeInfo").textContent = "Drag to rotate, scroll to zoom, hover over a cube for its digit";
 
   const sameCount = lines.filter((line) => line.step === 0).length;
@@ -215,15 +258,42 @@ const build = () => {
     ...(kind !== "counting" ? [tally(sameCount, "gold", "same")] : []),
     ...(kind !== "same" ? [tally(countingCount, "green", "counting")] : []),
   ];
-  const range = `decimal places ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()}`;
+  const range = pyramid
+    ? `${side} × ${side} × ${side} · showing ${visible.length.toLocaleString()} of ${count.toLocaleString()} values`
+    : `decimal places ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()}`;
   const capped = every > 1 ? ` · drawing 1 in every ${every}` : "";
   document.getElementById("cubeSummary").textContent = parts.length
     ? `${parts.join(" · ")} of ${minLength} or more${capped} · ${range}` : range.charAt(0).toUpperCase() + range.slice(1);
-  const digitTally = drawDigitChart(cells);
-  setAboutText(aboutCube(settings, sameCount, countingCount, digitTally, every));
+  if (pyramid) setAboutText(aboutPyramid(pyramid, settings, visible.length));
+  else setAboutText(aboutCube(settings, sameCount, countingCount, drawDigitChart(cells), every));
   needsDrawing = true;
 };
 window.addEventListener("hashchange", build);
+
+// The About panel's text for Pascal's pyramid
+const aboutPyramid = ({ p, side }, { from, to }, shownCount) => `
+  <h2>What you're looking at</h2>
+  <p><strong>Pascal's pyramid mod ${p}</strong>: the three-dimensional version of Pascal's triangle. In the
+  triangle, each number is the sum of the two above it. Here each point of the ${side} × ${side} × ${side} cube
+  gets the sum of the three points just before it: one step back along its row, its column and its layer,
+  starting from 1 in the corner. The number at position (x, y, z) counts the ways to split x + y + z things into
+  groups of x, y and z.</p>
+  <p>Each dot shows the <strong>remainder</strong> after dividing by ${p}, darker for bigger remainders and full
+  purple for ${p - 1}. Only ${from === to ? `the ${from}s are` : `remainders ${from} to ${to} are`} shown
+  (${shownCount.toLocaleString()} dots); the rest of the cube is 0s. Use "Show digits" to choose others.</p>
+  ${p === 2 ? `<p>Mod 2 this is the <strong>Sierpiński tetrahedron</strong>: a pyramid made of 4 smaller copies of
+  itself, with the space between them empty, each copy made of 4 smaller ones, and so on. A point is odd exactly
+  when x, y and z have no 1 in the same place when written in binary. The cube's side, 64, is 2⁶, so there are 4⁶ =
+  4,096 odd points.</p>`
+  : `<p>Mod ${p} the pyramid is made of ${p * (p + 1) * (p + 2) / 6} copies of itself, one for each way of writing
+  three base-${p} digits that add up to less than ${p}, with empty space between them; some copies have their
+  remainders multiplied by the same number, so they are shaded differently. The cube's side, ${side}, is a power of
+  ${p}, so the whole pattern fits.</p>`}
+  <p>As with the triangle, nothing here is chance. Lucas's theorem, extended to three groups, gives every value
+  from the base-${p} digits of x, y and z. It is the opposite of π: as intricate, but completely explained. The
+  flat mosaic has Pascal's triangle mod 2, 3 and 5 to compare.</p>
+  <p>Drag to turn the cube, scroll to zoom, and hover over a dot to see its position and value.</p>
+  ${aboutLinks}`;
 
 // The About panel's text for the current settings
 const aboutCube = ({ number, side, start, from, to, lines: minLength, kind, rollover }, sameCount, countingCount, digitTally, every) => {
@@ -458,7 +528,7 @@ const draw = () => {
     } else {
       const size = item.scale * 0.5;
       // Darker for bigger digits, as in the mosaic, but never fainter than 0.3 so 0s and 1s stay visible
-      context.fillStyle = `rgba(128, 0, 128, ${(0.3 + 0.7 * (cells[item.i] / 9)).toFixed(2)})`;
+      context.fillStyle = `rgba(128, 0, 128, ${(0.3 + 0.7 * (cells[item.i] / cube.shadeScale)).toFixed(2)})`;
       context.fillRect(item.x - size / 2, item.y - size / 2, size, size);
     }
   }
@@ -506,8 +576,13 @@ const showDigitUnder = (pointerX, pointerY) => {
     if (Math.abs(point.x - pointerX) <= half && Math.abs(point.y - pointerY) <= half) best = point; // later = nearer
   }
   if (!best) return;
-  const { side, start, cells } = cube;
+  const { side, start, cells, pyramid } = cube;
   const column = best.i % side, row = Math.floor(best.i / side) % side, layer = Math.floor(best.i / (side * side));
+  if (pyramid) {
+    info.textContent = `Position (${column}, ${row}, ${layer}): ${column + row + layer}! / (${column}! ${row}! ${layer}!) ` +
+      `leaves remainder ${cells[best.i]} when divided by ${pyramid.p}`;
+    return;
+  }
   info.textContent = `Decimal place ${(start + best.i).toLocaleString()}: digit ${cells[best.i]} ` +
     `(column ${column + 1}, row ${row + 1}, layer ${layer + 1})`;
 };

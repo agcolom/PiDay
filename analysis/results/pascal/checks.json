@@ -1,0 +1,32 @@
+{
+ "triangle mod 2": {
+  "rows": 256,
+  "browser = exact = Lucas": true
+ },
+ "triangle mod 3": {
+  "rows": 243,
+  "browser = exact = Lucas": true
+ },
+ "triangle mod 5": {
+  "rows": 125,
+  "browser = exact = Lucas": true
+ },
+ "pyramid mod 2": {
+  "side": 64,
+  "browser = exact = Lucas": true,
+  "non-zero points": 4096,
+  "copies per level": 4
+ },
+ "pyramid mod 3": {
+  "side": 81,
+  "browser = exact = Lucas": true,
+  "non-zero points": 10000,
+  "copies per level": 10
+ },
+ "pyramid mod 5": {
+  "side": 25,
+  "browser = exact = Lucas": true,
+  "non-zero points": 1225,
+  "copies per level": 35
+ }
+}

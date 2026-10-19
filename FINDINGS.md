@@ -223,7 +223,9 @@ well-known coincidence, but only 4 digits long.
 
 **A contrast:** the mosaic also has views of Pascal's triangle mod 2, 3 and 5. They are as intricate as any
 mosaic, triangles within triangles, but nothing in them is chance: Lucas's theorem gives every square from the
-base-p digits of its row and column.
+base-p digits of its row and column. The 3D cube has Pascal's pyramid mod 2, 3 and 5, the same idea in three
+dimensions (mod 2 is the Sierpiński tetrahedron: 4,096 odd values in a 64 × 64 × 64 cube, 4 copies of itself at
+every scale).
 
 **What this shows:** "every digit equally often" is weaker than "looks random". Long-run
 frequencies don't guarantee that the first million digits look random, and the repeat test can tell
