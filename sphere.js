@@ -51,31 +51,44 @@ const numberDescriptions = {
 };
 const dotCounts = [10, 50, 100, 1000, 2000, 5000, 10000, 20000];
 const smallCount = 100; // up to this many dots, each is numbered and the spiral joining them is drawn
-const defaults = { number: "pi", count: 2000, start: 0, from: 0, to: 9 };
+// Radii for the whole-number layout, with how many whole-number points each sphere has (counted twice: here and
+// by a separate count in Python). The counts jump about: they depend on the radius's prime factors, not its size.
+const radii = { 3: 30, 7: 54, 64: 6, 100: 150, 101: 606, 169: 1014, 255: 2550, 625: 3750, 1001: 9126, 1155: 17550 };
+const layoutNames = { spiral: "Golden-angle spiral", whole: "Whole-number points" };
+const defaults = { number: "pi", layout: "spiral", count: 2000, radius: 101, start: 0, from: 0, to: 9 };
 const goldenAngle = Math.PI * (3 - Math.sqrt(5)); // 137.5°, in radians
 
 // ---- Controls ----
 const controls = {
   number: document.getElementById("sphereNumber"),
+  layout: document.getElementById("sphereLayout"),
   count: document.getElementById("sphereCount"),
+  radius: document.getElementById("sphereRadius"),
   start: document.getElementById("sphereStart"),
   from: document.getElementById("sphereFrom"),
   to: document.getElementById("sphereTo"),
 };
 for (const [name, label] of Object.entries(numberNames)) controls.number.add(new Option(label, name));
 for (const count of dotCounts) controls.count.add(new Option(count.toLocaleString(), count));
+for (const [layout, label] of Object.entries(layoutNames)) controls.layout.add(new Option(label, layout));
+for (const [radius, points] of Object.entries(radii)) {
+  controls.radius.add(new Option(`${Number(radius).toLocaleString()} (${points.toLocaleString()} points)`, radius));
+}
 for (let digit = 0; digit <= 9; digit++) {
   controls.from.add(new Option(digit, digit));
   controls.to.add(new Option(digit, digit));
 }
 
 // The address remembers the settings, e.g. sphere.html#number=e&count=5000&start=0&from=9&to=9
+// or sphere.html#number=pi&layout=whole&radius=101&start=0&from=0&to=9
 const readSettings = () => {
   const saved = new URLSearchParams(location.hash.slice(1));
   const pick = (key, valid) => (saved.has(key) && valid(saved.get(key)) ? saved.get(key) : String(defaults[key]));
   return {
     number: pick("number", (value) => value in numberNames),
+    layout: pick("layout", (value) => value in layoutNames),
     count: Number(pick("count", (value) => dotCounts.includes(Number(value)))),
+    radius: Number(pick("radius", (value) => value in radii)),
     start: Number(pick("start", (value) => /^\d+$/.test(value) && Number(value) <= 500000)),
     from: Number(pick("from", (value) => /^[0-9]$/.test(value))),
     to: Number(pick("to", (value) => /^[0-9]$/.test(value))),
@@ -83,8 +96,9 @@ const readSettings = () => {
 };
 const writeSettings = () => {
   const start = Math.min(Math.max(Math.floor(Number(controls.start.value) || 0), 0), 500000);
+  const size = controls.layout.value === "whole" ? { radius: controls.radius.value } : { count: controls.count.value };
   location.hash = new URLSearchParams({
-    number: controls.number.value, count: controls.count.value, start,
+    number: controls.number.value, layout: controls.layout.value, ...size, start,
     // "from" is never above "to": if they cross, swap them
     from: Math.min(controls.from.value, controls.to.value), to: Math.max(controls.from.value, controls.to.value),
   }).toString();
@@ -114,6 +128,33 @@ const fibonacciSphere = (count) => {
   return points;
 };
 
+// The whole-number points on a sphere of radius R: every (X, Y, H) with X² + Y² + H² = R², all whole numbers.
+// They are put in reading order: from the top down, one level (height H) at a time, and round each level
+// anticlockwise (seen from above) starting from the X direction. Returned on a sphere of radius 1, with H up.
+const wholeNumberPoints = (R) => {
+  const found = [];
+  for (let X = -R; X <= R; X++) for (let Y = -R; Y <= R; Y++) {
+    const rest = R * R - X * X - Y * Y;
+    if (rest < 0) continue;
+    const H = Math.round(Math.sqrt(rest));
+    if (H * H !== rest) continue;
+    found.push([X, Y, H]);
+    if (H > 0) found.push([X, Y, -H]);
+  }
+  const angle = ([X, Y]) => (Math.atan2(Y, X) + 2 * Math.PI) % (2 * Math.PI);
+  found.sort((a, b) => b[2] - a[2] || angle(a) - angle(b));
+  const points = new Float64Array(found.length * 3);
+  found.forEach(([X, Y, H], i) => points.set([X / R, H / R, -Y / R], i * 3));
+  return points;
+};
+
+// Part of the way from point a to point b along the ball's surface (t from 0 to 1), for joining dots in order
+const between = (points, a, b, t) => {
+  const p = [0, 1, 2].map((k) => points[a * 3 + k] * (1 - t) + points[b * 3 + k] * t);
+  const length = Math.hypot(...p) || 1;
+  return p.map((value) => value / length);
+};
+
 // The dots nearest to dot i on the sphere, as distances in decimal places (the gaps between their positions)
 const neighbourGaps = (points, count, i, howMany = 4) => {
   const near = [];
@@ -141,19 +182,23 @@ const build = () => {
   if (settings.from > settings.to) [settings.from, settings.to] = [settings.to, settings.from];
   for (const key of Object.keys(controls)) controls[key].value = settings[key];
 
-  const { number, count, start, from, to } = settings;
+  document.getElementById("sphereCountLabel").hidden = settings.layout === "whole";
+  document.getElementById("sphereRadiusLabel").hidden = settings.layout !== "whole";
+  const { number, layout, radius, start, from, to } = settings;
+  const points = layout === "whole" ? wholeNumberPoints(radius) : fibonacciSphere(settings.count);
+  const count = points.length / 3;
+  settings.count = count;
   const digits = digitsFor(number, start + count);
   const cells = new Int8Array(count);
   for (let i = 0; i < count; i++) cells[i] = digits.charCodeAt(start + i) - 48;
-  const points = fibonacciSphere(count);
 
   const visible = [];
   for (let i = 0; i < count; i++) if (cells[i] >= from && cells[i] <= to) visible.push(i);
   sphere = { ...settings, cells, points, visible: Int32Array.from(visible) };
 
   const shown = from === 0 && to === 9 ? "every digit" : from === to ? `only the ${from}s` : `digits ${from} to ${to}`;
-  document.getElementById("sphereSummary").textContent =
-    `Decimal places ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()} · showing ${shown} ` +
+  document.getElementById("sphereSummary").textContent = (layout === "whole"
+    ? `Radius ${radius.toLocaleString()}: ${count.toLocaleString()} whole-number points · ` : "") + `Decimal places ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()} · showing ${shown} ` +
     `(${visible.length.toLocaleString()} dots)`;
   document.getElementById("sphereInfo").textContent = "Drag to rotate, scroll to zoom, hover over a dot for its digit";
   setAboutText(aboutSphere(settings, commonGaps(points, count)));
@@ -162,7 +207,8 @@ const build = () => {
 window.addEventListener("hashchange", build);
 
 // The About panel's text for the current settings
-const aboutSphere = ({ number, count, start }, gaps) => `
+const aboutSphere = (settings, gaps) => (settings.layout === "whole" ? aboutWholeNumbers(settings) : aboutSpiral(settings, gaps));
+const aboutSpiral = ({ number, count, start }, gaps) => `
   <h2>What you're looking at</h2>
   <p>${count.toLocaleString()} digits of ${numberDescriptions[number]}, from decimal place
   ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()}, wound onto a ball. Each dot is one
@@ -192,6 +238,39 @@ const aboutSphere = ({ number, count, start }, gaps) => `
   <p><strong>Beware of illusions:</strong> the dots seem to form spiral arms curving across the ball, like the
   seeds of a sunflower. Those arms come from the golden-angle layout and appear for any digits at all; they
   aren't in the digits.</p>
+  ${aboutLinks}`;
+
+// The About panel's text for the whole-number layout
+const aboutWholeNumbers = ({ number, count, radius, start }) => `
+  <h2>What you're looking at</h2>
+  <p>${count.toLocaleString()} digits of ${numberDescriptions[number]}, from decimal place
+  ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()}, on the <strong>whole-number points</strong>
+  of a ball of radius ${radius.toLocaleString()}: the points whose three coordinates X, Y and H (the height) are all
+  whole numbers, with X² + Y² + H² = ${radius.toLocaleString()}². This is the sphere's version of the flat mosaic's
+  grid of squares, where every square sits at a whole-number column and row. The idea came from a
+  mathematician colleague.</p>
+  <p>The digits are put on the points in reading order: from the top down, one level (one height) at a time,
+  and round each level anticlockwise, seen from above. Each dot is one digit, darker for bigger digits (9 is
+  full purple, 0 the lightest).${count <= smallCount ? ` With only ${count} points, each dot is numbered with
+  its decimal place (its position in the number, not its digit), and a thin line joins each dot to the next, so
+  the order can be followed.` : ""}</p>
+  <h2>How many points?</h2>
+  <p>Unlike the spiral, you can't choose how many dots there are: the radius decides. And the count jumps
+  about. A ball of radius 100 has only 150 whole-number points, radius 101 has 606, and radius 64, like any
+  power of 2, has only the 6 obvious ones, such as (64, 0, 0). Doubling the radius never adds points (radius
+  100 has the same 150 as radius 25 and 50). How many points there are depends on which prime numbers divide
+  the radius, not on its size: the shape of the ball is about <em>arithmetic</em>, not just geometry.</p>
+  <h2>Which digits end up next to each other</h2>
+  <p>The points have the symmetry of a cube: swapping two coordinates, or changing the sign of one, turns a
+  whole-number point into another one, so the arrangement of points is made of 48 matching pieces. The digits
+  on them are not: they follow the reading order.</p>
+  <p>With a small radius the points sit in a few clear rings, one per level; with a big radius they cover the
+  whole ball, though less regularly than the spiral's dots. There is no single rule for which digits end up
+  side by side, as there is on the spiral: a dot's neighbour on its own level is often the next digit, but its
+  neighbours on the levels above and below can be tens or hundreds of places away, and this changes across the
+  ball. Hover over a dot to see its digit and how far away its neighbours are.</p>
+  <p>Use "Show digits" to pick which digits appear, drag to turn the ball, and scroll to zoom. Dots on the far
+  side are paler.</p>
   ${aboutLinks}`;
 
 // ---- Drawing ----
@@ -235,7 +314,7 @@ const makeProjection = () => {
 };
 
 const draw = () => {
-  const { count, start, cells, points, visible } = sphere;
+  const { count, start, layout, cells, points, visible } = sphere;
   const { project, centreX, centreY, outline } = makeProjection();
   context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
@@ -248,13 +327,15 @@ const draw = () => {
 
   const at = (i) => project(points[i * 3], points[i * 3 + 1], points[i * 3 + 2]);
   const dots = Array.from(visible, (i) => ({ i, ...at(i) }));
-  // With only a few dots, the spiral from each dot to the next, in short pieces along the ball's surface
+  // With only a few dots, the path from each dot to the next, in short pieces along the ball's surface:
+  // the spiral itself, or for whole-number points the shortest way round the ball
   const pieces = [];
   if (count <= smallCount) {
     const steps = 24;
+    const along = layout === "whole" ? (i, t) => between(points, i, i + 1, t) : (i, t) => spiralPoint(i + t, count);
     for (let i = 0; i < count - 1; i++) {
       for (let k = 0; k < steps; k++) {
-        const from = project(...spiralPoint(i + k / steps, count)), to = project(...spiralPoint(i + (k + 1) / steps, count));
+        const from = project(...along(i, k / steps)), to = project(...along(i, (k + 1) / steps));
         pieces.push({ from, to, nearness: (from.nearness + to.nearness) / 2 - 0.05 }); // just behind the dots it joins
       }
     }
@@ -273,7 +354,8 @@ const draw = () => {
       context.stroke();
       continue;
     }
-    const size = item.scale * Math.min(spacing * 0.33, 0.07); // smaller than the gap when there are only a few dots
+    // Smaller than the gap when there are only a few dots, and smaller for whole-number points, which bunch up more
+    const size = item.scale * Math.min(spacing * (layout === "whole" ? 0.22 : 0.33), 0.07);
     // Darker for bigger digits, as in the mosaic, but never fainter than 0.3 so 0s and 1s stay visible
     context.fillStyle = `rgba(128, 0, 128, ${((0.3 + 0.7 * (cells[item.i] / 9)) * facing).toFixed(2)})`;
     context.beginPath();

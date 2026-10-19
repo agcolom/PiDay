@@ -221,6 +221,10 @@ well-known coincidence, but only 4 digits long.
   most of their digits. (Like π and e, it is transcendental.) At 300 columns (which divides by 2, 3, 4, 5 and 6) the
   numbers line up into stripes, with a visible change where they grow from 3 to 4 to 5 digits.
 
+**A contrast:** the mosaic also has views of Pascal's triangle mod 2, 3 and 5. They are as intricate as any
+mosaic, triangles within triangles, but nothing in them is chance: Lucas's theorem gives every square from the
+base-p digits of its row and column.
+
 **What this shows:** "every digit equally often" is weaker than "looks random". Long-run
 frequencies don't guarantee that the first million digits look random, and the repeat test can tell
 the difference. π, √2, e and φ give counts consistent with chance; the two structured numbers give
@@ -522,7 +526,11 @@ effect of the viewing angle, not of the digits; only the gold lines are real lin
 top, each later one a little lower and turned 137.5° (the golden angle) further round, which spreads the
 dots evenly. You choose the number, how many dots (10, 50, 100, or 1,000 to 20,000), where to start and
 which digits to show. With 100 dots or fewer, each dot is numbered with its decimal place and a thin line
-follows the spiral from each digit to the next, so the layout itself can be followed. On this ball, a dot's nearest neighbours are always a Fibonacci number of places away along the
+follows the spiral from each digit to the next, so the layout itself can be followed. A second layout,
+suggested by a mathematician colleague, uses only the **whole-number points** of a ball of radius R (X² + Y² +
+H² = R², all three whole numbers), the sphere's version of the mosaic's grid, filled from the top down one level
+at a time. Their number depends on the radius's prime factors rather than its size: 150 for radius 100, 606 for
+101, and only 6 for any power of 2. On this ball, a dot's nearest neighbours are always a Fibonacci number of places away along the
 digits: mostly 34 and 55 places before and after it with 2,000 dots, and 89, 144 and 233 with 20,000.
 Hovering over a dot shows its digit and these distances. Section 7.7 tests every such distance, so the
 sphere is a way of looking rather than a new test. Its visible spiral arms come from the layout and appear

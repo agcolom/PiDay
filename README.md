@@ -13,7 +13,9 @@ patterns.
 
 **Or locally:** open `index.html` in a browser. Use the menu in the top-right corner to switch between
 π, √2, e, the golden ratio, 1/9801, Champernowne's constant, Liouville's constant, the Leibniz series and Archimedes' polygons
-(the *Polygon ladder* view stacks the polygons' areas, one per row, with π underneath). Cyan frames mark repeated blocks;
+(the *Polygon ladder* view stacks the polygons' areas, one per row, with π underneath). Three views show
+Pascal's triangle mod 2, 3 and 5 (Sierpiński-like triangles), a contrast with π: a picture as intricate as any
+mosaic, but with every square explained by Lucas's theorem. Cyan frames mark repeated blocks;
 gold frames mark runs of six or more of the same digit; green frames mark digits counting up or down
 (such as 34567; the Counting menu lets 9 roll over to 0, as in 89012). The Fold menu folds the mosaic
 onto itself and shows where the two halves have the same digit, or digits that add up to 9. The "3D cube"

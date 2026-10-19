@@ -93,6 +93,11 @@ Change the width and different digits line up, so different shapes appear.
 - A **Polygon ladder** view stacks the areas of Archimedes' polygons (6, 12, 24, … sides), one per row,
   with π as the bottom row; five more views show single polygons (6, 12, 96, 6,144 and 6,291,456 sides),
   and the same five are in the 3D cube and the sphere (section 9.13).
+- Three **Pascal's triangle mod p** views (p = 2, 3, 5; 256, 243 and 125 rows) show C(n, k) mod p, row n
+  of the triangle on row n of the mosaic, shaded so that p − 1 is full purple; frames and folds are off. The
+  entries are built by the addition rule, and match exact binomial coefficients and Lucas's theorem in Python
+  for every entry shown. They are not numbers and are not tested; they are a contrast with π, a pattern that is
+  completely explained.
 - A **Liouville's constant** view shows its first 5,160 digits, 120 to a row, with frames switched off
   (almost every row would be one gold run of 0s); the number is also in the 3D cube and the sphere
   (section 9.14).
@@ -645,6 +650,13 @@ from the axis. Dot i holds the digit at decimal place start + i. The drawing use
 furthest-first painting as the cube (section 9.6), with dots on the far half drawn paler. With 100 dots or
 fewer, each dot is labelled with its decimal place and the spiral between consecutive dots is drawn (the same
 formula with i taken between whole numbers), to show how the layout works.
+
+A second layout uses the whole-number points of a sphere of radius R, all (X, Y, H) with X² + Y² + H² = R², found
+by trying every X and Y from −R to R. They are ordered from the top down by height H, and within a level by angle
+round the vertical axis, anticlockwise from the X direction. The radius menu offers 3, 7, 64, 100, 101, 169, 255,
+625, 1,001 and 1,155, with 6 to 17,550 points; the browser's counts match a separate count in Python for all ten.
+Since a sum of three squares divisible by 4 must have all three even, doubling the radius never adds points (a
+power of 2 has only the 6 points on the axes). This layout is for looking, like the spiral; no test uses it.
 
 On such a spiral, a dot's nearest neighbours are dots a Fibonacci number of steps away (a known property of
 these spirals, which we confirmed numerically): with 2,000 dots, the four nearest dots in the middle band are

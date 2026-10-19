@@ -153,6 +153,18 @@ const computePolygonLadderDigits = (count) => {
   return (areas.join("") + computePiDigits(ladderColumns)).slice(0, count);
 };
 
+// Pascal's triangle mod p, as a table rather than a number: row n holds C(n, 0), C(n, 1), ..., C(n, n) mod p,
+// each the sum of the two above it, padded with "." (no entry) to `width` columns
+const computePascalDigits = (count, p, width) => {
+  const parts = [];
+  let row = [1];
+  for (let n = 0; parts.length * width < count; n++) {
+    parts.push(Array.from({ length: width }, (_, k) => (k <= n ? String(row[k]) : ".")).join(""));
+    row = Array.from({ length: n + 2 }, (_, k) => ((row[k - 1] || 0) + (row[k] || 0)) % p);
+  }
+  return parts.join("").slice(0, count);
+};
+
 const computeDigits = {
   pi: computePiDigits,
   sqrt2: computeSqrt2Digits,
@@ -176,4 +188,8 @@ const computeDigits = {
   polygon6144: (count) => computePolygonDigits(count, 6144),
   polygon6291456: (count) => computePolygonDigits(count, 6291456),
   polygonLadder: computePolygonLadderDigits,
+  // Not numbers: Pascal's triangle mod 2, 3 and 5 (see the mosaic's Pascal views)
+  pascal2: (count) => computePascalDigits(count, 2, 256),
+  pascal3: (count) => computePascalDigits(count, 3, 243),
+  pascal5: (count) => computePascalDigits(count, 5, 125),
 };
