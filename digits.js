@@ -165,6 +165,33 @@ const computePascalDigits = (count, p, width) => {
   return parts.join("").slice(0, count);
 };
 
+// The Hilbert curve (Skilling's algorithm, "Programming the Hilbert curve", 2004; checked against
+// a Python version): one path through a square or cube of side 2^order, each step to a neighbouring cell.
+// Returns, for each cell, how far along the path it is. Cells count row by row, last coordinate fastest.
+const hilbertIndexes = (order, dimensions) => {
+  const side = 2 ** order;
+  const indexes = new Int32Array(side ** dimensions);
+  const X = new Array(dimensions);
+  for (let cell = 0; cell < indexes.length; cell++) {
+    for (let a = dimensions - 1, rest = cell; a >= 0; a--, rest = Math.floor(rest / side)) X[a] = rest % side;
+    for (let Q = side >> 1; Q > 1; Q >>= 1) {
+      const P = Q - 1;
+      for (let i = 0; i < dimensions; i++) {
+        if (X[i] & Q) X[0] ^= P;
+        else { const t = (X[0] ^ X[i]) & P; X[0] ^= t; X[i] ^= t; }
+      }
+    }
+    for (let i = 1; i < dimensions; i++) X[i] ^= X[i - 1];
+    let t = 0;
+    for (let Q = side >> 1; Q > 1; Q >>= 1) if (X[dimensions - 1] & Q) t ^= Q - 1;
+    for (let i = 0; i < dimensions; i++) X[i] ^= t;
+    let index = 0;
+    for (let bit = order - 1; bit >= 0; bit--) for (let i = 0; i < dimensions; i++) index = index * 2 + ((X[i] >> bit) & 1);
+    indexes[cell] = index;
+  }
+  return indexes;
+};
+
 const computeDigits = {
   pi: computePiDigits,
   sqrt2: computeSqrt2Digits,

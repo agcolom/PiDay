@@ -102,6 +102,10 @@ Change the width and different digits line up, so different shapes appear.
   by position rather than from a string of digits; lines, the start place and the digit chart are switched off.
   The values match exact multinomial coefficients and Lucas's theorem for three groups at every point
   (`analysis/scripts/pascal/pyramid.py`, which also rechecks the triangles).
+- Seven **Hilbert curve** views lay the digits along one winding path through the square, each digit next to the
+  one before: one shows 256 digits of π with the path drawn over them, and the others show the first 65,536 digits of
+  π, √2, e, φ, Champernowne's constant and 1/9801, with folds and frames switched off. The 3D cube has the same
+  layout under its Layout menu, for sides 8, 16, 32 and 64.
 - A **Liouville's constant** view shows its first 5,160 digits, 120 to a row, with frames switched off
   (almost every row would be one gold run of 0s); the number is also in the 3D cube and the sphere
   (section 9.14).

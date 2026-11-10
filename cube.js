@@ -5,6 +5,9 @@
 // layer floor(i / side^2). So a step along a row, down a column or back a layer is a fixed jump in
 // decimal places (1, side and side^2), and a straight line is a set of evenly spaced decimal places.
 
+// With the Layout menu on "Hilbert curve", digit i goes to the i-th cell of the Hilbert curve instead (hilbertIndexes in
+// digits.js), so the side must be a power of 2.
+
 // Not numbers: Pascal's pyramid mod p fills the cube by position instead (see pascalPyramid below), with a side
 // that is a power of p so the whole pattern fits
 const pyramids = { pyramid2: { p: 2, side: 64 }, pyramid3: { p: 3, side: 81 }, pyramid5: { p: 5, side: 25 } };
@@ -56,13 +59,16 @@ const numberDescriptions = {
   polygon6291456: "<strong>the area of a regular 6,291,456-sided polygon</strong> inside a circle of radius 1: 3.1415926535892…, irrational, sharing 12 decimals with π",
 };
 const sides = [10, 15, 20, 30, 40, 50, 60];
+const hilbertSides = [8, 16, 32, 64];
+const layoutOptions = { rows: "Row by row", hilbert: "Hilbert curve" };
+const closestOf = (list, n) => list.reduce((best, item) => (Math.abs(item - n) < Math.abs(best - n) ? item : best));
 const lineOptions = { 0: "Off", 4: "4 or more in a line", 5: "5 or more in a line", 6: "6 or more in a line" };
 // Gold lines: the same digit all along. Green lines: digits counting up or down by one (e.g. 3 4 5 6 7).
 const kindOptions = { same: "Same digit (gold)", counting: "Counting digits (green)", both: "Both" };
 const lineColours = { 0: "gold", 1: "limegreen", "-1": "limegreen" };
 // Rollover: whether counting carries on from 9 to 0 (going up) and from 0 to 9 (going down), as in 8 9 0 1 2
 const rolloverOptions = { off: "stops at 9 and 0", on: "rolls over (8 9 0 1)" };
-const defaults = { number: "pi", side: 20, start: 0, from: 9, to: 9, lines: 5, kind: "same", rollover: "off" };
+const defaults = { number: "pi", side: 20, start: 0, from: 9, to: 9, lines: 5, kind: "same", rollover: "off", layout: "rows" };
 
 // The 13 line directions in a cube (one of each pair of opposites), as [column, row, layer] steps
 const directions = [];
@@ -125,6 +131,7 @@ const expectedLines = (side, minLength, kind = "same", rollover = false) => {
 // ---- Controls ----
 const controls = {
   number: document.getElementById("cubeNumber"),
+  layout: document.getElementById("cubeLayout"),
   side: document.getElementById("cubeSide"),
   start: document.getElementById("cubeStart"),
   from: document.getElementById("cubeFrom"),
@@ -134,9 +141,10 @@ const controls = {
   rollover: document.getElementById("cubeRollover"),
 };
 for (const [name, label] of Object.entries(numberNames)) controls.number.add(new Option(label, name));
-for (const side of sides) controls.side.add(new Option(`${side} × ${side} × ${side} (${(side ** 3).toLocaleString()} digits)`, side));
+for (const [layout, label] of Object.entries(layoutOptions)) controls.layout.add(new Option(label, layout));
+for (const side of [...sides, ...hilbertSides]) controls.side.add(new Option(`${side} × ${side} × ${side} (${(side ** 3).toLocaleString()} digits)`, side));
 // Pascal's pyramid sides, only shown (greyed out) while a pyramid is chosen
-for (const { side } of Object.values(pyramids)) {
+for (const { side } of Object.values(pyramids).filter(({ side }) => !hilbertSides.includes(side))) {
   const option = new Option(`${side} × ${side} × ${side}`, side);
   option.hidden = true;
   controls.side.add(option);
@@ -155,19 +163,20 @@ const readSettings = () => {
   const pick = (key, valid) => (saved.has(key) && valid(saved.get(key)) ? saved.get(key) : String(defaults[key]));
   return {
     number: pick("number", (value) => value in numberNames),
-    side: Number(pick("side", (value) => sides.includes(Number(value)))),
+    side: Number(pick("side", (value) => [...sides, ...hilbertSides].includes(Number(value)))),
     start: Number(pick("start", (value) => /^\d+$/.test(value) && Number(value) <= 500000)),
     from: Number(pick("from", (value) => /^[0-9]$/.test(value))),
     to: Number(pick("to", (value) => /^[0-9]$/.test(value))),
     lines: Number(pick("lines", (value) => value in lineOptions)),
     kind: pick("kind", (value) => value in kindOptions),
     rollover: pick("rollover", (value) => value in rolloverOptions),
+    layout: pick("layout", (value) => value in layoutOptions),
   };
 };
 const writeSettings = () => {
   const start = Math.min(Math.max(Math.floor(Number(controls.start.value) || 0), 0), 500000);
   location.hash = new URLSearchParams({
-    number: controls.number.value, side: controls.side.value, start, lines: controls.lines.value,
+    number: controls.number.value, layout: controls.layout.value, side: controls.side.value, start, lines: controls.lines.value,
     // "from" is never above "to": if they cross, swap them
     from: Math.min(controls.from.value, controls.to.value), to: Math.max(controls.from.value, controls.to.value),
     kind: controls.kind.value, rollover: controls.rollover.value,
@@ -199,9 +208,14 @@ const pascalPyramid = (p, side) => {
   return cells;
 };
 
-let cube = null; // { side, start, cells, lines, visible, shadeScale, pyramid }
+let cube = null; // { side, start, cells, lines, visible, shadeScale, pyramid, curve }
 const build = () => {
   const settings = readSettings();
+  // Each layout has its own sides (the Hilbert curve needs a power of 2)
+  const allowedSides = settings.layout === "hilbert" ? hilbertSides : sides;
+  if (!allowedSides.includes(settings.side)) settings.side = closestOf(allowedSides, settings.side);
+  for (const option of controls.side.options) option.hidden = option.disabled = !allowedSides.includes(Number(option.value));
+  controls.layout.value = settings.layout;
   controls.number.value = settings.number;
   controls.side.value = settings.side;
   controls.start.value = settings.start;
@@ -216,10 +230,11 @@ const build = () => {
   // Pascal's pyramid has its own side, no start, no lines (they would compare it with random digits, which means
   // nothing here) and shows only the non-zero values unless other digits are chosen
   const pyramid = pyramids[settings.number];
-  for (const key of ["side", "start", "lines", "kind", "rollover"]) controls[key].disabled = Boolean(pyramid) || (key === "rollover" && settings.kind === "same");
+  for (const key of ["layout", "side", "start", "lines", "kind", "rollover"]) controls[key].disabled = Boolean(pyramid) || (key === "rollover" && settings.kind === "same");
   document.getElementById("digitPanel").hidden = Boolean(pyramid);
   if (pyramid) {
-    Object.assign(settings, { side: pyramid.side, start: 0, lines: 0 });
+    Object.assign(settings, { side: pyramid.side, start: 0, lines: 0, layout: "rows" });
+    controls.layout.value = "rows";
     controls.side.value = pyramid.side;
     if (settings.from > pyramid.p - 1) Object.assign(settings, { from: 1, to: pyramid.p - 1 });
     controls.from.value = settings.from;
@@ -230,11 +245,12 @@ const build = () => {
   const rollover = settings.rollover === "on";
   const count = side ** 3;
   let cells;
+  const curve = settings.layout === "hilbert" ? hilbertIndexes(Math.log2(side), 3) : null; // how far along the curve each cell is
   if (pyramid) cells = pascalPyramid(pyramid.p, side);
   else {
     const digits = digitsFor(number, start + count);
     cells = new Int8Array(count);
-    for (let i = 0; i < count; i++) cells[i] = digits.charCodeAt(start + i) - 48;
+    for (let i = 0; i < count; i++) cells[i] = digits.charCodeAt(start + (curve ? curve[i] : i)) - 48;
   }
 
   const lines = minLength > 0 ? findLines(cells, side, minLength, stepsFor[kind], rollover) : [];
@@ -248,7 +264,7 @@ const build = () => {
   const visible = [];
   for (let i = 0; i < count; i++) if ((cells[i] >= from && cells[i] <= to) || onLine[i]) visible.push(i);
 
-  cube = { side, start, cells, lines: drawnLines, visible: Int32Array.from(visible), shadeScale: pyramid ? pyramid.p - 1 : 9, pyramid };
+  cube = { side, start, cells, lines: drawnLines, visible: Int32Array.from(visible), shadeScale: pyramid ? pyramid.p - 1 : 9, pyramid, curve };
   document.getElementById("cubeInfo").textContent = "Drag to rotate, scroll to zoom, hover over a cube for its digit";
 
   const sameCount = lines.filter((line) => line.step === 0).length;
@@ -296,7 +312,7 @@ const aboutPyramid = ({ p, side }, { from, to }, shownCount) => `
   ${aboutLinks}`;
 
 // The About panel's text for the current settings
-const aboutCube = ({ number, side, start, from, to, lines: minLength, kind, rollover }, sameCount, countingCount, digitTally, every) => {
+const aboutCube = ({ number, side, start, from, to, lines: minLength, kind, rollover, layout }, sameCount, countingCount, digitTally, every) => {
   const count = side ** 3;
   const shown = from === 0 && to === 9 ? "every digit"
     : from === to ? `only the ${from}s`
@@ -317,8 +333,11 @@ const aboutCube = ({ number, side, start, from, to, lines: minLength, kind, roll
     : (kind !== "counting" ? sameText : "") + (kind !== "same" ? countingText : "") + cappedText;
   return `
     <h2>What you're looking at</h2>
-    <p>The digits of a number stacked into a cube, like threading a long string of beads into a box: left to
-    right along a row, rows from top to bottom, then layer after layer from front to back. Each dot is one
+    <p>The digits of a number stacked into a cube, like threading a long string of beads into a box${layout === "hilbert"
+      ? `, along the <strong>Hilbert curve</strong>: one winding path that visits every position exactly once and always
+        steps to a position right next to the last one. So digits close together in the number stay close together in the
+        cube, and each eighth of the cube, each eighth of an eighth and so on holds one unbroken stretch of digits`
+      : ": left to right along a row, rows from top to bottom, then layer after layer from front to back"}. Each dot is one
     digit, darker for bigger digits (9 is full purple, 0 the lightest). Use "Show digits" to pick which
     digits appear, for example 3 to 3 for only the 3s.</p>
     <p><strong>Gold lines</strong> join dots that have the same digit and sit in a straight line: along a row,
@@ -576,14 +595,14 @@ const showDigitUnder = (pointerX, pointerY) => {
     if (Math.abs(point.x - pointerX) <= half && Math.abs(point.y - pointerY) <= half) best = point; // later = nearer
   }
   if (!best) return;
-  const { side, start, cells, pyramid } = cube;
+  const { side, start, cells, pyramid, curve } = cube;
   const column = best.i % side, row = Math.floor(best.i / side) % side, layer = Math.floor(best.i / (side * side));
   if (pyramid) {
     info.textContent = `Position (${column}, ${row}, ${layer}): ${column + row + layer}! / (${column}! ${row}! ${layer}!) ` +
       `leaves remainder ${cells[best.i]} when divided by ${pyramid.p}`;
     return;
   }
-  info.textContent = `Decimal place ${(start + best.i).toLocaleString()}: digit ${cells[best.i]} ` +
+  info.textContent = `Decimal place ${(start + (curve ? curve[best.i] : best.i)).toLocaleString()}: digit ${cells[best.i]} ` +
     `(column ${column + 1}, row ${row + 1}, layer ${layer + 1})`;
 };
 
