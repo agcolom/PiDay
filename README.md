@@ -17,7 +17,9 @@ patterns.
 Pascal's triangle mod 2, 3 and 5 (Sierpiński-like triangles), a contrast with π: a picture as intricate as any
 mosaic, but with every square explained by Lucas's theorem. The 3D cube has the same idea one dimension up:
 Pascal's pyramid mod 2, 3 and 5 (mod 2 is the Sierpiński tetrahedron). The Hilbert curve views lay the digits along one
-winding path instead of row by row, with each digit next to the one before; the 3D cube has this too, under Layout. Cyan frames mark repeated blocks;
+winding path instead of row by row, with each digit next to the one before; the Z-order curve views do the same with a
+path that jumps between blocks; and the diagonals views fill the square along the diagonals of the whole quadrant, the
+way Cantor listed the fractions. The 3D cube has all three, under Layout. Cyan frames mark repeated blocks;
 gold frames mark runs of six or more of the same digit; green frames mark digits counting up or down
 (such as 34567; the Counting menu lets 9 roll over to 0, as in 89012). The Fold menu folds the mosaic
 onto itself and shows where the two halves have the same digit, or digits that add up to 9. The "3D cube"

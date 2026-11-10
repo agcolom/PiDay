@@ -100,22 +100,43 @@ const pascalView = (p, size, divSize, text) => ({
   repeats: [],
 });
 
-// A view with the digits laid along the Hilbert curve instead of row by row. Side 2^order.
-const hilbertIntro = `
+// Views with the digits laid along a curve instead of row by row: the Hilbert curve, the Z-order (Morton) curve or
+// the diagonals of the whole quadrant (digits.js has the three). Side 2^order. The diagonal layout only uses some of
+// the first (2 side - 1)(2 side)/2 + side digits, as the square is the corner of the quadrant.
+const squareIntro = `
   <h2>What you're looking at</h2>
   <p>Each small square is one digit of a number, and the darker the square, the bigger the digit: 0 is white and
-  9 is full purple. Here the digits do not go along rows. They follow the <strong>Hilbert curve</strong>, one
+  9 is full purple. Here the digits do not go along rows. `;
+const curveIntros = {
+  hilbert: squareIntro + `They follow the <strong>Hilbert curve</strong>, one
   winding path that visits every square exactly once and always steps to a square right next to the last one. It
   starts in the top-left corner and ends in the bottom-left one.</p>
   <p>So digits that are close together in the number stay close together in the picture, and each quarter of the
   square, each quarter of a quarter and so on holds one unbroken stretch of digits.</p>
-  <h2>This view</h2>`;
-const hilbertView = (number, name, text, order = 8, divSize = 4, showPath = false) => ({
+  <h2>This view</h2>`,
+  morton: squareIntro + `They follow the <strong>Z-order curve</strong> (also called the Morton curve): the four
+  squares of each 2 × 2 block are read as a Z, left to right then the row below; the four 2 × 2 blocks of each 4 × 4
+  block are read in the same Z; and so on up to the whole picture.</p>
+  <p>So every aligned block of 2 × 2, 4 × 4, 8 × 8, … squares holds one unbroken stretch of digits, as on the Hilbert
+  curve. But this curve jumps: from the end of one block to the start of the next, sometimes right across the
+  picture, so squares side by side can be far apart in the number.</p>
+  <h2>This view</h2>`,
+  diagonals: squareIntro + `They go along the <strong>diagonals</strong> of the whole, endless quadrant, the way
+  Cantor listed the fractions: the first digit in the top-left corner, then the diagonal of 2 squares next to it,
+  read from bottom left to top right, then the diagonal of 3, and so on. The picture is only the corner of that
+  quadrant, so once the diagonals grow past its edge only part of each one shows, and the digits that fall outside
+  are skipped.</p>
+  <p>Squares side by side are a whole diagonal apart in the number: 2 places near the corner, and about 500 places
+  at the far edge of a 256 × 256 picture.</p>
+  <h2>This view</h2>`,
+};
+const curveLabels = { hilbert: "Hilbert curve", morton: "Z-order curve", diagonals: "Diagonals" };
+const curveView = (curve, number, name, text, order = 8, divSize = 4, showPath = false) => ({
   about: text,
-  intro: hilbertIntro,
-  label: `Hilbert curve: ${name}, first ${(4 ** order).toLocaleString()} digits`,
+  intro: curveIntros[curve],
+  label: `${curveLabels[curve]}: ${name}, ${curve === "diagonals" ? `${2 ** order} × ${2 ** order} corner` : `first ${(4 ** order).toLocaleString()} digits`}`,
   number,
-  hilbertOrder: order,
+  curve,
   showPath,
   columns: 2 ** order,
   rows: 2 ** order,
@@ -124,6 +145,9 @@ const hilbertView = (number, name, text, order = 8, divSize = 4, showPath = fals
   separateRows: true,
   repeats: [],
 });
+const hilbertView = (...args) => curveView("hilbert", ...args);
+const mortonView = (...args) => curveView("morton", ...args);
+const diagonalsView = (...args) => curveView("diagonals", ...args);
 
 const views = {
   // A 3x4 block (7068 / 1461 / 2311) appears twice. The copies are 5,430 digits apart.
@@ -388,6 +412,45 @@ const views = {
     copies of the same 198 digits. In rows of 198 every row is identical. On the curve each copy bends a different
     way, so the repeat turns into a fine, even texture.</p>
     <p>Neighbouring squares hold the same digit 10.09% of the time across and 10.01% down, against about 10% for random digits. So this count cannot see the repeat, although the eye can see a texture that π does not have.</p>`),
+  "morton-path": mortonView("pi", "the path itself, with π", `
+    <p>The first 256 digits of <strong>π</strong>, with the path drawn over them, starting from the 3 in the top-left
+    corner. Follow the line: each 2 × 2 block is read as a Z, each 4 × 4 block is four of those Zs read as a Z, and so
+    on, with a jump between blocks. The other Z-order views use the same path, with 65,536 digits.</p>`, 4, 32, true),
+  "morton-pi": mortonView("pi", "π", `<p>The first 65,536 digits of <strong>π</strong>. No shapes appear. Neighbouring squares hold the same digit 10.14% of the time across and 10.06% down, against about 10% for random digits.</p>`),
+  "morton-champernowne": mortonView("champernowne", "Champernowne", `
+    <p>The first 65,536 digits of <strong>Champernowne's constant</strong>, the counting numbers from 1 to about 15,300
+    written one after another. Each aligned block holds one stretch of the counting, so the picture is a patchwork of
+    blocks: the 16 blocks of 64 × 64 squares hold 4,096 digits each, and their average digit runs from 3.0 to 5.5,
+    darker where the numbers being written start with high digits.</p>
+    <p>Neighbouring squares hold the same digit 10.80% of the time across and 10.86% down, against about 10% for random digits.</p>`),
+  "morton-9801": mortonView("oneOver9801", "1/9801", `
+    <p>The first 65,536 digits of <strong>1/9801</strong>, whose digits come in pairs, 00 01 02 03 … 97 99, repeating
+    every 198 places. On the Z-order curve two squares one above the other are always an even number of places apart,
+    so each column of the picture holds only tens digits or only units digits, and the tens digits change slowly.</p>
+    <p>Squares one above the other hold the same digit 32.02% of the time, against 10.10% across and about 10% for random
+    digits: the Z-order curve shows a structure that the Hilbert curve hid.</p>`),
+  "diagonals-path": diagonalsView("pi", "the path itself, with π", `
+    <p>The 16 × 16 corner, with the digits of <strong>π</strong> and the path drawn over them: the 3 in the top-left
+    corner, then each diagonal from bottom left to top right. Where a diagonal runs off the picture, the line jumps to
+    the start of the next one. The corner uses 256 of the first 481 digits. The other diagonal views use the same
+    layout, 256 × 256.</p>`, 4, 32, true),
+  "diagonals-pi": diagonalsView("pi", "π", `<p>The 256 × 256 corner, holding 65,536 of the first 130,561 digits of <strong>π</strong>. No shapes appear. Neighbouring squares hold the same digit 10.14% of the time across and 10.00% down, against about 10% for random digits.</p>`),
+  "diagonals-champernowne": diagonalsView("champernowne", "Champernowne", `
+    <p>The 256 × 256 corner, holding 65,536 of the first 130,561 digits of <strong>Champernowne's constant</strong>, the
+    counting numbers written one after another. Each diagonal is one unbroken stretch of the number, a few dozen
+    counting numbers that all start with the same digits, so whole diagonals come out dark or pale, and the picture
+    is made of bands running from bottom left to top right. The pale bottom-right corner is the numbers from 10,000
+    on, whose average digit is 3.3.</p>
+    <p>Neighbouring squares hold the same digit 17.59% of the time across and 17.51% down, against about 10% for random
+    digits: the highest of any layout here.</p>`),
+  "diagonals-9801": diagonalsView("oneOver9801", "1/9801", `
+    <p>The 256 × 256 corner, holding 65,536 of the first 130,561 digits of <strong>1/9801</strong>, whose digits repeat
+    every 198 places. Squares side by side on diagonal number s are s + 2 places apart in the number, so on diagonal
+    196 they are exactly one repeat apart and always match, and near it they nearly match: those are the sweeping
+    bands, one around diagonal 196 and one around 394, with the texture between them changing as the repeat drifts
+    against the diagonals.</p>
+    <p>Over the whole picture neighbouring squares hold the same digit 9.76% of the time across and 9.78% down, against
+    about 10% for random digits: the count averages the bands away, but the eye does not.</p>`),
   // Pascal's triangle mod p (generated by pascalView below)
   "pascal-2": pascalView(2, 256, 4, `
     <p>Mod 2, each entry is 1 if the binomial coefficient is odd and 0 if it is even, so this is the pattern of
@@ -465,9 +528,9 @@ const aboutConclusion = `
 // rollover: whether green counting runs carry on from 9 to 0 and from 0 to 9 (89012), or stop there.
 const showView = (viewName, fold = "none", pairs = "same", rollover = false) => {
   // Size of each small div in pixels comes from the view
-  const { number, terms, columns, firstRow = 0, rows, divSize, repeats, about, intro, belowMenu = false, separateRows = false, frames = true, shadeScale = 9, hilbertOrder, showPath = false } = views[viewName];
-  // Each row is its own sequence (a different number, or a row of Pascal's triangle), or the digits follow the
-  // Hilbert curve instead of the rows, so folds and frames mean nothing
+  const { number, terms, columns, firstRow = 0, rows, divSize, repeats, about, intro, belowMenu = false, separateRows = false, frames = true, shadeScale = 9, curve: curveName, showPath = false } = views[viewName];
+  // Each row is its own sequence (a different number, or a row of Pascal's triangle), or the digits follow a
+  // curve instead of the rows, so folds and frames mean nothing
   if (separateRows) fold = "none";
   const pairsText = pairs === "both" ? aboutPairs.same + aboutPairs.complement : aboutPairs[pairs];
   setAboutText((intro ?? aboutIntro(rollover)) + about + (fold === "none" ? "" : aboutFolds[fold] + pairsText + aboutFoldMeaning) +
@@ -476,10 +539,12 @@ const showView = (viewName, fold = "none", pairs = "same", rollover = false) => 
   // One digit per square, so the mosaic is always exactly full.
   // Digits before firstRow are computed (positions count from the start) but not drawn.
   const firstDigit = firstRow * columns;
-  const digitCount = (firstRow + rows) * columns;
+  // How far along the curve each square is (null for rows). The diagonals skip the digits outside the square, so
+  // the last place used is past rows x columns.
+  const curve = curveName === "diagonals" ? diagonalIndexes(columns, 2) : curveName ? curveIndexes[curveName](Math.log2(columns), 2) : null;
+  const digitCount = curve ? curve.reduce((a, b) => Math.max(a, b), 0) + 1 : (firstRow + rows) * columns;
 
   const computed = computeDigits[number](digitCount, terms); // terms: only for the Leibniz views
-  const curve = hilbertOrder ? hilbertIndexes(hilbertOrder, 2) : null; // how far along the curve each square is
   const digits = curve ? Array.from(curve, (place) => computed[place]).join("") : computed;
 
   // A run of digits as frames, split where the run wraps onto the next row
@@ -618,13 +683,14 @@ const showView = (viewName, fold = "none", pairs = "same", rollover = false) => 
       }
     
       /* To here */
-      // The path over the squares, in the order the digits are read
+      // The path over the squares, in the order the digits are read (places outside the square, for the
+      // diagonals, leave holes that filter drops, so the line jumps straight to the next square)
       if (showPath) {
         const points = [];
         curve.forEach((place, cell) => { points[place] = `${(cell % columns + 0.5) * divSize},${(Math.floor(cell / columns) + 0.5) * divSize}`; });
         container.style.position = "relative";
         container.insertAdjacentHTML("beforeend", `<svg width="${columns * divSize}" height="${rows * divSize}" style="position: absolute; left: 0; top: 0; pointer-events: none">
-          <polyline points="${points.join(" ")}" fill="none" stroke="darkorange" stroke-width="2"/></svg>`);
+          <polyline points="${points.filter(Boolean).join(" ")}" fill="none" stroke="darkorange" stroke-width="2"/></svg>`);
       }
       document.getElementById("piContainer")?.remove(); // clear the previous view
       document.body.appendChild(container);

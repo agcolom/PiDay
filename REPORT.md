@@ -106,6 +106,18 @@ Change the width and different digits line up, so different shapes appear.
   one before: one shows 256 digits of π with the path drawn over them, and the others show the first 65,536 digits of
   π, √2, e, φ, Champernowne's constant and 1/9801, with folds and frames switched off. The 3D cube has the same
   layout under its Layout menu, for sides 8, 16, 32 and 64.
+- Four **Z-order curve** views (the Morton curve: each aligned 2 × 2, 4 × 4, … block is one stretch of digits, read
+  as a Z, with jumps between blocks) and four **diagonals** views (the square is the corner of the whole quadrant,
+  filled along its diagonals as Cantor listed the fractions, so a 256 × 256 square uses 65,536 of the first 130,561
+  digits) show the path with 256 digits of π, then π, Champernowne's constant and 1/9801. In Z-order 1/9801 shows
+  vertical stripes: its digits come in pairs (00 01 02 …), and squares one above the other are always an even number
+  of places apart, so 32.0% of them hold the same digit (10% across). On the diagonals Champernowne's constant comes
+  out in bands, each diagonal one stretch of counting numbers with the same leading digits (17.6% of neighbours hold
+  the same digit), and 1/9801 shows bands around diagonals 196 and 394, where squares side by side are one repeat
+  (198 places) apart. The 3D cube has both layouts: Z-order for the power-of-2 sides and diagonal layers (slanted
+  layers x + y + z = s of the whole octant, so a 60 × 60 × 60 cube uses 216,000 of the first 939,930 digits) for
+  every side. The index functions (`mortonIndexes`, `diagonalIndexes` in `digits.js`) match independent Python
+  constructions cell for cell, and the rates are from `analysis/scripts/normality/site_layouts.py`.
 - A **Liouville's constant** view shows its first 5,160 digits, 120 to a row, with frames switched off
   (almost every row would be one gold run of 0s); the number is also in the 3D cube and the sphere
   (section 9.14).

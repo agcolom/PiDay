@@ -5,8 +5,10 @@
 // layer floor(i / side^2). So a step along a row, down a column or back a layer is a fixed jump in
 // decimal places (1, side and side^2), and a straight line is a set of evenly spaced decimal places.
 
-// With the Layout menu on "Hilbert curve", digit i goes to the i-th cell of the Hilbert curve instead (hilbertIndexes in
-// digits.js), so the side must be a power of 2.
+// With the Layout menu on "Hilbert curve" or "Z-order curve", digit i goes to the i-th cell of that curve instead
+// (hilbertIndexes and mortonIndexes in digits.js), so the side must be a power of 2. With "Diagonal layers" the cells
+// are filled by slanted layers x + y + z = s of the whole unbounded octant (diagonalIndexes), so the cube, which is the
+// corner of that octant, skips the digits that fall outside it.
 
 // Not numbers: Pascal's pyramid mod p fills the cube by position instead (see pascalPyramid below), with a side
 // that is a power of p so the whole pattern fits
@@ -59,8 +61,10 @@ const numberDescriptions = {
   polygon6291456: "<strong>the area of a regular 6,291,456-sided polygon</strong> inside a circle of radius 1: 3.1415926535892…, irrational, sharing 12 decimals with π",
 };
 const sides = [10, 15, 20, 30, 40, 50, 60];
-const hilbertSides = [8, 16, 32, 64];
-const layoutOptions = { rows: "Row by row", hilbert: "Hilbert curve" };
+const powerOfTwoSides = [8, 16, 32, 64]; // the Hilbert and Z-order curves need a power of 2
+// The diagonal layers need digits well past side^3 (939,930 at side 60; pi takes about a second), with any side
+const layoutOptions = { rows: "Row by row", hilbert: "Hilbert curve", morton: "Z-order curve", diagonals: "Diagonal layers" };
+const sidesFor = (layout) => (layout === "hilbert" || layout === "morton" ? powerOfTwoSides : sides);
 const closestOf = (list, n) => list.reduce((best, item) => (Math.abs(item - n) < Math.abs(best - n) ? item : best));
 const lineOptions = { 0: "Off", 4: "4 or more in a line", 5: "5 or more in a line", 6: "6 or more in a line" };
 // Gold lines: the same digit all along. Green lines: digits counting up or down by one (e.g. 3 4 5 6 7).
@@ -142,9 +146,9 @@ const controls = {
 };
 for (const [name, label] of Object.entries(numberNames)) controls.number.add(new Option(label, name));
 for (const [layout, label] of Object.entries(layoutOptions)) controls.layout.add(new Option(label, layout));
-for (const side of [...sides, ...hilbertSides]) controls.side.add(new Option(`${side} × ${side} × ${side} (${(side ** 3).toLocaleString()} digits)`, side));
+for (const side of [...sides, ...powerOfTwoSides]) controls.side.add(new Option(`${side} × ${side} × ${side} (${(side ** 3).toLocaleString()} digits)`, side));
 // Pascal's pyramid sides, only shown (greyed out) while a pyramid is chosen
-for (const { side } of Object.values(pyramids).filter(({ side }) => !hilbertSides.includes(side))) {
+for (const { side } of Object.values(pyramids).filter(({ side }) => !powerOfTwoSides.includes(side))) {
   const option = new Option(`${side} × ${side} × ${side}`, side);
   option.hidden = true;
   controls.side.add(option);
@@ -163,7 +167,7 @@ const readSettings = () => {
   const pick = (key, valid) => (saved.has(key) && valid(saved.get(key)) ? saved.get(key) : String(defaults[key]));
   return {
     number: pick("number", (value) => value in numberNames),
-    side: Number(pick("side", (value) => [...sides, ...hilbertSides].includes(Number(value)))),
+    side: Number(pick("side", (value) => [...sides, ...powerOfTwoSides].includes(Number(value)))),
     start: Number(pick("start", (value) => /^\d+$/.test(value) && Number(value) <= 500000)),
     from: Number(pick("from", (value) => /^[0-9]$/.test(value))),
     to: Number(pick("to", (value) => /^[0-9]$/.test(value))),
@@ -211,8 +215,8 @@ const pascalPyramid = (p, side) => {
 let cube = null; // { side, start, cells, lines, visible, shadeScale, pyramid, curve }
 const build = () => {
   const settings = readSettings();
-  // Each layout has its own sides (the Hilbert curve needs a power of 2)
-  const allowedSides = settings.layout === "hilbert" ? hilbertSides : sides;
+  // Each layout has its own sides
+  const allowedSides = sidesFor(settings.layout);
   if (!allowedSides.includes(settings.side)) settings.side = closestOf(allowedSides, settings.side);
   for (const option of controls.side.options) option.hidden = option.disabled = !allowedSides.includes(Number(option.value));
   controls.layout.value = settings.layout;
@@ -245,10 +249,13 @@ const build = () => {
   const rollover = settings.rollover === "on";
   const count = side ** 3;
   let cells;
-  const curve = settings.layout === "hilbert" ? hilbertIndexes(Math.log2(side), 3) : null; // how far along the curve each cell is
+  // How far along the curve, or the list of diagonal layers, each cell is
+  const { layout } = settings;
+  const curve = layout === "rows" ? null : layout === "diagonals" ? diagonalIndexes(side, 3) : curveIndexes[layout](Math.log2(side), 3);
+  const needed = curve ? curve.reduce((a, b) => Math.max(a, b), 0) + 1 : count; // digits used (past count for diagonals)
   if (pyramid) cells = pascalPyramid(pyramid.p, side);
   else {
-    const digits = digitsFor(number, start + count);
+    const digits = digitsFor(number, start + needed);
     cells = new Int8Array(count);
     for (let i = 0; i < count; i++) cells[i] = digits.charCodeAt(start + (curve ? curve[i] : i)) - 48;
   }
@@ -276,12 +283,13 @@ const build = () => {
   ];
   const range = pyramid
     ? `${side} × ${side} × ${side} · showing ${visible.length.toLocaleString()} of ${count.toLocaleString()} values`
+    : needed > count ? `${count.toLocaleString()} of the decimal places ${start.toLocaleString()} to ${(start + needed - 1).toLocaleString()}`
     : `decimal places ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()}`;
   const capped = every > 1 ? ` · drawing 1 in every ${every}` : "";
   document.getElementById("cubeSummary").textContent = parts.length
     ? `${parts.join(" · ")} of ${minLength} or more${capped} · ${range}` : range.charAt(0).toUpperCase() + range.slice(1);
   if (pyramid) setAboutText(aboutPyramid(pyramid, settings, visible.length));
-  else setAboutText(aboutCube(settings, sameCount, countingCount, drawDigitChart(cells), every));
+  else setAboutText(aboutCube(settings, sameCount, countingCount, drawDigitChart(cells), every, needed));
   needsDrawing = true;
 };
 window.addEventListener("hashchange", build);
@@ -312,8 +320,26 @@ const aboutPyramid = ({ p, side }, { from, to }, shownCount) => `
   ${aboutLinks}`;
 
 // The About panel's text for the current settings
-const aboutCube = ({ number, side, start, from, to, lines: minLength, kind, rollover, layout }, sameCount, countingCount, digitTally, every) => {
+const aboutCube = ({ number, side, start, from, to, lines: minLength, kind, rollover, layout }, sameCount, countingCount, digitTally, every, needed) => {
   const count = side ** 3;
+  const layoutText = {
+    rows: ": left to right along a row, rows from top to bottom, then layer after layer from front to back",
+    hilbert: `, along the <strong>Hilbert curve</strong>: one winding path that visits every position exactly once and always
+      steps to a position right next to the last one. So digits close together in the number stay close together in the
+      cube, and each eighth of the cube, each eighth of an eighth and so on holds one unbroken stretch of digits`,
+    morton: `, along the <strong>Z-order curve</strong> (the Morton curve): the 8 positions of each 2 × 2 × 2 block are
+      filled in a fixed order, then the 8 blocks of each 4 × 4 × 4 block in the same order, and so on. So each eighth of
+      the cube, each eighth of an eighth and so on holds one unbroken stretch of digits, as on the Hilbert curve, but the
+      path jumps from block to block, so dots side by side can be far apart in the number`,
+    diagonals: `, in <strong>slanted layers</strong>: first the corner dot, then the 3 dots next to it, then the 6 after
+      those, and so on, each layer holding the positions whose three coordinates add up to the same number, read
+      front to back and, within a slice, bottom left to top right. The layers belong to the whole, endless octant,
+      and the cube is only its corner, so the digits that fall outside the cube are skipped. Dots side by side are a
+      whole layer apart in the number`,
+  }[layout];
+  const rangeText = needed > count
+    ? `taken from decimal places ${start.toLocaleString()} to ${(start + needed - 1).toLocaleString()} (the rest fall outside the cube)`
+    : `from decimal place ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()}`;
   const shown = from === 0 && to === 9 ? "every digit"
     : from === to ? `only the ${from}s`
     : to === from + 1 ? `only the ${from}s and ${to}s`
@@ -333,11 +359,7 @@ const aboutCube = ({ number, side, start, from, to, lines: minLength, kind, roll
     : (kind !== "counting" ? sameText : "") + (kind !== "same" ? countingText : "") + cappedText;
   return `
     <h2>What you're looking at</h2>
-    <p>The digits of a number stacked into a cube, like threading a long string of beads into a box${layout === "hilbert"
-      ? `, along the <strong>Hilbert curve</strong>: one winding path that visits every position exactly once and always
-        steps to a position right next to the last one. So digits close together in the number stay close together in the
-        cube, and each eighth of the cube, each eighth of an eighth and so on holds one unbroken stretch of digits`
-      : ": left to right along a row, rows from top to bottom, then layer after layer from front to back"}. Each dot is one
+    <p>The digits of a number stacked into a cube, like threading a long string of beads into a box${layoutText}. Each dot is one
     digit, darker for bigger digits (9 is full purple, 0 the lightest). Use "Show digits" to pick which
     digits appear, for example 3 to 3 for only the 3s.</p>
     <p><strong>Gold lines</strong> join dots that have the same digit and sit in a straight line: along a row,
@@ -346,8 +368,7 @@ const aboutCube = ({ number, side, start, from, to, lines: minLength, kind, roll
     "Counting" menu chooses whether counting stops at 9 and 0, or rolls over (8 9 0 1).</p>
     <p>Drag to turn the cube, scroll to zoom, and hover over a dot to see its decimal place and digit.</p>
     <h2>This cube</h2>
-    <p>${count.toLocaleString()} digits of ${numberDescriptions[number]}, from decimal place
-    ${start.toLocaleString()} to ${(start + count - 1).toLocaleString()}, arranged ${side} × ${side} × ${side}.
+    <p>${count.toLocaleString()} digits of ${numberDescriptions[number]}, ${rangeText}, arranged ${side} × ${side} × ${side}.
     To keep it see-through, it shows ${shown}, plus every dot on a line.</p>
     ${linesText}
     <h2>Does every digit appear equally often?</h2>

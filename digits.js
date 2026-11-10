@@ -192,6 +192,48 @@ const hilbertIndexes = (order, dimensions) => {
   return indexes;
 };
 
+// The Z-order (Morton) curve: a cell's place along the curve interleaves the binary digits of its coordinates
+// (first coordinate's bit, last coordinate's bit, next pair of bits, ...). So consecutive places go left to
+// right first, every aligned square or cube of side 2^k is one unbroken stretch of digits, and the curve jumps
+// between them. Same inputs and output as hilbertIndexes.
+const mortonIndexes = (order, dimensions) => {
+  const side = 2 ** order;
+  const indexes = new Int32Array(side ** dimensions);
+  const X = new Array(dimensions);
+  for (let cell = 0; cell < indexes.length; cell++) {
+    for (let a = dimensions - 1, rest = cell; a >= 0; a--, rest = Math.floor(rest / side)) X[a] = rest % side;
+    let index = 0;
+    for (let bit = order - 1; bit >= 0; bit--) for (let i = 0; i < dimensions; i++) index = index * 2 + ((X[i] >> bit) & 1);
+    indexes[cell] = index;
+  }
+  return indexes;
+};
+
+// Diagonals: the cells of the whole (unbounded) quadrant or octant listed by the sum of their coordinates, the
+// way Cantor listed the fractions. In 2D each diagonal runs from bottom left to top right; in 3D each slanted
+// layer x + y + z = s is read layer by layer from front to back (z), and within a layer from bottom left to top
+// right. The square or cube shown is only the corner of that quadrant, so the places along the list skip the
+// cells outside it; this returns, for each cell, its place in the list, and the biggest place is well past
+// side^dimensions. Cells count row by row with x fastest, as elsewhere.
+const diagonalIndexes = (side, dimensions) => {
+  const indexes = new Int32Array(side ** dimensions);
+  for (let cell = 0; cell < indexes.length; cell++) {
+    const x = cell % side, y = Math.floor(cell / side) % side, z = Math.floor(cell / side ** 2);
+    if (dimensions === 2) {
+      const s = x + y; // the diagonal, which holds s + 1 cells, after s(s+1)/2 earlier ones
+      indexes[cell] = (s * (s + 1)) / 2 + x;
+    } else {
+      const s = x + y + z; // the slanted layer: (s+1)(s+2)/2 cells, after (s)(s+1)(s+2)/6 earlier ones
+      // Within it, the z = k slice has s - k + 1 cells, and the slices before it hold k(s+1) - k(k-1)/2
+      indexes[cell] = (s * (s + 1) * (s + 2)) / 6 + z * (s + 1) - (z * (z - 1)) / 2 + x;
+    }
+  }
+  return indexes;
+};
+
+// Each layout's function, by the name used in the mosaic's views and the cube's Layout menu
+const curveIndexes = { hilbert: hilbertIndexes, morton: mortonIndexes };
+
 const computeDigits = {
   pi: computePiDigits,
   sqrt2: computeSqrt2Digits,
